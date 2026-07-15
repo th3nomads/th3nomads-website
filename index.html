@@ -110,7 +110,84 @@
         <label>Name<input name="name" required placeholder="Your name"></label>
         <label>Phone<input name="phone" type="tel" placeholder="(555) 555-5555"></label>
         <label>Email<input name="email" type="email" required placeholder="you@example.com"></label>
-        <div class="form-row"><label>Event type<select name="event"><option>Wedding / Nikkah</option><option>Engagement / Couple</option><option>Maternity / Family</option><option>Graduation / Portrait</option><option>Other</option></select></label><label>Event date<input name="date" type="date"></label></div>
+       <div class="form-row">
+    <label>
+        Event Type
+        <select name="event" required>
+            <option value="">Select Event Type</option>
+            <option>Wedding</option>
+            <option>Nikkah</option>
+            <option>Wedding Reception</option>
+            <option>Engagement</option>
+            <option>Maternity</option>
+            <option>Graduation</option>
+            <option>Portrait Session</option>
+            <option>Family Session</option>
+            <option>Other</option>
+        </select>
+    </label>
+
+    <label>
+        Event Date
+        <input name="date" type="date" required>
+    </label>
+</div>
+
+<div class="form-row">
+    <label>
+        Hours of Coverage Needed
+        <select name="hours" required>
+            <option value="">Select Coverage</option>
+            <option>1 Hour</option>
+            <option>2 Hours</option>
+            <option>3 Hours</option>
+            <option>4 Hours</option>
+            <option>5 Hours</option>
+            <option>6 Hours</option>
+            <option>7 Hours</option>
+            <option>8 Hours</option>
+            <option>Full Day (8+ Hours)</option>
+            <option>Not Sure Yet</option>
+        </select>
+    </label>
+
+    <label>
+        Estimated Guest Count
+        <input
+            type="number"
+            name="guests"
+            placeholder="e.g. 150">
+    </label>
+</div>
+        <div class="form-row">
+    <label>
+        Estimated Budget
+        <select name="budget">
+            <option value="">Select Budget</option>
+            <option>Under $500</option>
+            <option>$500 - $1,000</option>
+            <option>$1,000 - $2,000</option>
+            <option>$2,000+</option>
+            <option>Let's Discuss</option>
+        </select>
+    </label>
+<label class="checkbox">
+    <input type="checkbox" required>
+    I understand my booking is not confirmed until the contract is signed and the deposit is received.
+</label>
+    <label>
+        How did you hear about us?
+        <select name="referral">
+            <option>Instagram</option>
+            <option>Google Search</option>
+            <option>Facebook</option>
+            <option>TikTok</option>
+            <option>Friend / Family</option>
+            <option>Previous Client</option>
+            <option>Other</option>
+        </select>
+    </label>
+</div>
         <label>Location<input name="location" placeholder="City or venue"></label>
         <label>Tell us about your plans<textarea name="message" rows="5" placeholder="What are you celebrating?"></textarea></label>
         <button class="button gold" type="submit">Send inquiry</button><p class="form-note" id="formNote">We'll respond within 24 hours to confirm availability.</p>
