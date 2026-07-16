@@ -24,10 +24,11 @@
     object-fit:contain;
     object-position:center;
 
-    border:10px  border-radius:18px;
+    border:10px  solid #0b0b0b;border-radius:18px;
 
-    overflow:hidden;solid #0b0b0b;
+    solid #0b0b0b;
     background:#0b0b0b;
+  overflow:hidden;
 }
 
 .about-small img{
