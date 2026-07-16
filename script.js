@@ -126,7 +126,69 @@ document.addEventListener('DOMContentLoaded', () => {
       frame = requestAnimationFrame(updateCounter);
     }, { passive: true });
   }
+//video highlight section
+  const videoCarousel = document.querySelector('#videoCarousel');
+const videoPrev = document.querySelector('#videoPrev');
+const videoNext = document.querySelector('#videoNext');
+const currentVideo = document.querySelector('#currentVideo');
+const totalVideos = document.querySelector('#totalVideos');
 
+if (videoCarousel) {
+  const videoCards = [...videoCarousel.querySelectorAll('.video-card')];
+
+  totalVideos.textContent =
+    String(videoCards.length).padStart(2, '0');
+
+  const getVideoStep = () => {
+    const firstCard = videoCards[0];
+
+    if (!firstCard) return 720;
+
+    const styles = getComputedStyle(videoCarousel);
+    const gap = parseFloat(styles.gap) || 20;
+
+    return firstCard.getBoundingClientRect().width + gap;
+  };
+
+  const updateVideoCounter = () => {
+    if (!videoCards.length) return;
+
+    const index = Math.min(
+      Math.max(
+        Math.round(videoCarousel.scrollLeft / getVideoStep()),
+        0
+      ),
+      videoCards.length - 1
+    );
+
+    currentVideo.textContent =
+      String(index + 1).padStart(2, '0');
+  };
+
+  videoPrev?.addEventListener('click', () => {
+    videoCarousel.scrollBy({
+      left: -getVideoStep(),
+      behavior: 'smooth'
+    });
+  });
+
+  videoNext?.addEventListener('click', () => {
+    videoCarousel.scrollBy({
+      left: getVideoStep(),
+      behavior: 'smooth'
+    });
+  });
+
+  videoCarousel.addEventListener(
+    'scroll',
+    updateVideoCounter,
+    { passive: true }
+  );
+
+  window.addEventListener('resize', updateVideoCounter);
+
+  updateVideoCounter();
+}
   window.addEventListener('resize', updateCounter);
   const active = filters.find(button => button.classList.contains('active')) || filters[0];
   if (active) applyFilter(active.dataset.filter || 'all');
