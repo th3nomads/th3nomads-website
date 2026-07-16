@@ -17,6 +17,7 @@
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu"><span></span><span></span></button>
     <nav class="nav-links" id="primaryNav" aria-label="Primary navigation">
       <a href="#portfolio">Portfolio</a>
+      <a href="#videos">Videos</a>
       <a href="#services">Services</a>
       <a href="#about">About</a>
       <a href="#client-galleries">Client Galleries</a>
@@ -186,7 +187,96 @@
     </figure>
       </div>
     </section>
+<section class="video-showcase section dark-section" id="videos">
+  <div class="section-heading reveal">
+    <div>
+      <p class="eyebrow">Video highlights</p>
+      <h2>Stories in<br><em>motion.</em></h2>
+    </div>
 
+    <p>
+      Wedding films, behind-the-scenes moments, and social-ready content
+      created by TH3NOMADS.
+    </p>
+  </div>
+
+  <div class="video-carousel-controls">
+    <button
+      type="button"
+      id="videoPrev"
+      aria-label="Previous video">
+      ‹
+    </button>
+
+    <div class="video-counter">
+      <span id="currentVideo">01</span>
+      <span>/</span>
+      <span id="totalVideos">03</span>
+    </div>
+
+    <button
+      type="button"
+      id="videoNext"
+      aria-label="Next video">
+      ›
+    </button>
+  </div>
+
+  <div class="video-carousel" id="videoCarousel">
+
+    <article class="video-card">
+      <video
+        controls
+        preload="metadata"
+        poster="assets/images/wedding-07.jpg">
+        <source
+          src="assets/videos/wedding-highlight-01.mp4"
+          type="video/mp4">
+        Your browser does not support video playback.
+      </video>
+
+      <div class="video-card-copy">
+        <p>Wedding Film</p>
+        <h3>Wedding Highlight</h3>
+      </div>
+    </article>
+
+    <article class="video-card">
+      <video
+        controls
+        preload="metadata"
+        poster="assets/images/engagement-03.jpg">
+        <source
+          src="assets/videos/content-highlight-01.mp4"
+          type="video/mp4">
+        Your browser does not support video playback.
+      </video>
+
+      <div class="video-card-copy">
+        <p>Content Creation</p>
+        <h3>Behind the Scenes</h3>
+      </div>
+    </article>
+
+    <article class="video-card">
+      <video
+        controls
+        preload="metadata"
+        poster="assets/images/maternity-14.jpg">
+        <source
+          src="assets/videos/maternity-highlight-01.mp4"
+          type="video/mp4">
+        Your browser does not support video playback.
+      </video>
+
+      <div class="video-card-copy">
+        <p>Portrait Film</p>
+        <h3>Maternity Story</h3>
+      </div>
+    </article>
+
+  </div>
+</section>
     <section class="creative-strip" aria-label="Creative services summary">
       <article><span>01</span><h3>Photography</h3><p>Timeless, emotion-led imagery.</p></article>
       <article><span>02</span><h3>Videography</h3><p>Cinematic films that bring the day back to life.</p></article>
