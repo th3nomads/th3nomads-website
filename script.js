@@ -14,8 +14,72 @@ nav.querySelectorAll('a').forEach(link => {
   });
 });
 const observer=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.12}); 
-document.querySelectorAll('.reveal').forEach(el=>observer.observe(el)); const filters=document.querySelectorAll('.filters button'),cards=[...document.querySelectorAll('.gallery-card')]; 
-filters.forEach(btn=>btn.addEventListener('click',()=>{filters.forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;cards.forEach(c=>c.classList.toggle('hidden',f!=='all'&&c.dataset.category!==f));})); 
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el)); const filters = document.querySelectorAll('.filters button');
+const cards = [...document.querySelectorAll('.gallery-card')];
+
+const portfolioGallery = document.querySelector('#portfolioGallery');
+const carouselControls = document.querySelector('#carouselControls');
+const carouselPrev = document.querySelector('#carouselPrev');
+const carouselNext = document.querySelector('#carouselNext');
+
+filters.forEach(button => {
+  button.addEventListener('click', () => {
+    filters.forEach(filterButton => {
+      filterButton.classList.remove('active');
+    });
+
+    button.classList.add('active');
+
+    const selectedFilter = button.dataset.filter;
+    const showingAll = selectedFilter === 'all';
+
+    cards.forEach(card => {
+      const shouldHide =
+        !showingAll &&
+        card.dataset.category !== selectedFilter;
+
+      card.classList.toggle('hidden', shouldHide);
+    });
+
+    portfolioGallery.classList.toggle(
+      'all-carousel',
+      showingAll
+    );
+
+    carouselControls.hidden = !showingAll;
+
+    if (showingAll) {
+      portfolioGallery.scrollTo({
+        left: 0,
+        behavior: 'smooth'
+      });
+    }
+  });
+});
+
+carouselPrev.addEventListener('click', () => {
+  const firstCard = portfolioGallery.querySelector('.gallery-card');
+  const scrollAmount = firstCard
+    ? firstCard.getBoundingClientRect().width + 18
+    : 350;
+
+  portfolioGallery.scrollBy({
+    left: -scrollAmount,
+    behavior: 'smooth'
+  });
+});
+
+carouselNext.addEventListener('click', () => {
+  const firstCard = portfolioGallery.querySelector('.gallery-card');
+  const scrollAmount = firstCard
+    ? firstCard.getBoundingClientRect().width + 18
+    : 350;
+
+  portfolioGallery.scrollBy({
+    left: scrollAmount,
+    behavior: 'smooth'
+  });
+});
 const lightbox=document.querySelector('.lightbox'),lightImg=lightbox.querySelector('img');let activeIndex=0; function visibleCards(){return cards.filter(c=>!c.classList.contains('hidden'))} function showAt(i){const list=visibleCards();activeIndex=(i+list.length)%list.length;lightImg.src=list[activeIndex].querySelector('img').src;lightImg.alt=list[activeIndex].querySelector('img').alt} cards.forEach(c=>c.addEventListener('click',()=>{activeIndex=visibleCards().indexOf(c);showAt(activeIndex);lightbox.showModal()})); 
 lightbox.querySelector('.lightbox-close').onclick=()=>lightbox.close();lightbox.querySelector('.lightbox-prev').onclick=()=>showAt(activeIndex-1);lightbox.querySelector('.lightbox-next').onclick=()=>showAt(activeIndex+1);lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.close()});
 document.addEventListener('keydown',e=>{if(!lightbox.open)return;if(e.key==='ArrowLeft')showAt(activeIndex-1);if(e.key==='ArrowRight')showAt(activeIndex+1)}); 
