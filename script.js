@@ -18,6 +18,8 @@ document.querySelectorAll('.reveal').forEach(el=>observer.observe(el)); const fi
 const cards = [...document.querySelectorAll('.gallery-card')];
 
 const portfolioGallery = document.querySelector('#portfolioGallery');
+const currentSlide = document.querySelector('#currentSlide');
+const totalSlides = document.querySelector('#totalSlides');
 const carouselControls = document.querySelector('#carouselControls');
 const carouselPrev = document.querySelector('#carouselPrev');
 const carouselNext = document.querySelector('#carouselNext');
