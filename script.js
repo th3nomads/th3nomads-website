@@ -29,6 +29,30 @@ filters.forEach(button => {
     filters.forEach(filterButton => {
       filterButton.classList.remove('active');
     });
+    function updateCarouselCounter(){
+
+    const visibleCards =
+        [...gallery.querySelectorAll('.gallery-card:not(.hidden)')];
+
+    totalSlides.textContent =
+        String(visibleCards.length).padStart(2,'0');
+
+    if(visibleCards.length===0)return;
+
+    const scroll = gallery.scrollLeft;
+
+    const width =
+        visibleCards[0].offsetWidth + 18;
+
+    const current =
+        Math.round(scroll/width)+1;
+
+    currentSlide.textContent =
+        String(
+            Math.min(current,visibleCards.length)
+        ).padStart(2,'0');
+
+}
 
     button.classList.add('active');
 
@@ -46,6 +70,9 @@ filters.forEach(button => {
     portfolioGallery.classList.toggle(
       'all-carousel',
       showingAll
+      if (isAll) {
+    updateCarouselCounter();
+}
     );
 
     carouselControls.hidden = !showingAll;
@@ -81,6 +108,11 @@ carouselNext.addEventListener('click', () => {
     left: scrollAmount,
     behavior: 'smooth'
   });
+  gallery.addEventListener('scroll', updateCarouselCounter);
+
+window.addEventListener('resize', updateCarouselCounter);
+
+updateCarouselCounter();
 });
 const lightbox=document.querySelector('.lightbox'),lightImg=lightbox.querySelector('img');let activeIndex=0; function visibleCards(){return cards.filter(c=>!c.classList.contains('hidden'))} function showAt(i){const list=visibleCards();activeIndex=(i+list.length)%list.length;lightImg.src=list[activeIndex].querySelector('img').src;lightImg.alt=list[activeIndex].querySelector('img').alt} cards.forEach(c=>c.addEventListener('click',()=>{activeIndex=visibleCards().indexOf(c);showAt(activeIndex);lightbox.showModal()})); 
 lightbox.querySelector('.lightbox-close').onclick=()=>lightbox.close();lightbox.querySelector('.lightbox-prev').onclick=()=>showAt(activeIndex-1);lightbox.querySelector('.lightbox-next').onclick=()=>showAt(activeIndex+1);lightbox.addEventListener('click',e=>{if(e.target===lightbox)lightbox.close()});
