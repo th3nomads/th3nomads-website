@@ -67,13 +67,11 @@ filters.forEach(button => {
       card.classList.toggle('hidden', shouldHide);
     });
 
-    portfolioGallery.classList.toggle(
-      'all-carousel',
-      showingAll
-      if (isAll) {
+   portfolioGallery.classList.toggle('all-carousel', showingAll);
+
+if (showingAll) {
     updateCarouselCounter();
 }
-    );
 
     carouselControls.hidden = !showingAll;
 
