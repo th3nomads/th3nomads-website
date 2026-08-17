@@ -1,14 +1,19 @@
 window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.workers.dev";
 
-// Require a fresh password each time a private gallery page is opened.
-// Favorites remain in localStorage, but authentication tokens are never reused
-// after leaving or refreshing the gallery page.
-for (let i = sessionStorage.length - 1; i >= 0; i--) {
-  const key = sessionStorage.key(i);
-  if (key && key.startsWith('th3nomads-session-')) sessionStorage.removeItem(key);
-}
-
 (() => {
+  // Private galleries must require the password on every visit/refresh.
+  // Clear old session tokens and prevent the gallery page's legacy auto-login
+  // code from reading a stored token.
+  Object.keys(sessionStorage).forEach(key => {
+    if (key.startsWith('th3nomads-session-')) sessionStorage.removeItem(key);
+  });
+
+  const nativeSessionGetItem = sessionStorage.getItem.bind(sessionStorage);
+  sessionStorage.getItem = key => {
+    if (String(key).startsWith('th3nomads-session-')) return null;
+    return nativeSessionGetItem(key);
+  };
+
   function ensureDownloadAllButton() {
     const actions = document.querySelector('.top-actions');
     if (!actions) return null;
