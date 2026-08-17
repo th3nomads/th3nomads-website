@@ -3,25 +3,66 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0b0b">
   <title>A New Chapter | TH3NOMADS Client Gallery</title>
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#0b0b0b;color:#fff;font-family:Arial,Helvetica,sans-serif}a{color:#c9a85d;text-decoration:none}header{padding:65px 22px 40px;text-align:center}header img{width:125px;height:90px;object-fit:contain;margin:auto}h1{font:400 clamp(2.8rem,7vw,6rem)/1 Georgia,serif;margin:22px 0 10px}header p{color:#999;line-height:1.7}.gallery{columns:3 300px;column-gap:14px;padding:0 14px 70px}.gallery img{width:100%;height:auto;margin:0 0 14px;break-inside:avoid;cursor:zoom-in}footer{padding:35px 20px;border-top:1px solid #222;color:#777;text-align:center;font-size:.75rem}@media(max-width:600px){.gallery{columns:1}}
+    :root{--ink:#0b0b0b;--paper:#f3efe8;--gold:#c9a85d;--muted:#8c867d;--line:rgba(255,255,255,.13)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--ink);color:#fff;font-family:Arial,Helvetica,sans-serif}button,a{font:inherit}a{color:inherit;text-decoration:none}img{display:block;max-width:100%}
+    .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;padding:12px 4vw;background:rgba(11,11,11,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+    .brand{display:flex;align-items:center;gap:12px}.brand img{width:86px;height:58px;object-fit:contain}.brand span{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:#aaa}
+    .top-actions{display:flex;gap:8px;align-items:center}.btn{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;padding:11px 14px;cursor:pointer;text-transform:uppercase;letter-spacing:.12em;font-size:.62rem}.btn:hover{border-color:var(--gold);color:var(--gold)}.btn.gold{background:var(--gold);border-color:var(--gold);color:#111}
+    header{padding:72px 7vw 42px;text-align:center;max-width:1100px;margin:auto}.eyebrow{text-transform:uppercase;letter-spacing:.22em;font-size:.66rem;color:var(--gold);margin:0 0 18px}h1{font:400 clamp(3.5rem,8vw,7rem)/.95 Georgia,'Times New Roman',serif;letter-spacing:-.045em;margin:0 0 18px}header p{color:#aaa;line-height:1.7;margin:0}.meta{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:18px;color:#777;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:0 4vw 22px;max-width:1600px;margin:auto}.toolbar p{margin:0;color:#888;font-size:.76rem}.toolbar strong{color:var(--gold)}
+    .gallery{columns:3 320px;column-gap:14px;padding:0 14px 80px;max-width:1700px;margin:auto}.card{position:relative;margin:0 0 14px;break-inside:avoid;overflow:hidden;border-radius:12px;background:#151515}.card img{width:100%;height:auto;transition:.45s}.card:hover img{transform:scale(1.018);opacity:.9}.card-overlay{position:absolute;inset:auto 0 0;padding:55px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,.88));display:flex;justify-content:space-between;align-items:end;opacity:0;transition:.25s}.card:hover .card-overlay{opacity:1}.icon-row{display:flex;gap:8px}.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.35);color:#fff;display:grid;place-items:center;cursor:pointer}.icon-btn:hover,.icon-btn.active{background:var(--gold);border-color:var(--gold);color:#111}.view-btn{border:0;background:none;color:#fff;cursor:pointer;text-transform:uppercase;letter-spacing:.12em;font-size:.62rem}
+    footer{border-top:1px solid var(--line);padding:42px 22px;text-align:center;color:#777;font-size:.72rem;line-height:1.8}footer img{width:120px;height:80px;object-fit:contain;margin:0 auto 12px}
+    dialog{width:100vw;height:100vh;max-width:none;max-height:none;border:0;padding:0;background:rgba(0,0,0,.97);color:#fff}dialog::backdrop{background:#000}.viewer-img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:88vw;max-height:82vh;object-fit:contain}.viewer-controls button{position:absolute;border:0;background:rgba(0,0,0,.35);color:#fff;cursor:pointer}.close{top:20px;right:22px;font-size:2.2rem;width:46px;height:46px}.prev,.next{top:50%;transform:translateY(-50%);font-size:2.6rem;width:52px;height:70px}.prev{left:16px}.next{right:16px}.viewer-bottom{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:10px;align-items:center}.viewer-bottom .btn{background:rgba(0,0,0,.45)}.count{color:#aaa;font-size:.72rem;min-width:70px;text-align:center}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#fff;color:#111;padding:12px 16px;border-radius:999px;font-size:.72rem;opacity:0;pointer-events:none;transition:.25s;z-index:60}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:700px){.topbar{padding:8px 14px}.brand img{width:70px;height:50px}.brand span{display:none}.top-actions .btn:first-child{display:none}.btn{padding:10px 11px}.gallery{columns:1;padding:0 8px 60px}.card{border-radius:9px}.card-overlay{opacity:1;padding-top:42px}.toolbar{padding:0 14px 16px}.toolbar p:last-child{display:none}header{padding:54px 18px 34px}.viewer-img{max-width:96vw;max-height:76vh}.prev,.next{width:42px}.viewer-bottom{width:calc(100% - 28px);justify-content:center;flex-wrap:wrap}}
   </style>
 </head>
 <body>
+  <div class="topbar">
+    <a class="brand" href="../../index.html"><img src="../../assets/logo.png" alt="TH3NOMADS"><span>Client Gallery</span></a>
+    <div class="top-actions"><a class="btn" href="../../index.html">Main Site</a><button class="btn gold" id="favoritesBtn" type="button">Favorites <span id="favCount">0</span></button></div>
+  </div>
+
   <header>
-    <a href="../../index.html">← Return to TH3NOMADS</a>
-    <img src="../../assets/logo.png" alt="TH3NOMADS">
+    <p class="eyebrow">TH3NOMADS Photography</p>
     <h1>A New Chapter</h1>
     <p>Maternity Story · Sample Client Gallery</p>
+    <div class="meta"><span>5 photographs</span><span>High-resolution delivery</span><span>Private gallery prototype</span></div>
   </header>
-  <main class="gallery">
-    <img src="images/photo-01.jpg" alt="Maternity photograph">
-    <img src="images/photo-02.jpg" alt="Maternity photograph">
-    <img src="images/photo-03.jpg" alt="Maternity photograph">
-    <img src="images/photo-04.jpg" alt="Maternity photograph">
-    <img src="images/photo-05.jpg" alt="Maternity photograph">
+
+  <div class="toolbar"><p>Tap a photo to view full screen. Use the <strong>heart</strong> to save favorites.</p><p>Favorites are saved on this device.</p></div>
+
+  <main class="gallery" id="gallery">
+    <article class="card" data-index="0"><img src="images/photo-01.jpg" alt="Maternity photograph 1" loading="eager"><div class="card-overlay"><button class="view-btn" type="button">View photo</button><div class="icon-row"><button class="icon-btn favorite" type="button" aria-label="Favorite photo">♡</button><a class="icon-btn" href="images/photo-01.jpg" download aria-label="Download photo">↓</a></div></div></article>
+    <article class="card" data-index="1"><img src="images/photo-02.jpg" alt="Maternity photograph 2" loading="lazy"><div class="card-overlay"><button class="view-btn" type="button">View photo</button><div class="icon-row"><button class="icon-btn favorite" type="button" aria-label="Favorite photo">♡</button><a class="icon-btn" href="images/photo-02.jpg" download aria-label="Download photo">↓</a></div></div></article>
+    <article class="card" data-index="2"><img src="images/photo-03.jpg" alt="Maternity photograph 3" loading="lazy"><div class="card-overlay"><button class="view-btn" type="button">View photo</button><div class="icon-row"><button class="icon-btn favorite" type="button" aria-label="Favorite photo">♡</button><a class="icon-btn" href="images/photo-03.jpg" download aria-label="Download photo">↓</a></div></div></article>
+    <article class="card" data-index="3"><img src="images/photo-04.jpg" alt="Maternity photograph 4" loading="lazy"><div class="card-overlay"><button class="view-btn" type="button">View photo</button><div class="icon-row"><button class="icon-btn favorite" type="button" aria-label="Favorite photo">♡</button><a class="icon-btn" href="images/photo-04.jpg" download aria-label="Download photo">↓</a></div></div></article>
+    <article class="card" data-index="4"><img src="images/photo-05.jpg" alt="Maternity photograph 5" loading="lazy"><div class="card-overlay"><button class="view-btn" type="button">View photo</button><div class="icon-row"><button class="icon-btn favorite" type="button" aria-label="Favorite photo">♡</button><a class="icon-btn" href="images/photo-05.jpg" download aria-label="Download photo">↓</a></div></div></article>
   </main>
-  <footer>© 2026 TH3NOMADS Photography · We Roam. We Capture. You Remember.</footer>
+
+  <footer><img src="../../assets/logo.png" alt="TH3NOMADS"><div>© 2026 TH3NOMADS Photography</div><div>We Roam. We Capture. You Remember.</div></footer>
+
+  <dialog id="viewer"><img class="viewer-img" id="viewerImg" alt="Selected client photograph"><div class="viewer-controls"><button class="close" id="closeViewer" type="button" aria-label="Close">×</button><button class="prev" id="prevPhoto" type="button" aria-label="Previous">‹</button><button class="next" id="nextPhoto" type="button" aria-label="Next">›</button></div><div class="viewer-bottom"><button class="btn" id="viewerFavorite" type="button">♡ Favorite</button><a class="btn" id="viewerDownload" download>↓ Download</a><span class="count" id="viewerCount"></span></div></dialog>
+  <div class="toast" id="toast">Saved to favorites</div>
+
+  <script>
+    const photos=["images/photo-01.jpg","images/photo-02.jpg","images/photo-03.jpg","images/photo-04.jpg","images/photo-05.jpg"];
+    const cards=[...document.querySelectorAll('.card')], viewer=document.getElementById('viewer'), viewerImg=document.getElementById('viewerImg'), viewerDownload=document.getElementById('viewerDownload'), viewerFavorite=document.getElementById('viewerFavorite'), viewerCount=document.getElementById('viewerCount'), favCount=document.getElementById('favCount'), toast=document.getElementById('toast');
+    let current=0; let favorites=new Set(JSON.parse(localStorage.getItem('th3nomads-sample-favorites')||'[]'));
+    function persist(){localStorage.setItem('th3nomads-sample-favorites',JSON.stringify([...favorites]));renderFavorites()}
+    function renderFavorites(){favCount.textContent=favorites.size;cards.forEach((card,i)=>{const b=card.querySelector('.favorite'),on=favorites.has(i);b.classList.toggle('active',on);b.textContent=on?'♥':'♡'});viewerFavorite.textContent=(favorites.has(current)?'♥ Saved':'♡ Favorite')}
+    function flash(msg){toast.textContent=msg;toast.classList.add('show');clearTimeout(window.__toast);window.__toast=setTimeout(()=>toast.classList.remove('show'),1400)}
+    function toggleFavorite(i){favorites.has(i)?favorites.delete(i):favorites.add(i);persist();flash(favorites.has(i)?'Saved to favorites':'Removed from favorites')}
+    function openViewer(i){current=i;viewerImg.src=photos[i];viewerDownload.href=photos[i];viewerCount.textContent=`${i+1} / ${photos.length}`;renderFavorites();viewer.showModal()}
+    function move(dir){current=(current+dir+photos.length)%photos.length;viewerImg.src=photos[current];viewerDownload.href=photos[current];viewerCount.textContent=`${current+1} / ${photos.length}`;renderFavorites()}
+    cards.forEach((card,i)=>{card.querySelector('.view-btn').addEventListener('click',()=>openViewer(i));card.querySelector('img').addEventListener('click',()=>openViewer(i));card.querySelector('.favorite').addEventListener('click',e=>{e.stopPropagation();toggleFavorite(i)})});
+    document.getElementById('closeViewer').onclick=()=>viewer.close();document.getElementById('prevPhoto').onclick=()=>move(-1);document.getElementById('nextPhoto').onclick=()=>move(1);viewerFavorite.onclick=()=>toggleFavorite(current);
+    document.addEventListener('keydown',e=>{if(!viewer.open)return;if(e.key==='ArrowLeft')move(-1);if(e.key==='ArrowRight')move(1);if(e.key==='Escape')viewer.close()});
+    document.getElementById('favoritesBtn').onclick=()=>{if(!favorites.size){flash('No favorites yet');return}cards.forEach((card,i)=>card.style.display=favorites.has(i)?'block':'none');document.getElementById('favoritesBtn').textContent='Show All';document.getElementById('favoritesBtn').onclick=()=>location.reload()};
+    renderFavorites();
+  </script>
 </body>
 </html>
