@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "th3nomads-gallery-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-17",
+  "vars": {
+    "ALLOWED_ORIGIN": "https://www.th3nomadsphotography.com"
+  },
+  "secrets": {
+    "required": ["SESSION_SECRET", "GALLERY_PASSWORDS"]
+  },
+  "r2_buckets": [
+    {
+      "binding": "GALLERY_BUCKET",
+      "bucket_name": "th3nomads-client-galleries"
+    }
+  ]
+}
