@@ -47,17 +47,18 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
   function makePhotoCountProminent(count) {
     const photoCount = document.getElementById('photoCount');
     if (!photoCount) return;
-    photoCount.textContent = `${count} Photo${count === 1 ? '' : 's'} Available`;
-    photoCount.style.display = 'inline-flex';
-    photoCount.style.alignItems = 'center';
-    photoCount.style.justifyContent = 'center';
-    photoCount.style.padding = '10px 16px';
-    photoCount.style.border = '1px solid rgba(201,168,93,.55)';
-    photoCount.style.borderRadius = '999px';
+    photoCount.textContent = `${count} photo${count === 1 ? '' : 's'} available`;
+    // Keep the count informational, just like the other static gallery metadata.
+    photoCount.style.display = '';
+    photoCount.style.alignItems = '';
+    photoCount.style.justifyContent = '';
+    photoCount.style.padding = '';
+    photoCount.style.border = '';
+    photoCount.style.borderRadius = '';
+    photoCount.style.background = '';
+    photoCount.style.fontWeight = '';
+    photoCount.style.letterSpacing = '';
     photoCount.style.color = '#c9a85d';
-    photoCount.style.background = 'rgba(201,168,93,.08)';
-    photoCount.style.fontWeight = '700';
-    photoCount.style.letterSpacing = '.12em';
   }
 
   function ensureTestimonialForm() {
