@@ -47,7 +47,7 @@
       const raw=document.getElementById('galleryName').value.trim().toLowerCase();
       const slug=raw.replace(/\s+/g,'-');
       if(!/^[a-z0-9-]+$/.test(slug)){error.textContent='Please enter the gallery name exactly as it was provided.';return;}
-      window.location.href=`./${encodeURIComponent(slug)}/`;
+      window.location.href=`./client.html?gallery=${encodeURIComponent(slug)}`;
     });
   </script>
 </body>
