@@ -1,0 +1,1 @@
+window.TH3NOMADS_GALLERY_API = "https://REPLACE-WITH-YOUR-WORKER.workers.dev";
