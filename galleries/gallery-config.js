@@ -1,1 +1,1 @@
-window.TH3NOMADS_GALLERY_API = "https://REPLACE-WITH-YOUR-WORKER.workers.dev";
+window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.workers.dev";
