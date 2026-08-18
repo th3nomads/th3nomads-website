@@ -38,5 +38,6 @@
     function updateViewer(){const item=media[current];if(!item)return;viewerVideo.pause();viewerDownload.href=item.downloadUrl;if(item.type==='video'){viewerImg.hidden=true;viewerVideo.hidden=false;if(viewerVideo.src!==item.url)viewerVideo.src=item.url;}else{viewerVideo.hidden=true;viewerVideo.removeAttribute('src');viewerVideo.load();viewerImg.hidden=false;viewerImg.src=item.url;}viewerFavorite.textContent=(favorites.has(item.name)?'♥':'♡')+' Favorite';viewerCount.textContent=`${current+1} / ${media.length}`;}
     document.getElementById('closeViewer').onclick=()=>{viewerVideo.pause();viewer.close();};document.getElementById('prevPhoto').onclick=()=>{current=(current-1+media.length)%media.length;updateViewer();};document.getElementById('nextPhoto').onclick=()=>{current=(current+1)%media.length;updateViewer();};viewerFavorite.onclick=()=>toggleFavorite(media[current].name);document.addEventListener('keydown',e=>{if(!viewer.open)return;if(e.key==='ArrowLeft')document.getElementById('prevPhoto').click();if(e.key==='ArrowRight')document.getElementById('nextPhoto').click();});
   </script>
+  <script src="./mobile-save.js?v=20260818-1"></script>
 </body>
 </html>
