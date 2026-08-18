@@ -14,6 +14,8 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     return nativeSessionGetItem(key);
   };
 
+  let expirationNoticeShown = false;
+
   function currentGalleryName() {
     const params = new URLSearchParams(window.location.search);
     const queryGallery = (params.get('gallery') || '').trim().toLowerCase();
@@ -23,6 +25,44 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     const galleriesIndex = parts.indexOf('galleries');
     const pathGallery = galleriesIndex >= 0 ? (parts[galleriesIndex + 1] || '') : '';
     return /^[a-z0-9-]+$/.test(pathGallery) && pathGallery !== 'client.html' ? pathGallery : 'client-gallery';
+  }
+
+  function showExpirationNotice() {
+    if (expirationNoticeShown || currentGalleryName() === 'sample-gallery') return;
+    expirationNoticeShown = true;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'galleryExpirationNotice';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'galleryExpirationTitle');
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.zIndex = '99999';
+    overlay.style.display = 'grid';
+    overlay.style.placeItems = 'center';
+    overlay.style.padding = '22px';
+    overlay.style.background = 'rgba(0,0,0,.82)';
+    overlay.style.backdropFilter = 'blur(8px)';
+
+    overlay.innerHTML = `
+      <div style="width:min(520px,100%);background:#111;border:1px solid rgba(201,168,93,.55);border-radius:18px;padding:clamp(30px,6vw,48px);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55);">
+        <div style="width:54px;height:54px;margin:0 auto 20px;border:1px solid #c9a85d;border-radius:50%;display:grid;place-items:center;color:#c9a85d;font:700 1.5rem Arial,sans-serif;">!</div>
+        <p style="margin:0 0 12px;color:#c9a85d;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;">Important Gallery Notice</p>
+        <h2 id="galleryExpirationTitle" style="margin:0 0 18px;font:400 clamp(2rem,6vw,3.3rem)/1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:#fff;">Please download your photos within 2 weeks.</h2>
+        <p style="margin:0 auto 26px;max-width:430px;color:#aaa;font-size:.95rem;line-height:1.75;">Your private gallery is available for <strong style="color:#fff;">14 days</strong>. Please download and save all of your photographs before the expiration period ends. After 14 days, this gallery is scheduled to be deleted and the photos will no longer be available through this link.</p>
+        <button id="galleryExpirationOk" type="button" style="width:100%;min-height:52px;border:0;background:#c9a85d;color:#111;padding:0 22px;text-transform:uppercase;letter-spacing:.14em;font-size:.7rem;font-weight:700;cursor:pointer;">OK, I Understand</button>
+      </div>`;
+
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    const ok = overlay.querySelector('#galleryExpirationOk');
+    ok.focus();
+    ok.addEventListener('click', () => {
+      document.body.style.overflow = '';
+      overlay.remove();
+    });
   }
 
   function ensureDownloadAllButton() {
@@ -48,7 +88,6 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     const photoCount = document.getElementById('photoCount');
     if (!photoCount) return;
     photoCount.textContent = `${count} photo${count === 1 ? '' : 's'} available`;
-    // Keep the count informational, just like the other static gallery metadata.
     photoCount.style.display = '';
     photoCount.style.alignItems = '';
     photoCount.style.justifyContent = '';
@@ -153,6 +192,8 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
               button.hidden = false;
             }
           }
+
+          showExpirationNotice();
         }).catch(() => {});
       }
     } catch {}
