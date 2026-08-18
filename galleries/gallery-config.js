@@ -27,6 +27,13 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     if (expirationNoticeShown || currentGalleryName() === 'sample-gallery') return;
     expirationNoticeShown = true;
 
+    const meta = window.TH3NOMADS_GALLERY_META || {};
+    const days = Number(meta.accessDays) > 0 ? Number(meta.accessDays) : 14;
+    const defaultTitle = days === 14 ? 'Please download your photos within 2 weeks.' : `Please download your photos within ${days} days.`;
+    const defaultMessage = `Your gallery access is guaranteed for ${days} days. Please download and safely back up all of your photographs during this period. After ${days} days, continued access to your gallery is not guaranteed and may be removed without notice.`;
+    const noticeTitle = String(meta.noticeTitle || defaultTitle);
+    const noticeMessage = String(meta.noticeMessage || defaultMessage);
+
     const overlay = document.createElement('div');
     overlay.id = 'galleryExpirationNotice';
     overlay.setAttribute('role', 'dialog');
@@ -37,15 +44,22 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
       padding:'22px', background:'rgba(0,0,0,.82)', backdropFilter:'blur(8px)'
     });
 
+    const safeTitle = document.createElement('div');
+    safeTitle.textContent = noticeTitle;
+    const safeMessage = document.createElement('div');
+    safeMessage.textContent = noticeMessage;
+
     overlay.innerHTML = `
       <div style="width:min(520px,100%);background:#111;border:1px solid rgba(201,168,93,.55);border-radius:18px;padding:clamp(30px,6vw,48px);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55);">
         <div style="width:54px;height:54px;margin:0 auto 20px;border:1px solid #c9a85d;border-radius:50%;display:grid;place-items:center;color:#c9a85d;font:700 1.5rem Arial,sans-serif;">!</div>
         <p style="margin:0 0 12px;color:#c9a85d;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;">Important Gallery Notice</p>
-        <h2 id="galleryExpirationTitle" style="margin:0 0 18px;font:400 clamp(2rem,6vw,3.3rem)/1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:#fff;">Please download your photos within 2 weeks.</h2>
-        <p style="margin:0 auto 26px;max-width:430px;color:#aaa;font-size:.95rem;line-height:1.75;">Your gallery access is guaranteed for <strong style="color:#fff;">14 days</strong>. Please download and safely back up all of your photographs during this period. After 14 days, continued access to your gallery is <strong style="color:#fff;">not guaranteed</strong> and may be removed without notice.</p>
+        <h2 id="galleryExpirationTitle" style="margin:0 0 18px;font:400 clamp(2rem,6vw,3.3rem)/1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:#fff;"></h2>
+        <p id="galleryExpirationMessage" style="margin:0 auto 26px;max-width:430px;color:#aaa;font-size:.95rem;line-height:1.75;"></p>
         <button id="galleryExpirationOk" type="button" style="width:100%;min-height:52px;border:0;background:#c9a85d;color:#111;padding:0 22px;text-transform:uppercase;letter-spacing:.14em;font-size:.7rem;font-weight:700;cursor:pointer;">OK, I Understand</button>
       </div>`;
 
+    overlay.querySelector('#galleryExpirationTitle').textContent = safeTitle.textContent;
+    overlay.querySelector('#galleryExpirationMessage').textContent = safeMessage.textContent;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
     const ok = overlay.querySelector('#galleryExpirationOk');
@@ -158,6 +172,7 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
       const requestUrl = typeof input === 'string' ? input : input?.url || '';
       if (requestUrl.includes('/manifest')) {
         response.clone().json().then(data => {
+          window.TH3NOMADS_GALLERY_META = data || {};
           const count = Array.isArray(data?.photos) ? data.photos.length : 0;
           updatePhotoCount(count);
           if (data?.downloadAllUrl) {
