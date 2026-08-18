@@ -23,6 +23,34 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     return /^[a-z0-9-]+$/.test(pathGallery) && pathGallery !== 'client.html' ? pathGallery : 'client-gallery';
   }
 
+  function installRevealStyles() {
+    if (document.getElementById('galleryRevealStyles')) return;
+    const style = document.createElement('style');
+    style.id = 'galleryRevealStyles';
+    style.textContent = `
+      #galleryApp:not([data-gallery-ready="true"]){visibility:hidden;opacity:0}
+      #galleryApp[data-gallery-ready="true"]{visibility:visible;opacity:1;transition:opacity .28s ease}
+    `;
+    document.head.appendChild(style);
+  }
+
+  async function waitForInitialImages(app) {
+    const images = [...app.querySelectorAll('#gallery img')].slice(0, 6);
+    if (!images.length) return;
+    const tasks = images.map(img => {
+      if (img.complete && img.naturalWidth) return Promise.resolve();
+      if (typeof img.decode === 'function') return img.decode().catch(() => {});
+      return new Promise(resolve => {
+        img.addEventListener('load', resolve, { once:true });
+        img.addEventListener('error', resolve, { once:true });
+      });
+    });
+    await Promise.race([
+      Promise.all(tasks),
+      new Promise(resolve => setTimeout(resolve, 900))
+    ]);
+  }
+
   function showExpirationNotice() {
     if (expirationNoticeShown || currentGalleryName() === 'sample-gallery') return;
     expirationNoticeShown = true;
@@ -44,11 +72,6 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
       padding:'22px', background:'rgba(0,0,0,.82)', backdropFilter:'blur(8px)'
     });
 
-    const safeTitle = document.createElement('div');
-    safeTitle.textContent = noticeTitle;
-    const safeMessage = document.createElement('div');
-    safeMessage.textContent = noticeMessage;
-
     overlay.innerHTML = `
       <div style="width:min(520px,100%);background:#111;border:1px solid rgba(201,168,93,.55);border-radius:18px;padding:clamp(30px,6vw,48px);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55);">
         <div style="width:54px;height:54px;margin:0 auto 20px;border:1px solid #c9a85d;border-radius:50%;display:grid;place-items:center;color:#c9a85d;font:700 1.5rem Arial,sans-serif;">!</div>
@@ -58,8 +81,8 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
         <button id="galleryExpirationOk" type="button" style="width:100%;min-height:52px;border:0;background:#c9a85d;color:#111;padding:0 22px;text-transform:uppercase;letter-spacing:.14em;font-size:.7rem;font-weight:700;cursor:pointer;">OK, I Understand</button>
       </div>`;
 
-    overlay.querySelector('#galleryExpirationTitle').textContent = safeTitle.textContent;
-    overlay.querySelector('#galleryExpirationMessage').textContent = safeMessage.textContent;
+    overlay.querySelector('#galleryExpirationTitle').textContent = noticeTitle;
+    overlay.querySelector('#galleryExpirationMessage').textContent = noticeMessage;
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
     const ok = overlay.querySelector('#galleryExpirationOk');
@@ -73,8 +96,15 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
   function watchGalleryOpen() {
     const app = document.getElementById('galleryApp');
     if (!app) return;
-    const check = () => {
-      if (!app.hidden) showExpirationNotice();
+    let preparing = false;
+    const check = async () => {
+      if (app.hidden || preparing || app.dataset.galleryReady === 'true') return;
+      preparing = true;
+      await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      await waitForInitialImages(app);
+      app.dataset.galleryReady = 'true';
+      showExpirationNotice();
+      preparing = false;
     };
     check();
     new MutationObserver(check).observe(app, { attributes:true, attributeFilter:['hidden'] });
@@ -157,6 +187,7 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
   }
 
   function init() {
+    installRevealStyles();
     ensureDownloadAllButton();
     ensureTestimonialForm();
     watchGalleryOpen();
