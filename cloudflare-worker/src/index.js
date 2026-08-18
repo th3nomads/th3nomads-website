@@ -35,6 +35,7 @@ export default {
         const files = objects
           .filter(o => /\.(jpe?g|png|webp)$/i.test(o.key))
           .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
+        const videoCount = objects.filter(o => /\.(mp4|mov|m4v|webm)$/i.test(o.key)).length;
 
         let meta = {
           title: gallery,
@@ -67,6 +68,7 @@ export default {
           noticeTitle: String(meta.noticeTitle || ''),
           noticeMessage: String(meta.noticeMessage || ''),
           photos,
+          videoCount,
           downloadAllUrl
         }, 200, cors);
       }
