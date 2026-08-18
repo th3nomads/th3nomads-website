@@ -221,11 +221,13 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     return button;
   }
 
-  function updatePhotoCount(count) {
-    const photoCount = document.getElementById('photoCount');
-    if (!photoCount) return;
-    photoCount.textContent = `${count} photo${count === 1 ? '' : 's'} available`;
-    photoCount.style.color = '#c9a85d';
+  function updateMediaCount(photoCount, videoCount) {
+    const mediaCount = document.getElementById('photoCount');
+    if (!mediaCount) return;
+    const photosText = `${photoCount} Photo${photoCount === 1 ? '' : 's'}`;
+    const videosText = `${videoCount} Video${videoCount === 1 ? '' : 's'}`;
+    mediaCount.textContent = videoCount > 0 ? `${photosText} · ${videosText}` : photosText;
+    mediaCount.style.color = '#c9a85d';
   }
 
   function ensureTestimonialForm() {
@@ -299,8 +301,9 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
       if (requestUrl.includes('/manifest')) {
         response.clone().json().then(data => {
           window.TH3NOMADS_GALLERY_META = data || {};
-          const count = Array.isArray(data?.photos) ? data.photos.length : 0;
-          updatePhotoCount(count);
+          const photoCount = Array.isArray(data?.photos) ? data.photos.length : 0;
+          const videoCount = Number(data?.videoCount || 0);
+          updateMediaCount(photoCount, videoCount);
           refineGalleryHeader();
           if (data?.downloadAllUrl) {
             const button = ensureDownloadAllButton();
