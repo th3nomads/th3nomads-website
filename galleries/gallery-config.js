@@ -23,6 +23,20 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     return /^[a-z0-9-]+$/.test(pathGallery) && pathGallery !== 'client.html' ? pathGallery : 'client-gallery';
   }
 
+  function titleCaseName(value) {
+    return String(value || '')
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .split(' ')
+      .map(word => {
+        if (!word) return word;
+        if (word === '&') return word;
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join(' ');
+  }
+
   function installRevealStyles() {
     if (document.getElementById('galleryRevealStyles')) return;
     const style = document.createElement('style');
@@ -30,8 +44,87 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     style.textContent = `
       #galleryApp:not([data-gallery-ready="true"]){visibility:hidden;opacity:0}
       #galleryApp[data-gallery-ready="true"]{visibility:visible;opacity:1;transition:opacity .28s ease}
+
+      #galleryApp > header{
+        position:relative;
+        max-width:1180px;
+        padding-top:clamp(72px,10vw,124px);
+        padding-bottom:clamp(48px,7vw,82px);
+      }
+      #galleryApp > header .eyebrow{
+        margin:0 0 22px;
+        font-size:.62rem;
+        letter-spacing:.28em;
+        color:#c9a85d;
+      }
+      #galleryApp #galleryTitle{
+        max-width:1000px;
+        margin:0 auto;
+        font-family:Georgia,'Times New Roman',serif;
+        font-size:clamp(3.5rem,9vw,7.8rem);
+        line-height:.92;
+        font-weight:400;
+        letter-spacing:-.055em;
+        color:#f6f1e8;
+        text-wrap:balance;
+      }
+      #galleryApp #gallerySubtitle{
+        max-width:680px;
+        margin:28px auto 0;
+        color:#9d978e;
+        font-family:Georgia,'Times New Roman',serif;
+        font-size:clamp(1rem,2vw,1.25rem);
+        font-style:italic;
+        line-height:1.65;
+      }
+      #galleryApp > header::after{
+        content:'';
+        display:block;
+        width:72px;
+        height:1px;
+        margin:34px auto 0;
+        background:linear-gradient(90deg,transparent,#c9a85d,transparent);
+      }
+      #galleryApp .meta{
+        margin-top:28px;
+        gap:12px 24px;
+        color:#77716a;
+        font-size:.62rem;
+        letter-spacing:.16em;
+      }
+      #galleryApp .meta span{position:relative}
+      #galleryApp .meta span:not(:last-child)::after{
+        content:'·';
+        position:absolute;
+        right:-15px;
+        color:#5f5a54;
+      }
+      @media(max-width:700px){
+        #galleryApp > header{padding-top:62px;padding-bottom:46px}
+        #galleryApp #galleryTitle{font-size:clamp(3.25rem,16vw,5rem)}
+        #galleryApp #gallerySubtitle{margin-top:20px;padding:0 12px}
+        #galleryApp .meta span:not(:last-child)::after{display:none}
+      }
     `;
     document.head.appendChild(style);
+  }
+
+  function refineGalleryHeader() {
+    const title = document.getElementById('galleryTitle');
+    const subtitle = document.getElementById('gallerySubtitle');
+    if (!title) return;
+
+    const meta = window.TH3NOMADS_GALLERY_META || {};
+    const fallbackName = titleCaseName(currentGalleryName());
+    const rawTitle = String(meta.title || title.textContent || fallbackName).trim();
+    const generic = /^(client gallery|private client gallery)$/i.test(rawTitle);
+    const shouldDerive = !rawTitle || rawTitle === currentGalleryName() || generic;
+    title.textContent = shouldDerive ? fallbackName : titleCaseName(rawTitle);
+
+    if (subtitle) {
+      const rawSubtitle = String(meta.subtitle || subtitle.textContent || '').trim();
+      subtitle.textContent = rawSubtitle || 'A private collection of your photographs';
+    }
   }
 
   async function waitForInitialImages(app) {
@@ -100,8 +193,10 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     const check = async () => {
       if (app.hidden || preparing || app.dataset.galleryReady === 'true') return;
       preparing = true;
+      refineGalleryHeader();
       await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       await waitForInitialImages(app);
+      refineGalleryHeader();
       app.dataset.galleryReady = 'true';
       showExpirationNotice();
       preparing = false;
@@ -206,6 +301,7 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
           window.TH3NOMADS_GALLERY_META = data || {};
           const count = Array.isArray(data?.photos) ? data.photos.length : 0;
           updatePhotoCount(count);
+          refineGalleryHeader();
           if (data?.downloadAllUrl) {
             const button = ensureDownloadAllButton();
             if (button) { button.href = data.downloadAllUrl; button.hidden = false; }
