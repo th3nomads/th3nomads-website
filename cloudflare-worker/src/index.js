@@ -36,7 +36,13 @@ export default {
           .filter(o => /\.(jpe?g|png|webp)$/i.test(o.key))
           .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
 
-        let meta = { title: gallery, subtitle: 'Private Client Gallery' };
+        let meta = {
+          title: gallery,
+          subtitle: 'Private Client Gallery',
+          accessDays: 14,
+          noticeTitle: 'Please download your photos within 2 weeks.',
+          noticeMessage: 'Your gallery access is guaranteed for 14 days. Please download and safely back up all of your photographs during this period. After 14 days, continued access to your gallery is not guaranteed and may be removed without notice.'
+        };
         const metaObject = await env.GALLERY_BUCKET.get(`galleries/${gallery}/gallery.json`);
         if (metaObject) {
           try { meta = { ...meta, ...JSON.parse(await metaObject.text()) }; } catch {}
@@ -53,7 +59,16 @@ export default {
         const downloadAllSig = await signAsset(`${gallery}|__all__|${exp}`, env.SESSION_SECRET);
         const downloadAllUrl = `${url.origin}/api/gallery/${gallery}/download-all?exp=${exp}&sig=${encodeURIComponent(downloadAllSig)}`;
 
-        return json({ gallery, title: meta.title, subtitle: meta.subtitle, photos, downloadAllUrl }, 200, cors);
+        return json({
+          gallery,
+          title: meta.title,
+          subtitle: meta.subtitle,
+          accessDays: Number(meta.accessDays) > 0 ? Number(meta.accessDays) : 14,
+          noticeTitle: String(meta.noticeTitle || ''),
+          noticeMessage: String(meta.noticeMessage || ''),
+          photos,
+          downloadAllUrl
+        }, 200, cors);
       }
 
       const downloadAllMatch = url.pathname.match(/^\/api\/gallery\/([a-z0-9-]+)\/download-all$/);
