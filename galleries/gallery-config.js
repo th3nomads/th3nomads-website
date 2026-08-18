@@ -50,7 +50,7 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
         <div style="width:54px;height:54px;margin:0 auto 20px;border:1px solid #c9a85d;border-radius:50%;display:grid;place-items:center;color:#c9a85d;font:700 1.5rem Arial,sans-serif;">!</div>
         <p style="margin:0 0 12px;color:#c9a85d;font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;">Important Gallery Notice</p>
         <h2 id="galleryExpirationTitle" style="margin:0 0 18px;font:400 clamp(2rem,6vw,3.3rem)/1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:#fff;">Please download your photos within 2 weeks.</h2>
-        <p style="margin:0 auto 26px;max-width:430px;color:#aaa;font-size:.95rem;line-height:1.75;">Your private gallery is available for <strong style="color:#fff;">14 days</strong>. Please download and save all of your photographs before the expiration period ends. After 14 days, this gallery is scheduled to be deleted and the photos will no longer be available through this link.</p>
+        <p style="margin:0 auto 26px;max-width:430px;color:#aaa;font-size:.95rem;line-height:1.75;">Your gallery access is guaranteed for <strong style="color:#fff;">14 days</strong>. Please download and safely back up all of your photographs during this period. After 14 days, continued access to your gallery is <strong style="color:#fff;">not guaranteed</strong> and may be removed without notice.</p>
         <button id="galleryExpirationOk" type="button" style="width:100%;min-height:52px;border:0;background:#c9a85d;color:#111;padding:0 22px;text-transform:uppercase;letter-spacing:.14em;font-size:.7rem;font-weight:700;cursor:pointer;">OK, I Understand</button>
       </div>`;
 
