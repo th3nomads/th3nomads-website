@@ -1,9 +1,6 @@
 window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.workers.dev";
 
 (() => {
-  // Private galleries must require the password on every visit/refresh.
-  // Clear old session tokens and prevent the legacy sample gallery from
-  // automatically reusing a previous login.
   Object.keys(sessionStorage).forEach(key => {
     if (key.startsWith('th3nomads-session-')) sessionStorage.removeItem(key);
   });
@@ -20,7 +17,6 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     const params = new URLSearchParams(window.location.search);
     const queryGallery = (params.get('gallery') || '').trim().toLowerCase();
     if (/^[a-z0-9-]+$/.test(queryGallery)) return queryGallery;
-
     const parts = window.location.pathname.split('/').filter(Boolean);
     const galleriesIndex = parts.indexOf('galleries');
     const pathGallery = galleriesIndex >= 0 ? (parts[galleriesIndex + 1] || '') : '';
@@ -36,14 +32,10 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-labelledby', 'galleryExpirationTitle');
-    overlay.style.position = 'fixed';
-    overlay.style.inset = '0';
-    overlay.style.zIndex = '99999';
-    overlay.style.display = 'grid';
-    overlay.style.placeItems = 'center';
-    overlay.style.padding = '22px';
-    overlay.style.background = 'rgba(0,0,0,.82)';
-    overlay.style.backdropFilter = 'blur(8px)';
+    Object.assign(overlay.style, {
+      position:'fixed', inset:'0', zIndex:'99999', display:'grid', placeItems:'center',
+      padding:'22px', background:'rgba(0,0,0,.82)', backdropFilter:'blur(8px)'
+    });
 
     overlay.innerHTML = `
       <div style="width:min(520px,100%);background:#111;border:1px solid rgba(201,168,93,.55);border-radius:18px;padding:clamp(30px,6vw,48px);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.55);">
@@ -56,7 +48,6 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
 
     document.body.appendChild(overlay);
     document.body.style.overflow = 'hidden';
-
     const ok = overlay.querySelector('#galleryExpirationOk');
     ok.focus();
     ok.addEventListener('click', () => {
@@ -65,45 +56,42 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     });
   }
 
+  function watchGalleryOpen() {
+    const app = document.getElementById('galleryApp');
+    if (!app) return;
+    const check = () => {
+      if (!app.hidden) showExpirationNotice();
+    };
+    check();
+    new MutationObserver(check).observe(app, { attributes:true, attributeFilter:['hidden'] });
+  }
+
   function ensureDownloadAllButton() {
     const actions = document.querySelector('.top-actions');
     if (!actions) return null;
     let button = document.getElementById('downloadAllBtn');
     if (button) return button;
-
     button = document.createElement('a');
     button.id = 'downloadAllBtn';
     button.className = 'btn';
     button.textContent = 'Download All';
     button.hidden = true;
     button.setAttribute('aria-label', 'Download all gallery photos as a ZIP file');
-
     const favorites = document.getElementById('favoritesBtn');
-    if (favorites) actions.insertBefore(button, favorites);
-    else actions.appendChild(button);
+    if (favorites) actions.insertBefore(button, favorites); else actions.appendChild(button);
     return button;
   }
 
-  function makePhotoCountProminent(count) {
+  function updatePhotoCount(count) {
     const photoCount = document.getElementById('photoCount');
     if (!photoCount) return;
     photoCount.textContent = `${count} photo${count === 1 ? '' : 's'} available`;
-    photoCount.style.display = '';
-    photoCount.style.alignItems = '';
-    photoCount.style.justifyContent = '';
-    photoCount.style.padding = '';
-    photoCount.style.border = '';
-    photoCount.style.borderRadius = '';
-    photoCount.style.background = '';
-    photoCount.style.fontWeight = '';
-    photoCount.style.letterSpacing = '';
     photoCount.style.color = '#c9a85d';
   }
 
   function ensureTestimonialForm() {
     const app = document.getElementById('galleryApp');
     if (!app || document.getElementById('galleryTestimonial')) return;
-
     const section = document.createElement('section');
     section.id = 'galleryTestimonial';
     section.style.maxWidth = '900px';
@@ -117,40 +105,28 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
         <form id="testimonialForm" style="display:grid;gap:13px;text-align:left;max-width:680px;margin:auto;">
           <input type="hidden" name="_subject" value="New TH3NOMADS Client Gallery Testimonial">
           <input type="hidden" name="gallery" id="testimonialGallery">
-          <label style="display:grid;gap:8px;color:#aaa;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;">Your name <span style="text-transform:none;letter-spacing:0;color:#666;">(optional)</span>
-            <input name="name" placeholder="Your name" style="width:100%;background:#090909;border:1px solid #333;color:#fff;padding:15px 14px;outline:none;">
-          </label>
-          <label style="display:grid;gap:8px;color:#aaa;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;">Your testimonial
-            <textarea name="message" rows="6" maxlength="3000" required placeholder="Tell us about your experience..." style="width:100%;resize:vertical;background:#090909;border:1px solid #333;color:#fff;padding:15px 14px;outline:none;line-height:1.6;"></textarea>
-          </label>
+          <label style="display:grid;gap:8px;color:#aaa;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;">Your name <span style="text-transform:none;letter-spacing:0;color:#666;">(optional)</span><input name="name" placeholder="Your name" style="width:100%;background:#090909;border:1px solid #333;color:#fff;padding:15px 14px;outline:none;"></label>
+          <label style="display:grid;gap:8px;color:#aaa;font-size:.64rem;letter-spacing:.13em;text-transform:uppercase;">Your testimonial<textarea name="message" rows="6" maxlength="3000" required placeholder="Tell us about your experience..." style="width:100%;resize:vertical;background:#090909;border:1px solid #333;color:#fff;padding:15px 14px;outline:none;line-height:1.6;"></textarea></label>
           <button id="testimonialSubmit" type="submit" style="border:0;background:#c9a85d;color:#111;min-height:52px;padding:0 20px;text-transform:uppercase;letter-spacing:.13em;font-size:.68rem;font-weight:700;cursor:pointer;">Submit Testimonial</button>
           <p id="testimonialStatus" aria-live="polite" style="min-height:20px;margin:2px 0 0;text-align:center;color:#999;font-size:.78rem;"></p>
         </form>
       </div>`;
-
     const footer = app.querySelector('footer');
-    if (footer) app.insertBefore(section, footer);
-    else app.appendChild(section);
+    if (footer) app.insertBefore(section, footer); else app.appendChild(section);
 
     const form = section.querySelector('#testimonialForm');
     const galleryInput = section.querySelector('#testimonialGallery');
     const status = section.querySelector('#testimonialStatus');
     const submit = section.querySelector('#testimonialSubmit');
     galleryInput.value = currentGalleryName();
-
     form.addEventListener('submit', async event => {
       event.preventDefault();
       status.textContent = 'Sending your testimonial...';
       status.style.color = '#999';
       submit.disabled = true;
       submit.textContent = 'Sending...';
-
       try {
-        const response = await fetch('https://formspree.io/f/xojgjjrb', {
-          method: 'POST',
-          body: new FormData(form),
-          headers: { Accept: 'application/json' }
-        });
+        const response = await fetch('https://formspree.io/f/xojgjjrb', { method:'POST', body:new FormData(form), headers:{ Accept:'application/json' } });
         if (!response.ok) throw new Error('Unable to submit');
         form.reset();
         galleryInput.value = currentGalleryName();
@@ -166,13 +142,13 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
     });
   }
 
-  function initializeGalleryExtras() {
+  function init() {
     ensureDownloadAllButton();
     ensureTestimonialForm();
+    watchGalleryOpen();
   }
 
-  initializeGalleryExtras();
-  document.addEventListener('DOMContentLoaded', initializeGalleryExtras, { once: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true }); else init();
 
   const nativeFetch = window.fetch.bind(window);
   window.fetch = async (...args) => {
@@ -183,17 +159,11 @@ window.TH3NOMADS_GALLERY_API = "https://th3nomads-website.th3nomadscreate.worker
       if (requestUrl.includes('/manifest')) {
         response.clone().json().then(data => {
           const count = Array.isArray(data?.photos) ? data.photos.length : 0;
-          makePhotoCountProminent(count);
-
+          updatePhotoCount(count);
           if (data?.downloadAllUrl) {
             const button = ensureDownloadAllButton();
-            if (button) {
-              button.href = data.downloadAllUrl;
-              button.hidden = false;
-            }
+            if (button) { button.href = data.downloadAllUrl; button.hidden = false; }
           }
-
-          showExpirationNotice();
         }).catch(() => {});
       }
     } catch {}
