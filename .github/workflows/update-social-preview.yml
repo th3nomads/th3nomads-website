@@ -1,0 +1,55 @@
+name: Update social preview metadata
+
+on:
+  push:
+    paths:
+      - '.github/workflows/update-social-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Update Open Graph and social metadata
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+
+          replacements = {
+              '<meta property="og:site_name" content="TH3NOMADS Photography"/>': '<meta property="og:site_name" content="TH3NOMADS PHOTOGRAPHY"/>',
+              '<meta name="twitter:title" content="TH3NOMADS Photography"/>': '<meta name="twitter:title" content="TH3NOMADS PHOTOGRAPHY"/>',
+              'https://www.th3nomadsphotography.com/assets/images/og-image.jpg"/>': 'https://www.th3nomadsphotography.com/assets/images/og-image.jpg?v=20260819"/>',
+              'content="TH3NOMADS Photography portfolio collage"/>': 'content="TH3NOMADS PHOTOGRAPHY portfolio collage"/>',
+          }
+
+          for old, new in replacements.items():
+              text = text.replace(old, new)
+
+          # Add locale if it is not already present.
+          marker = '<meta property="og:type" content="website"/>'
+          if '<meta property="og:locale"' not in text:
+              text = text.replace(marker, marker + '\n<meta property="og:locale" content="en_US"/>')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit metadata update
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No metadata changes needed."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Update social preview branding and thumbnail metadata"
+          git push
