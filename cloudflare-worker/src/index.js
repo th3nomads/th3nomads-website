@@ -5,7 +5,7 @@ const IMAGE_RE = /\.(jpe?g|png|webp)$/i;
 const VIDEO_RE = /\.(mp4|mov|m4v|webm)$/i;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin, env.ALLOWED_ORIGIN);
@@ -18,10 +18,19 @@ export default {
         const gallery = cleanSlug(body.gallery);
         const password = String(body.password || '');
         const passwords = JSON.parse(env.GALLERY_PASSWORDS || '{}');
-        if (!gallery || !passwords[gallery] || !safeEqual(password, String(passwords[gallery]))) {
+        const clientPassword = passwords[gallery];
+        const isClient = Boolean(gallery && clientPassword && safeEqual(password, String(clientPassword)));
+        const isOwner = Boolean(gallery && env.OWNER_PASSWORD && safeEqual(password, String(env.OWNER_PASSWORD)));
+        if (!isClient && !isOwner) {
           return json({ error: 'Invalid gallery or password' }, 401, cors);
         }
-        const token = await signSession({ gallery, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8 }, env.SESSION_SECRET);
+        const accessType = isOwner ? 'owner' : 'client';
+        const token = await signSession({ gallery, accessType, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8 }, env.SESSION_SECRET);
+        if (isClient) {
+          ctx.waitUntil(notifyFirstClientAccess(gallery, request, env).catch(error => {
+            console.error(JSON.stringify({ event: 'gallery_access_notification_failed', gallery, error: String(error) }));
+          }));
+        }
         return json({ token }, 200, cors);
       }
 
@@ -99,6 +108,27 @@ export default {
     } catch { return json({ error: 'Server error' }, 500, cors); }
   }
 };
+
+async function notifyFirstClientAccess(gallery, request, env) {
+  if (!env.ACCESS_EMAIL || !env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) return;
+  const markerKey = `galleries/${gallery}/.client-first-access.json`;
+  if (await env.GALLERY_BUCKET.head(markerKey)) return;
+
+  const accessedAt = new Date();
+  const clientName = gallery.split('-').map(part => part ? part[0].toUpperCase() + part.slice(1) : '').join(' ');
+  await env.ACCESS_EMAIL.send({
+    to: env.NOTIFICATION_EMAIL,
+    from: { email: env.NOTIFICATION_FROM, name: 'TH3NOMADS Gallery' },
+    subject: `${clientName} accessed their gallery`,
+    text: `${clientName} (${gallery}) successfully accessed their private gallery for the first time at ${accessedAt.toISOString()}.`
+  });
+
+  await env.GALLERY_BUCKET.put(markerKey, JSON.stringify({
+    gallery,
+    firstAccessedAt: accessedAt.toISOString(),
+    country: request.cf?.country || null
+  }), { httpMetadata: { contentType: 'application/json' } });
+}
 
 function cleanSlug(value){const s=String(value||'').toLowerCase();return /^[a-z0-9-]+$/.test(s)?s:'';}
 function corsHeaders(origin,allowed){const h=new Headers({'Access-Control-Allow-Methods':'GET,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Authorization','Vary':'Origin'});if(origin&&origin===allowed)h.set('Access-Control-Allow-Origin',origin);return h;}
