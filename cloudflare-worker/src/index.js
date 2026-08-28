@@ -5,7 +5,7 @@ const IMAGE_RE = /\.(jpe?g|png|webp)$/i;
 const VIDEO_RE = /\.(mp4|mov|m4v|webm)$/i;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin, env.ALLOWED_ORIGIN);
@@ -18,10 +18,19 @@ export default {
         const gallery = cleanSlug(body.gallery);
         const password = String(body.password || '');
         const passwords = JSON.parse(env.GALLERY_PASSWORDS || '{}');
-        if (!gallery || !passwords[gallery] || !safeEqual(password, String(passwords[gallery]))) {
+        const clientPassword = passwords[gallery];
+        const isClient = Boolean(gallery && clientPassword && safeEqual(password, String(clientPassword)));
+        const isOwner = Boolean(gallery && env.OWNER_PASSWORD && safeEqual(password, String(env.OWNER_PASSWORD)));
+        if (!isClient && !isOwner) {
           return json({ error: 'Invalid gallery or password' }, 401, cors);
         }
-        const token = await signSession({ gallery, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8 }, env.SESSION_SECRET);
+        const accessType = isOwner ? 'owner' : 'client';
+        const token = await signSession({ gallery, accessType, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 8 }, env.SESSION_SECRET);
+        if (isClient) {
+          ctx.waitUntil(notifyFirstClientAccess(gallery, request, env).catch(error => {
+            console.error(JSON.stringify({ event: 'gallery_access_notification_failed', gallery, error: String(error) }));
+          }));
+        }
         return json({ token }, 200, cors);
       }
 
@@ -57,8 +66,9 @@ export default {
         };
         const photos = await Promise.all(imageFiles.map((o, i) => makeMedia(o, i, 'photo')));
         const videos = await Promise.all(videoFiles.map((o, i) => makeMedia(o, i, 'video')));
-        const downloadAllSig = await signAsset(`${gallery}|__all__|${exp}`, env.SESSION_SECRET);
-        const downloadAllUrl = `${url.origin}/api/gallery/${gallery}/download-all?exp=${exp}&sig=${encodeURIComponent(downloadAllSig)}`;
+        const accessType = session.accessType === 'owner' ? 'owner' : 'client';
+        const downloadAllSig = await signAsset(`${gallery}|__all__|${exp}|${accessType}`, env.SESSION_SECRET);
+        const downloadAllUrl = `${url.origin}/api/gallery/${gallery}/download-all?exp=${exp}&access=${accessType}&sig=${encodeURIComponent(downloadAllSig)}`;
 
         return json({ gallery, title: meta.title, subtitle: meta.subtitle, accessDays: Number(meta.accessDays) > 0 ? Number(meta.accessDays) : 14, noticeTitle: String(meta.noticeTitle || ''), noticeMessage: String(meta.noticeMessage || ''), photoCount: photos.length, videoCount: videos.length, photos, videos, downloadAllUrl }, 200, cors);
       }
@@ -68,15 +78,21 @@ export default {
         const gallery = cleanSlug(downloadAllMatch[1]);
         const exp = Number(url.searchParams.get('exp') || 0);
         const sig = url.searchParams.get('sig') || '';
+        const accessType = url.searchParams.get('access') === 'owner' ? 'owner' : 'client';
         if (!gallery || !exp || exp < Math.floor(Date.now() / 1000)) return new Response('Link expired', { status: 401, headers: cors });
-        const expected = await signAsset(`${gallery}|__all__|${exp}`, env.SESSION_SECRET);
+        const expected = await signAsset(`${gallery}|__all__|${exp}|${accessType}`, env.SESSION_SECRET);
         if (!safeEqual(sig, expected)) return new Response('Unauthorized', { status: 401, headers: cors });
         const prefix = `galleries/${gallery}/photos/`;
         const objects = (await listAll(env.GALLERY_BUCKET, prefix)).filter(o => IMAGE_RE.test(o.key) || VIDEO_RE.test(o.key)).sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
         if (!objects.length) return new Response('No media found', { status: 404, headers: cors });
         const estimated = objects.reduce((sum, o) => sum + Number(o.size || 0) + 256, 22);
         if (objects.some(o => Number(o.size || 0) > 0xffffffff) || estimated > 0xffffffff) return new Response('Gallery is too large for a single ZIP download', { status: 413, headers: cors });
-        const stream = makeZipStream(env.GALLERY_BUCKET, objects, prefix);
+        const onComplete = accessType === 'client'
+          ? () => ctx.waitUntil(notifyDownloadAllComplete(gallery, objects, env).catch(error => {
+              console.error(JSON.stringify({ event: 'gallery_download_notification_failed', gallery, error: String(error) }));
+            }))
+          : null;
+        const stream = makeZipStream(env.GALLERY_BUCKET, objects, prefix, onComplete);
         const headers = new Headers(cors); headers.set('Content-Type', 'application/zip'); headers.set('Content-Disposition', `attachment; filename="${gallery}-gallery.zip"`); headers.set('Cache-Control', 'private, no-store');
         return new Response(stream, { headers });
       }
@@ -100,11 +116,56 @@ export default {
   }
 };
 
+async function notifyFirstClientAccess(gallery, request, env) {
+  if (!env.ACCESS_EMAIL || !env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) return;
+  const markerKey = `galleries/${gallery}/.client-first-access.json`;
+  if (await env.GALLERY_BUCKET.head(markerKey)) return;
+
+  const accessedAt = new Date();
+  const clientName = gallery.split('-').map(part => part ? part[0].toUpperCase() + part.slice(1) : '').join(' ');
+  await env.ACCESS_EMAIL.send({
+    to: env.NOTIFICATION_EMAIL,
+    from: { email: env.NOTIFICATION_FROM, name: 'TH3NOMADS Gallery' },
+    subject: `${clientName} accessed their gallery`,
+    text: `${clientName} (${gallery}) successfully accessed their private gallery for the first time at ${accessedAt.toISOString()}.`
+  });
+
+  await env.GALLERY_BUCKET.put(markerKey, JSON.stringify({
+    gallery,
+    firstAccessedAt: accessedAt.toISOString(),
+    country: request.cf?.country || null
+  }), { httpMetadata: { contentType: 'application/json' } });
+}
+
+async function notifyDownloadAllComplete(gallery, objects, env) {
+  if (!env.ACCESS_EMAIL || !env.NOTIFICATION_EMAIL || !env.NOTIFICATION_FROM) return;
+  const completedAt = new Date();
+  const clientName = gallery.split('-').map(part => part ? part[0].toUpperCase() + part.slice(1) : '').join(' ');
+  const totalBytes = objects.reduce((sum, object) => sum + Number(object.size || 0), 0);
+  await env.ACCESS_EMAIL.send({
+    to: env.NOTIFICATION_EMAIL,
+    from: { email: env.NOTIFICATION_FROM, name: 'TH3NOMADS Gallery' },
+    subject: `${clientName} completed Download All`,
+    text: `${clientName} (${gallery}) completed a Download All transfer at ${completedAt.toISOString()}.
+
+Files: ${objects.length}
+Transferred: ${formatBytes(totalBytes)}`
+  });
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 bytes';
+  const units = ['bytes', 'KB', 'MB', 'GB'];
+  const index = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / (1024 ** index);
+  return `${value.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+}
+
 function cleanSlug(value){const s=String(value||'').toLowerCase();return /^[a-z0-9-]+$/.test(s)?s:'';}
 function corsHeaders(origin,allowed){const h=new Headers({'Access-Control-Allow-Methods':'GET,POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type,Authorization','Vary':'Origin'});if(origin&&origin===allowed)h.set('Access-Control-Allow-Origin',origin);return h;}
 function json(data,status,headers){const h=new Headers(headers);h.set('Content-Type','application/json; charset=utf-8');h.set('Cache-Control','no-store');return new Response(JSON.stringify(data),{status,headers:h});}
 async function listAll(bucket,prefix){const out=[];let cursor;do{const page=await bucket.list({prefix,cursor});out.push(...page.objects);cursor=page.truncated?page.cursor:undefined;}while(cursor);return out;}
-function makeZipStream(bucket,objects,prefix){return new ReadableStream({async start(controller){try{let offset=0;const central=[];const{time,date}=dosDateTime(new Date());for(const listed of objects){const name=listed.key.slice(prefix.length).replace(/[\\/]/g,'_');const nameBytes=enc.encode(name);const localOffset=offset;const local=zipLocalHeader(nameBytes,time,date);controller.enqueue(local);offset+=local.byteLength;const object=await bucket.get(listed.key);if(!object)throw new Error('Missing object');const reader=object.body.getReader();let crc=0xffffffff,size=0;while(true){const{value,done}=await reader.read();if(done)break;if(!value||!value.byteLength)continue;crc=crc32Update(crc,value);size+=value.byteLength;controller.enqueue(value);offset+=value.byteLength;}crc=(crc^0xffffffff)>>>0;const descriptor=zipDataDescriptor(crc,size);controller.enqueue(descriptor);offset+=descriptor.byteLength;central.push(zipCentralHeader(nameBytes,time,date,crc,size,localOffset));}const centralOffset=offset;let centralSize=0;for(const entry of central){controller.enqueue(entry);centralSize+=entry.byteLength;offset+=entry.byteLength;}controller.enqueue(zipEndOfCentralDirectory(central.length,centralSize,centralOffset));controller.close();}catch(err){controller.error(err);}}});}
+function makeZipStream(bucket,objects,prefix,onComplete){return new ReadableStream({async start(controller){try{let offset=0;const central=[];const{time,date}=dosDateTime(new Date());for(const listed of objects){const name=listed.key.slice(prefix.length).replace(/[\\/]/g,'_');const nameBytes=enc.encode(name);const localOffset=offset;const local=zipLocalHeader(nameBytes,time,date);controller.enqueue(local);offset+=local.byteLength;const object=await bucket.get(listed.key);if(!object)throw new Error('Missing object');const reader=object.body.getReader();let crc=0xffffffff,size=0;while(true){const{value,done}=await reader.read();if(done)break;if(!value||!value.byteLength)continue;crc=crc32Update(crc,value);size+=value.byteLength;controller.enqueue(value);offset+=value.byteLength;}crc=(crc^0xffffffff)>>>0;const descriptor=zipDataDescriptor(crc,size);controller.enqueue(descriptor);offset+=descriptor.byteLength;central.push(zipCentralHeader(nameBytes,time,date,crc,size,localOffset));}const centralOffset=offset;let centralSize=0;for(const entry of central){controller.enqueue(entry);centralSize+=entry.byteLength;offset+=entry.byteLength;}controller.enqueue(zipEndOfCentralDirectory(central.length,centralSize,centralOffset));controller.close();if(onComplete)onComplete();}catch(err){controller.error(err);}}});}
 function zipLocalHeader(name,time,date){const out=new Uint8Array(30+name.length),v=new DataView(out.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x0808,true);v.setUint16(8,0,true);v.setUint16(10,time,true);v.setUint16(12,date,true);v.setUint32(14,0,true);v.setUint32(18,0,true);v.setUint32(22,0,true);v.setUint16(26,name.length,true);v.setUint16(28,0,true);out.set(name,30);return out;}
 function zipDataDescriptor(crc,size){const out=new Uint8Array(16),v=new DataView(out.buffer);v.setUint32(0,0x08074b50,true);v.setUint32(4,crc>>>0,true);v.setUint32(8,size>>>0,true);v.setUint32(12,size>>>0,true);return out;}
 function zipCentralHeader(name,time,date,crc,size,localOffset){const out=new Uint8Array(46+name.length),v=new DataView(out.buffer);v.setUint32(0,0x02014b50,true);v.setUint16(4,20,true);v.setUint16(6,20,true);v.setUint16(8,0x0808,true);v.setUint16(10,0,true);v.setUint16(12,time,true);v.setUint16(14,date,true);v.setUint32(16,crc>>>0,true);v.setUint32(20,size>>>0,true);v.setUint32(24,size>>>0,true);v.setUint16(28,name.length,true);v.setUint16(30,0,true);v.setUint16(32,0,true);v.setUint16(34,0,true);v.setUint16(36,0,true);v.setUint32(38,0,true);v.setUint32(42,localOffset>>>0,true);out.set(name,46);return out;}
