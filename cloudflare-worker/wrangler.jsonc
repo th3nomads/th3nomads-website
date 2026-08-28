@@ -13,7 +13,9 @@
   },
   "send_email": [
     {
-      "name": "ACCESS_EMAIL"
+      "name": "ACCESS_EMAIL",
+      "destination_address": "th3nomadscreate@gmail.com",
+      "allowed_sender_addresses": ["gallery@th3nomadsphotography.com"]
     }
   ],
   "r2_buckets": [
