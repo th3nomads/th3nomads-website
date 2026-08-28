@@ -4,11 +4,18 @@
   "main": "src/index.js",
   "compatibility_date": "2026-08-17",
   "vars": {
-    "ALLOWED_ORIGIN": "https://www.th3nomadsphotography.com"
+    "ALLOWED_ORIGIN": "https://www.th3nomadsphotography.com",
+    "NOTIFICATION_EMAIL": "th3nomadscreate@gmail.com",
+    "NOTIFICATION_FROM": "gallery@th3nomadsphotography.com"
   },
   "secrets": {
-    "required": ["SESSION_SECRET", "GALLERY_PASSWORDS"]
+    "required": ["SESSION_SECRET", "GALLERY_PASSWORDS", "OWNER_PASSWORD"]
   },
+  "send_email": [
+    {
+      "name": "ACCESS_EMAIL"
+    }
+  ],
   "r2_buckets": [
     {
       "binding": "GALLERY_BUCKET",
