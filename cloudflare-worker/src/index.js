@@ -68,8 +68,8 @@ export default {
         await env.ACCESS_EMAIL.send({
           to: env.NOTIFICATION_EMAIL,
           from: { email: env.NOTIFICATION_FROM, name: 'TH3NOMADS Gallery' },
-          subject: `${clientName} submitted ${selected.length} album photo${selected.length === 1 ? '' : 's'}`,
-          text: `${clientName} (${gallery}) submitted an album selection at ${submittedAt.toISOString()}.
+          subject: `${clientName} sent an album inquiry with ${selected.length} favorite photo${selected.length === 1 ? '' : 's'}`,
+          text: `${clientName} (${gallery}) sent an album inquiry at ${submittedAt.toISOString()}. This is an inquiry only and not a confirmed order.
 
 Selection ID: ${selectionId}
 Photos selected: ${selected.length}
