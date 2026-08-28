@@ -34,6 +34,60 @@ export default {
         return json({ token }, 200, cors);
       }
 
+      const albumSelectionMatch = url.pathname.match(/^\/api\/gallery\/([a-z0-9-]+)\/album-selection$/);
+      if (request.method === 'POST' && albumSelectionMatch) {
+        const gallery = cleanSlug(albumSelectionMatch[1]);
+        const auth = request.headers.get('Authorization') || '';
+        const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+        const session = await verifySession(token, env.SESSION_SECRET);
+        if (!session || session.gallery !== gallery || session.accessType !== 'client') {
+          return json({ error: 'Unauthorized' }, 401, cors);
+        }
+
+        const body = await request.json();
+        const requested = Array.isArray(body.photos) ? body.photos : [];
+        if (!requested.length || requested.length > 250) {
+          return json({ error: 'Select between 1 and 250 photos' }, 400, cors);
+        }
+
+        const prefix = `galleries/${gallery}/photos/`;
+        const available = new Set(
+          (await listAll(env.GALLERY_BUCKET, prefix))
+            .filter(object => IMAGE_RE.test(object.key))
+            .map(object => object.key.slice(prefix.length))
+        );
+        const selected = [...new Set(requested.map(name => String(name || '')).filter(name => available.has(name)))];
+        if (!selected.length || selected.length !== new Set(requested.map(name => String(name || ''))).size) {
+          return json({ error: 'One or more selected photos are invalid' }, 400, cors);
+        }
+
+        const submittedAt = new Date();
+        const selectionId = crypto.randomUUID();
+        const clientName = gallery.split('-').map(part => part ? part[0].toUpperCase() + part.slice(1) : '').join(' ');
+        const photoList = selected.map((name, index) => `${index + 1}. ${name.replace(/[\\r\\n]/g, ' ')}`).join('\n');
+        await env.ACCESS_EMAIL.send({
+          to: env.NOTIFICATION_EMAIL,
+          from: { email: env.NOTIFICATION_FROM, name: 'TH3NOMADS Gallery' },
+          subject: `${clientName} submitted ${selected.length} album photo${selected.length === 1 ? '' : 's'}`,
+          text: `${clientName} (${gallery}) submitted an album selection at ${submittedAt.toISOString()}.
+
+Selection ID: ${selectionId}
+Photos selected: ${selected.length}
+
+${photoList}`
+        });
+
+        ctx.waitUntil(env.GALLERY_BUCKET.put(
+          `galleries/${gallery}/album-selections/${submittedAt.toISOString().replace(/[:.]/g, '-')}-${selectionId}.json`,
+          JSON.stringify({ selectionId, gallery, submittedAt: submittedAt.toISOString(), photos: selected }, null, 2),
+          { httpMetadata: { contentType: 'application/json' } }
+        ).catch(error => {
+          console.error(JSON.stringify({ event: 'album_selection_archive_failed', gallery, selectionId, error: String(error) }));
+        }));
+
+        return json({ ok: true, selectionId, selectedCount: selected.length }, 200, cors);
+      }
+
       const manifestMatch = url.pathname.match(/^\/api\/gallery\/([a-z0-9-]+)\/manifest$/);
       if (request.method === 'GET' && manifestMatch) {
         const gallery = cleanSlug(manifestMatch[1]);
