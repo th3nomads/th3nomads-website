@@ -127,9 +127,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const totalSlides = document.querySelector('#totalSlides');
   const progress = document.querySelector('#carouselProgress');
   let portfolioTimer;
+  let portfolioScrollTimer;
+  let portfolioResizeTimer;
+  let carouselCloneCount = 0;
   let activePortfolioFilter = 'all';
 
-  const visibleCards = () => cards.filter(card => !card.classList.contains('hidden'));
+  const originalCardOrder = [...cards];
+  const shuffledCardOrder = [...cards];
+
+  // Fisher-Yates gives the All tab a fresh, unbiased order on every page load.
+  for (let index = shuffledCardOrder.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [shuffledCardOrder[index], shuffledCardOrder[randomIndex]] =
+      [shuffledCardOrder[randomIndex], shuffledCardOrder[index]];
+  }
+
+  const visibleCards = () => {
+    if (!gallery) return [];
+    return [...gallery.querySelectorAll('.gallery-card:not(.carousel-clone)')]
+      .filter(card => !card.classList.contains('hidden'));
+  };
+
+  const removeCarouselClones = () => {
+    if (!gallery) return;
+    gallery.querySelectorAll('.carousel-clone').forEach(clone => clone.remove());
+    carouselCloneCount = 0;
+  };
 
   const cardStep = () => {
     const first = visibleCards()[0];
@@ -137,6 +160,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const styles = getComputedStyle(gallery);
     const gap = parseFloat(styles.gap || styles.columnGap) || 18;
     return first.getBoundingClientRect().width + gap;
+  };
+
+  const logicalCarouselIndex = () => {
+    const list = visibleCards();
+    if (!gallery || !list.length) return 0;
+    const physicalIndex = Math.round(gallery.scrollLeft / cardStep());
+    return ((physicalIndex - carouselCloneCount) % list.length + list.length) % list.length;
   };
 
   const updateCounter = () => {
@@ -151,13 +181,76 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const index = Math.min(
-      Math.max(Math.round(gallery.scrollLeft / cardStep()), 0),
-      total - 1
-    );
+    const index = activePortfolioFilter === 'all'
+      ? logicalCarouselIndex()
+      : 0;
 
     currentSlide.textContent = String(index + 1).padStart(2, '0');
     if (progress) progress.style.width = `${((index + 1) / total) * 100}%`;
+  };
+
+  const makeCarouselClone = card => {
+    const clone = card.cloneNode(true);
+    clone.classList.add('carousel-clone');
+    clone.setAttribute('aria-hidden', 'true');
+    clone.removeAttribute('tabindex');
+    clone.querySelectorAll('button, a').forEach(element => {
+      element.tabIndex = -1;
+    });
+    return clone;
+  };
+
+  const buildInfiniteCarousel = () => {
+    if (!gallery || activePortfolioFilter !== 'all' || !cards.length) return;
+
+    removeCarouselClones();
+    shuffledCardOrder.forEach(card => gallery.appendChild(card));
+
+    const step = cardStep();
+    const cardsInView = Math.ceil(gallery.clientWidth / step) + 1;
+    carouselCloneCount = Math.min(cards.length, cardsInView);
+
+    const leading = document.createDocumentFragment();
+    shuffledCardOrder.slice(-carouselCloneCount).forEach(card => {
+      leading.appendChild(makeCarouselClone(card));
+    });
+    gallery.insertBefore(leading, gallery.firstChild);
+
+    const trailing = document.createDocumentFragment();
+    shuffledCardOrder.slice(0, carouselCloneCount).forEach(card => {
+      trailing.appendChild(makeCarouselClone(card));
+    });
+    gallery.appendChild(trailing);
+
+    gallery.scrollTo({
+      left: carouselCloneCount * cardStep(),
+      behavior: 'auto'
+    });
+    updateCounter();
+  };
+
+  const normalizeInfinitePosition = () => {
+    if (!gallery || activePortfolioFilter !== 'all') return;
+    const total = visibleCards().length;
+    if (!total) return;
+
+    const step = cardStep();
+    const physicalIndex = Math.round(gallery.scrollLeft / step);
+    let normalizedIndex = physicalIndex;
+
+    if (physicalIndex >= carouselCloneCount + total) {
+      normalizedIndex = physicalIndex - total;
+    } else if (physicalIndex < carouselCloneCount) {
+      normalizedIndex = physicalIndex + total;
+    }
+
+    if (normalizedIndex !== physicalIndex) {
+      gallery.scrollTo({
+        left: normalizedIndex * step,
+        behavior: 'auto'
+      });
+    }
+    updateCounter();
   };
 
   const movePortfolio = direction => {
@@ -166,14 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!list.length) return;
 
     const step = cardStep();
-    const currentIndex = Math.min(
-      Math.max(Math.round(gallery.scrollLeft / step), 0),
-      list.length - 1
-    );
-    const nextIndex = (currentIndex + direction + list.length) % list.length;
-
+    const currentIndex = Math.round(gallery.scrollLeft / step);
     gallery.scrollTo({
-      left: nextIndex * step,
+      left: (currentIndex + direction) * step,
       behavior: 'smooth'
     });
   };
@@ -190,6 +278,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const applyFilter = filter => {
     const showAll = filter === 'all';
     activePortfolioFilter = filter;
+    stopPortfolioAutoplay();
+    removeCarouselClones();
+
+    const order = showAll ? shuffledCardOrder : originalCardOrder;
+    order.forEach(card => gallery?.appendChild(card));
 
     cards.forEach(card => {
       card.classList.toggle('hidden', !showAll && card.dataset.category !== filter);
@@ -197,14 +290,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (gallery) {
       gallery.classList.toggle('all-carousel', showAll);
-      if (showAll) gallery.scrollTo({ left: 0, behavior: 'auto' });
+      gallery.scrollTo({ left: 0, behavior: 'auto' });
     }
 
     if (controls) controls.style.display = showAll ? 'flex' : 'none';
-    requestAnimationFrame(updateCounter);
 
-    if (showAll) startPortfolioAutoplay();
-    else stopPortfolioAutoplay();
+    if (showAll) {
+      requestAnimationFrame(() => {
+        buildInfiniteCarousel();
+        startPortfolioAutoplay();
+      });
+    } else {
+      requestAnimationFrame(updateCounter);
+    }
   };
 
   filters.forEach(button => {
@@ -234,6 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
     gallery.addEventListener('scroll', () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(updateCounter);
+      clearTimeout(portfolioScrollTimer);
+      portfolioScrollTimer = setTimeout(normalizeInfinitePosition, 160);
     }, { passive: true });
   }
 //video highlight section
@@ -299,7 +399,13 @@ if (videoCarousel) {
 
   updateVideoCounter();
 }
-  window.addEventListener('resize', updateCounter);
+  window.addEventListener('resize', () => {
+    clearTimeout(portfolioResizeTimer);
+    portfolioResizeTimer = setTimeout(() => {
+      if (activePortfolioFilter === 'all') buildInfiniteCarousel();
+      else updateCounter();
+    }, 180);
+  });
   const active = filters.find(button => button.classList.contains('active')) || filters[0];
   if (active) applyFilter(active.dataset.filter || 'all');
 
