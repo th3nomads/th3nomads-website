@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const currentSlide = document.querySelector('#currentSlide');
   const totalSlides = document.querySelector('#totalSlides');
   const progress = document.querySelector('#carouselProgress');
+  let portfolioTimer;
+  let activePortfolioFilter = 'all';
 
   const visibleCards = () => cards.filter(card => !card.classList.contains('hidden'));
 
@@ -83,8 +85,36 @@ document.addEventListener('DOMContentLoaded', () => {
     if (progress) progress.style.width = `${((index + 1) / total) * 100}%`;
   };
 
+  const movePortfolio = direction => {
+    if (!gallery || activePortfolioFilter !== 'all') return;
+    const list = visibleCards();
+    if (!list.length) return;
+
+    const step = cardStep();
+    const currentIndex = Math.min(
+      Math.max(Math.round(gallery.scrollLeft / step), 0),
+      list.length - 1
+    );
+    const nextIndex = (currentIndex + direction + list.length) % list.length;
+
+    gallery.scrollTo({
+      left: nextIndex * step,
+      behavior: 'smooth'
+    });
+  };
+
+  const stopPortfolioAutoplay = () => clearInterval(portfolioTimer);
+
+  const startPortfolioAutoplay = () => {
+    stopPortfolioAutoplay();
+    if (activePortfolioFilter !== 'all') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    portfolioTimer = setInterval(() => movePortfolio(1), 4000);
+  };
+
   const applyFilter = filter => {
     const showAll = filter === 'all';
+    activePortfolioFilter = filter;
 
     cards.forEach(card => {
       card.classList.toggle('hidden', !showAll && card.dataset.category !== filter);
@@ -97,6 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (controls) controls.style.display = showAll ? 'flex' : 'none';
     requestAnimationFrame(updateCounter);
+
+    if (showAll) startPortfolioAutoplay();
+    else stopPortfolioAutoplay();
   };
 
   filters.forEach(button => {
@@ -109,13 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (prev && gallery) {
     prev.addEventListener('click', () => {
-      gallery.scrollBy({ left: -cardStep(), behavior: 'smooth' });
+      movePortfolio(-1);
+      startPortfolioAutoplay();
     });
   }
 
   if (next && gallery) {
     next.addEventListener('click', () => {
-      gallery.scrollBy({ left: cardStep(), behavior: 'smooth' });
+      movePortfolio(1);
+      startPortfolioAutoplay();
     });
   }
 
