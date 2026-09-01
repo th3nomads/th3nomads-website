@@ -1,6 +1,81 @@
 'use strict';
 
+// Google Analytics 4
+const GA_MEASUREMENT_ID = 'G-HY84HFZZC1';
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+window.gtag('js', new Date());
+window.gtag('config', GA_MEASUREMENT_ID);
+
+const gaScript = document.createElement('script');
+gaScript.async = true;
+gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+document.head.appendChild(gaScript);
+
+const trackEvent = (name, params = {}) => {
+  if (typeof window.gtag !== 'function') return;
+  window.gtag('event', name, params);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Track important business actions without sending names, emails, phone numbers, or messages.
+  document.addEventListener('click', event => {
+    const filterButton = event.target.closest('.filters button');
+    if (filterButton) {
+      trackEvent('portfolio_filter', {
+        filter_name: filterButton.dataset.filter || 'all'
+      });
+    }
+
+    const portfolioCard = event.target.closest('.gallery-card');
+    if (portfolioCard) {
+      trackEvent('portfolio_image_open', {
+        category: portfolioCard.dataset.category || 'unknown'
+      });
+    }
+
+    const control = event.target.closest('button');
+    if (control?.id === 'carouselPrev' || control?.id === 'carouselNext') {
+      trackEvent('portfolio_carousel_click', {
+        direction: control.id === 'carouselPrev' ? 'previous' : 'next'
+      });
+    }
+    if (control?.id === 'videoPrev' || control?.id === 'videoNext') {
+      trackEvent('video_carousel_click', {
+        direction: control.id === 'videoPrev' ? 'previous' : 'next'
+      });
+    }
+    if (control?.classList.contains('testimonial-read-more')) {
+      trackEvent('testimonial_read_more');
+    }
+
+    const link = event.target.closest('a');
+    if (!link) return;
+    const href = link.getAttribute('href') || '';
+    const label = (link.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+
+    if (href === '#contact') {
+      trackEvent('booking_cta_click', { link_text: label });
+    } else if (href.includes('instagram.com')) {
+      trackEvent('instagram_click', { link_text: label });
+    } else if (href.startsWith('mailto:')) {
+      trackEvent('email_click', { link_text: label });
+    } else if (href.startsWith('galleries/')) {
+      trackEvent('client_gallery_click', {
+        gallery_destination: href.includes('sample-gallery') ? 'sample_gallery' : 'private_gallery'
+      });
+    }
+  });
+
+  document.querySelectorAll('video').forEach((video, index) => {
+    video.addEventListener('play', () => {
+      trackEvent('video_play', {
+        video_position: index + 1,
+        video_title: video.closest('.video-card')?.querySelector('h3')?.textContent?.trim() || `Video ${index + 1}`
+      });
+    });
+  });
+
   const header = document.querySelector('.site-header');
   const toggle = document.querySelector('.menu-toggle');
   const nav = document.querySelector('.nav-links');
@@ -429,6 +504,13 @@ if (videoCarousel) {
   const formNote = document.querySelector('#formNote');
   if (form && formNote) {
     form.addEventListener('submit', () => {
+      const eventType = form.querySelector('[name="event"]')?.value || 'not_selected';
+      const hoursNeeded = form.querySelector('[name="hours"]')?.value || 'not_selected';
+      trackEvent('generate_lead', {
+        form_id: 'inquiryForm',
+        event_type: eventType,
+        hours_needed: hoursNeeded
+      });
       formNote.textContent = 'Sending your inquiry...';
       formNote.style.color = '#c9a85d';
     });
