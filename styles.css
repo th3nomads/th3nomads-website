@@ -326,7 +326,9 @@
   height: 72px;
   aspect-ratio: 1;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #080808;
+  padding: 3px;
 }
 
 footer img {
@@ -334,7 +336,9 @@ footer img {
   height: 115px;
   aspect-ratio: 1;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #080808;
+  padding: 4px;
 }
 
 @media (max-width: 800px) {
