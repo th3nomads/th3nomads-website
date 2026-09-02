@@ -320,6 +320,23 @@
   font-size: .78rem;
 }
 
+/* Circular brand marks */
+.brand img {
+  width: 72px;
+  height: 72px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+footer img {
+  width: 115px;
+  height: 115px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 @media (max-width: 800px) {
   .testimonial-card {
     flex-basis: min(82vw, 620px);
@@ -344,6 +361,11 @@
 }
 
 @media (max-width: 600px) {
+  .brand img {
+    width: 62px;
+    height: 62px;
+  }
+
   .testimonial-controls {
     justify-content: space-between;
   }
@@ -375,4 +397,3 @@
     padding: 48px 25px 32px;
   }
 }
-
