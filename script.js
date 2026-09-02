@@ -606,6 +606,16 @@ if (videoCarousel) {
     }, { passive: true });
   }
 
+  const eventTypeSelect = document.querySelector('#inquiryForm select[name="event"]');
+  if (eventTypeSelect) {
+    const eventTypeInput = document.createElement('input');
+    eventTypeInput.type = 'text';
+    eventTypeInput.name = 'event';
+    eventTypeInput.placeholder = 'Wedding, birthday, corporate event, etc.';
+    eventTypeInput.required = true;
+    eventTypeSelect.replaceWith(eventTypeInput);
+  }
+
   const form = document.querySelector('#inquiryForm');
   const formNote = document.querySelector('#formNote');
   if (form && formNote) {
