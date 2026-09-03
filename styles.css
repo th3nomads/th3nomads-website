@@ -452,3 +452,38 @@ footer div{margin:20px 0}
   .partner-package{padding-top:52px;padding-bottom:52px}
   .partner-package-inner{padding:34px 22px}
 }
+
+
+.partner-package .package-logos{display:flex;align-items:center;justify-content:center;gap:20px;margin:0 0 28px}
+.partner-package .package-logos a{width:104px;height:104px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;overflow:hidden;background:#080808}
+.partner-package .package-logos img{width:100%;height:100%;object-fit:cover}
+.partner-package .package-logos span{color:var(--gold);font:400 2rem Georgia,serif}
+@media(max-width:600px){
+  .partner-package .package-logos{gap:14px;margin-bottom:24px}
+  .partner-package .package-logos a{width:82px;height:82px}
+}
+
+
+/* Compact partnership card matching Sun E. Social */
+.partner-package.section{
+  margin:0 7vw 70px;
+  padding:42px;
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:34px 7vw;
+  align-items:center;
+  background:#111;
+  border:1px solid var(--gold);
+  border-radius:12px;
+  color:#fff;
+  text-align:left;
+}
+.partner-package.section .package-logos{grid-column:1/-1;margin:0 0 2px}
+.partner-package.section h2{font-size:clamp(2.8rem,4.8vw,5.2rem);margin:0}
+.partner-package.section .partner-package-copy p{margin:0 0 24px;color:#c9c3bb;font:400 1.15rem/1.7 Georgia,serif}
+.partner-package.section .partner-package-copy strong{color:var(--gold)}
+@media(max-width:900px){.partner-package.section{grid-template-columns:1fr;gap:30px}}
+@media(max-width:600px){
+  .partner-package.section{margin:0 22px 54px;padding:30px 22px}
+  .partner-package.section h2{font-size:2.65rem}
+}
