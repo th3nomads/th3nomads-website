@@ -572,3 +572,26 @@ footer div{margin:20px 0}
 @media(max-width:700px){
   .partner-package.section .partner-cart-image img{height:170px}
 }
+
+
+/* Cart photo as the partnership section background. */
+.partner-package.section{
+  grid-template-columns:1fr;
+  background:
+    linear-gradient(rgba(7,7,7,.82),rgba(7,7,7,.88)),
+    url("https://sunesocialcart.com/assets/cart-detail.jpg") center 58% / cover no-repeat;
+  min-height:380px;
+  text-align:center;
+}
+.partner-package.section .partner-package-heading,
+.partner-package.section .package-logos,
+.partner-package.section .partner-package-copy{
+  grid-column:1;
+}
+.partner-package.section .partner-package-copy{
+  max-width:760px;
+  margin:0 auto;
+}
+.partner-package.section .partner-package-copy p{
+  color:#f3eee7;
+}
