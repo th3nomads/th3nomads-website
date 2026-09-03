@@ -493,3 +493,12 @@ footer div{margin:20px 0}
 .partner-package .partner-cart-image img{display:block;width:100%;height:190px;object-fit:cover;object-position:center 58%;transition:transform .35s ease}
 .partner-package .partner-cart-image:hover img{transform:scale(1.025)}
 @media(max-width:600px){.partner-package .partner-cart-image img{height:170px}}
+
+
+/* Preserve the full TH3NOMADS logo inside the partnership circle. */
+.partner-package .package-logos a:first-child img{
+  object-fit:contain;
+  object-position:center;
+  padding:10px;
+  background:#080808;
+}
