@@ -426,3 +426,17 @@ footer{padding-top:40px;padding-bottom:40px}
 footer div{margin:20px 0}
 @media(max-width:1000px){.feature-story{gap:30px}.contact{gap:36px}}
 @media(max-width:600px){.section{padding:58px 22px}.hero{padding-top:7rem;padding-bottom:4rem}.hero-copy{line-height:1.5}.creative-strip{padding:34px 22px}.service-card{min-height:390px}.section-heading{margin-bottom:24px}}
+
+/* Creative services: compact cards + mobile swipe */
+.service-card{min-height:360px;padding:24px 22px}
+.service-card h3{margin:20px 0 10px}
+.service-card p,.service-card li{line-height:1.5}
+.service-card ul{margin-top:14px;margin-bottom:20px}
+@media(max-width:600px){
+  .service-grid{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;width:100%;padding:2px 2px 16px;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-inline:contain}
+  .service-grid::-webkit-scrollbar{display:none}
+  .service-card{flex:0 0 82vw;width:82vw;min-height:330px;padding:22px 20px;scroll-snap-align:start}
+  .service-card>span{font-size:2rem}
+  .service-card h3{font-size:1.7rem;margin:18px 0 9px}
+  .service-card ul{margin:12px 0 18px}
+}
