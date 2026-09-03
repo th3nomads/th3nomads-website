@@ -565,3 +565,10 @@ footer div{margin:20px 0}
 @media(max-width:700px){
   .partner-package.section .partner-cart-image img{height:140px}
 }
+
+
+/* Slightly larger cart preview. */
+.partner-package.section .partner-cart-image img{height:190px}
+@media(max-width:700px){
+  .partner-package.section .partner-cart-image img{height:170px}
+}
