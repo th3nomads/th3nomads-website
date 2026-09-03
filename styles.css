@@ -401,3 +401,28 @@ footer img {
     padding: 48px 25px 32px;
   }
 }
+
+/* Sept 2026 layout cleanup */
+a[href="#experience"], #experience {display:none!important}
+.section{padding-top:82px;padding-bottom:82px}
+.eyebrow{margin-bottom:.85rem}
+.hero-kicker{margin-top:1.15rem}
+.hero-copy{line-height:1.55;margin:1rem 0 1.4rem}
+.intro{gap:3.5vw}
+.intro-detail p,.section-heading>p,.about-copy p,.story-copy p,.contact-copy>p{line-height:1.55}
+.section-heading{margin-bottom:30px;gap:3.5vw}
+.feature-story,.about,.contact{gap:5vw}
+.filters{padding-top:16px;margin-bottom:16px}
+.carousel-controls,.video-carousel-controls,.testimonial-controls{margin-bottom:14px}
+.creative-strip{padding-top:40px;padding-bottom:40px}
+.service-card{padding:28px 26px;min-height:430px}
+.service-card h3{margin:28px 0 12px}
+.steps article{padding:24px 22px}
+.steps h3{margin:24px 0 9px}
+.steps p{line-height:1.5}
+.social-links{margin-top:24px}
+.inquiry-form{gap:16px}
+footer{padding-top:40px;padding-bottom:40px}
+footer div{margin:20px 0}
+@media(max-width:1000px){.feature-story{gap:30px}.contact{gap:36px}}
+@media(max-width:600px){.section{padding:58px 22px}.hero{padding-top:7rem;padding-bottom:4rem}.hero-copy{line-height:1.5}.creative-strip{padding:34px 22px}.service-card{min-height:390px}.section-heading{margin-bottom:24px}}
