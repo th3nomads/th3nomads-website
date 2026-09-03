@@ -537,3 +537,13 @@ footer div{margin:20px 0}
   .partner-package.section .package-logos a{width:68px;height:68px}
   .partner-package.section .partner-cart-image img{height:140px}
 }
+
+
+/* Show the complete cart without cropping. */
+.partner-package.section .partner-cart-image{
+  background:#0b0b0b;
+}
+.partner-package.section .partner-cart-image img{
+  object-fit:contain;
+  object-position:center;
+}
