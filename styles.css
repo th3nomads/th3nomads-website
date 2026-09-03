@@ -502,3 +502,38 @@ footer div{margin:20px 0}
   padding:10px;
   background:#080808;
 }
+
+
+/* Keep the joint-package message at the top of the card. */
+.partner-package.section .partner-package-heading{
+  grid-column:1/-1;
+  text-align:center;
+}
+.partner-package.section .partner-package-heading h2{
+  max-width:900px;
+  margin:0 auto;
+}
+
+
+/* Compact joint-package layout */
+.partner-package.section{
+  margin-bottom:52px;
+  padding:28px 32px;
+  gap:22px 5vw;
+}
+.partner-package.section .partner-package-heading h2{
+  max-width:none;
+  font-size:clamp(1.8rem,3vw,3rem);
+  white-space:nowrap;
+}
+.partner-package.section .package-logos{margin-bottom:0;gap:14px}
+.partner-package.section .package-logos a{width:76px;height:76px}
+.partner-package.section .partner-cart-image{margin-bottom:0}
+.partner-package.section .partner-cart-image img{height:145px}
+.partner-package.section .partner-package-copy p{font-size:1.02rem;line-height:1.55;margin-bottom:18px}
+@media(max-width:700px){
+  .partner-package.section{padding:24px 20px;gap:20px}
+  .partner-package.section .partner-package-heading h2{font-size:clamp(1.55rem,7vw,2.25rem);white-space:normal}
+  .partner-package.section .package-logos a{width:68px;height:68px}
+  .partner-package.section .partner-cart-image img{height:140px}
+}
