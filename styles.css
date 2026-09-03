@@ -440,3 +440,15 @@ footer div{margin:20px 0}
   .service-card h3{font-size:1.7rem;margin:18px 0 9px}
   .service-card ul{margin:12px 0 18px}
 }
+
+
+/* TH3NOMADS + Sun E. Social package offer */
+.partner-package{padding-top:70px;padding-bottom:70px;background:#111;color:#fff;text-align:center}
+.partner-package-inner{max-width:900px;margin:0 auto;padding:48px;border:1px solid var(--gold);border-radius:4px}
+.partner-package h2{margin:0 0 22px}
+.partner-package p:not(.eyebrow){max-width:690px;margin:0 auto 28px;color:#c9c3bb;font-size:1.08rem;line-height:1.7}
+.partner-package strong{color:var(--gold)}
+@media(max-width:600px){
+  .partner-package{padding-top:52px;padding-bottom:52px}
+  .partner-package-inner{padding:34px 22px}
+}
