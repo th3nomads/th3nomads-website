@@ -595,3 +595,9 @@ footer div{margin:20px 0}
 .partner-package.section .partner-package-copy p{
   color:#f3eee7;
 }
+
+
+/* Reveal more of the charcuterie display in the background. */
+.partner-package.section{
+  background-position:center 36%;
+}
