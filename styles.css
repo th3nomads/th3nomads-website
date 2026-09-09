@@ -463,6 +463,10 @@ footer div{margin:20px 0}
 .pricing-details p:not(.eyebrow),.pricing-details li{color:#aaa;line-height:1.65}
 .pricing-details p{margin-top:0}
 .pricing-details ul{margin:0;padding-left:18px}
+.pricing-details .video-addon{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.14);padding-top:28px}
+.pricing-details .video-addon h3{margin:0 0 15px;color:#fff;font:400 clamp(1.7rem,3vw,2.7rem)/1.15 Georgia,serif}
+.pricing-details .video-addon h3 strong{display:block;margin-top:8px;color:var(--gold);font-weight:400}
+.pricing-details .video-addon p:not(.eyebrow){max-width:900px;margin-bottom:12px}
 .pricing-note{margin:18px 0 0;color:#777;font-size:.75rem;line-height:1.6}
 @media(max-width:900px){.pricing-cards{grid-template-columns:1fr}.pricing-card{min-height:0}.pricing-group-heading{align-items:start;flex-direction:column}.pricing-group-heading h3{text-align:left}.pricing-details{grid-template-columns:1fr}}
 @media(max-width:600px){.pricing-groups{gap:55px}.pricing-cards{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 18px;scroll-snap-type:x mandatory;scrollbar-width:none}.pricing-cards::-webkit-scrollbar{display:none}.pricing-card{flex:0 0 84vw;width:84vw;min-height:350px;padding:26px 22px;scroll-snap-align:start}.pricing-details{padding:24px 20px;gap:25px}.pricing-group-heading h3{font-size:1.35rem}}
