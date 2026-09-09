@@ -442,6 +442,31 @@ footer div{margin:20px 0}
 }
 
 
+/* Photography packages and pricing */
+.pricing{background:#101010}
+.pricing-groups{display:grid;gap:74px}
+.pricing-group-heading{display:flex;justify-content:space-between;align-items:end;gap:36px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,.14);padding-bottom:20px}
+.pricing-group-heading .eyebrow{margin:0}
+.pricing-group-heading h3{max-width:560px;margin:0;color:#d9d2c7;font:400 clamp(1.35rem,2.4vw,2.2rem)/1.2 Georgia,serif;text-align:right}
+.pricing-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pricing-card{position:relative;display:flex;flex-direction:column;min-height:360px;padding:30px 26px;border:1px solid rgba(255,255,255,.16);background:#151515}
+.pricing-card.featured{border-color:var(--gold);background:#1a1916}
+.pricing-card .popular{position:absolute;top:0;right:0;padding:8px 12px;background:var(--gold);color:#0b0b0b;font-size:.56rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.pricing-card .package-label{margin:0 0 35px;color:var(--gold);font-size:.67rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase}
+.pricing-card h4{margin:0 0 20px;color:#ddd;font:400 1rem/1.4 Arial,sans-serif}
+.pricing-card h4 strong{display:block;color:#fff;font:400 2.15rem/1.2 Georgia,serif}
+.pricing-card ul{margin:0 0 26px;padding-left:18px;color:#aaa}
+.pricing-card li{margin:8px 0;line-height:1.45}
+.pricing-card a{margin-top:auto;color:var(--gold);font-size:.64rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
+.pricing-details{display:grid;grid-template-columns:1fr 1fr;gap:45px;margin-top:64px;padding:32px;border:1px solid rgba(255,255,255,.14)}
+.pricing-details .eyebrow{margin-bottom:12px}
+.pricing-details p:not(.eyebrow),.pricing-details li{color:#aaa;line-height:1.65}
+.pricing-details p{margin-top:0}
+.pricing-details ul{margin:0;padding-left:18px}
+.pricing-note{margin:18px 0 0;color:#777;font-size:.75rem;line-height:1.6}
+@media(max-width:900px){.pricing-cards{grid-template-columns:1fr}.pricing-card{min-height:0}.pricing-group-heading{align-items:start;flex-direction:column}.pricing-group-heading h3{text-align:left}.pricing-details{grid-template-columns:1fr}}
+@media(max-width:600px){.pricing-groups{gap:55px}.pricing-cards{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 18px;scroll-snap-type:x mandatory;scrollbar-width:none}.pricing-cards::-webkit-scrollbar{display:none}.pricing-card{flex:0 0 84vw;width:84vw;min-height:350px;padding:26px 22px;scroll-snap-align:start}.pricing-details{padding:24px 20px;gap:25px}.pricing-group-heading h3{font-size:1.35rem}}
+
 /* TH3NOMADS + Sun E. Social package offer */
 .partner-package{padding-top:70px;padding-bottom:70px;background:#111;color:#fff;text-align:center}
 .partner-package-inner{max-width:900px;margin:0 auto;padding:48px;border:1px solid var(--gold);border-radius:4px}
