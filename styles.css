@@ -461,6 +461,10 @@ footer div{margin:20px 0}
 .video-bundle span{color:var(--gold);font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .video-bundle strong{color:#fff;font:400 1.35rem/1.25 Georgia,serif}
 .video-bundle small{color:#aaa;font-size:.76rem;line-height:1.45}
+.content-bundle{display:grid;gap:5px;margin:0 0 24px;padding:16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.045)}
+.content-bundle span{color:#ddd;font-size:.6rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.content-bundle strong{color:#fff;font:400 1.35rem/1.25 Georgia,serif}
+.content-bundle small{color:#aaa;font-size:.76rem;line-height:1.45}
 .pricing-card a{margin-top:auto;color:var(--gold);font-size:.64rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase}
 .pricing-details{display:grid;grid-template-columns:1fr 1fr;gap:45px;margin-top:64px;padding:32px;border:1px solid rgba(255,255,255,.14)}
 .pricing-details .eyebrow{margin-bottom:12px}
