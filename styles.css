@@ -630,3 +630,50 @@ footer div{margin:20px 0}
 .partner-package.section{
   background-position:center 36%;
 }
+
+
+/* Mobile pricing carousel: keep horizontal gestures inside the cards */
+@media (max-width: 600px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
+  }
+
+  .pricing,
+  .pricing .section-heading,
+  .pricing-groups,
+  .pricing-group {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .pricing-cards {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-inline: contain;
+    touch-action: pan-x pinch-zoom;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 2px;
+    contain: layout paint;
+  }
+
+  .pricing-card {
+    flex: 0 0 calc(100vw - 66px);
+    width: calc(100vw - 66px);
+    max-width: calc(100vw - 66px);
+    min-width: calc(100vw - 66px);
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
