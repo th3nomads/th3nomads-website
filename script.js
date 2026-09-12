@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>
               <li>Up to 2 hours of coverage</li>
               <li>20+ edited vertical clips</li>
-              <li>1 edited highlight reel</li>
+              <li>3 edited highlight reels</li>
               <li>Behind-the-scenes moments</li>
               <li>48–72 hour delivery</li>
             </ul>
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>
               <li>Up to 4 hours of coverage</li>
               <li>40+ edited vertical clips</li>
-              <li>2 edited highlight reels</li>
+              <li>4 edited highlight reels</li>
               <li>Behind-the-scenes + key moments</li>
               <li>48–72 hour delivery</li>
             </ul>
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>
               <li>Up to 6 hours of coverage</li>
               <li>60+ edited vertical clips</li>
-              <li>3 edited highlight reels</li>
+              <li>5 edited highlight reels</li>
               <li>Extended behind-the-scenes coverage</li>
               <li>48–72 hour delivery</li>
             </ul>
