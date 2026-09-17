@@ -722,3 +722,10 @@ p,li,blockquote{text-wrap:pretty}
   .pricing-card h4 strong{font-size:clamp(1.85rem,8.5vw,2.25rem)}
   .video-bundle>span,.content-bundle>span{font-size:.61rem;letter-spacing:.055em}
 }
+
+
+/* Keep the three-part brand mantra to three intentional lines */
+@media(min-width:1001px){.intro{grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr)}}
+.intro-copy{min-width:0}
+.intro-copy h2{white-space:nowrap}
+@media(max-width:600px){.intro-copy h2{font-size:clamp(2.55rem,12vw,3.15rem)}}
