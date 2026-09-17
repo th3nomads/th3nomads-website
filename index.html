@@ -45,6 +45,12 @@
   .brand-mantra{font-size:clamp(2.75rem,13vw,3.4rem)!important}
 }
 </style>
+<script id="homepage-scroll-reset">
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.addEventListener('pageshow', function () {
+  if (!window.location.hash) window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+});
+</script>
 </head>
 <body>
 <div aria-hidden="true" class="cursor-glow"></div>
