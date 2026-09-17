@@ -685,3 +685,14 @@ footer div{margin:20px 0}
     scroll-snap-stop: always;
   }
 }
+
+
+/* Package category tabs */
+.pricing-tabs{display:flex;gap:10px;overflow-x:auto;margin:0 0 38px;padding:0 0 14px;border-bottom:1px solid rgba(255,255,255,.16);scrollbar-width:thin;scrollbar-color:var(--gold) transparent}
+.pricing-tabs button{flex:0 0 auto;padding:12px 16px;border:1px solid rgba(255,255,255,.2);background:transparent;color:#aaa;cursor:pointer;font-size:.66rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;transition:background .25s,border-color .25s,color .25s}
+.pricing-tabs button:hover,.pricing-tabs button:focus-visible{border-color:var(--gold);color:#fff;outline:none}
+.pricing-tabs button.active{border-color:var(--gold);background:var(--gold);color:#0b0b0b}
+.pricing-group[hidden]{display:none!important}
+.pricing-group.active{animation:pricingPanelIn .35s ease both}
+@keyframes pricingPanelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(max-width:600px){.pricing-tabs{margin-right:-22px;margin-bottom:28px;padding-right:22px}.pricing-tabs button{padding:11px 14px;font-size:.62rem}}
