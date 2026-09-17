@@ -750,3 +750,18 @@ p,li,blockquote{text-wrap:pretty}
   .service-card{min-height:0;padding:25px 22px}
   .service-details summary,.package-options summary{padding:13px 0}
 }
+
+
+/* Streamlined eight-section homepage */
+.portfolio-films[hidden],#portfolioGallery[hidden]{display:none!important}
+.portfolio-films{margin-top:20px}
+.portfolio-films .video-carousel-controls button{border-color:rgba(20,20,20,.25);color:#111}
+.portfolio-films .video-carousel-controls button:hover{color:#111}
+.partner-package-inline{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:24px;margin-top:34px;padding:22px 24px;border:1px solid var(--gold);background:#151515}
+.partner-package-inline .eyebrow{margin:0 0 7px}
+.partner-package-inline h3{margin:0;color:#fff;font:400 1.65rem/1.1 var(--font-display)}
+.partner-package-inline>p{margin:0;color:#aaa;line-height:1.6}
+.partner-package-inline strong{color:var(--gold)}
+.partner-package-inline>a{white-space:nowrap;color:var(--gold);font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.experience .steps{grid-template-columns:repeat(3,1fr)}
+@media(max-width:900px){.partner-package-inline{grid-template-columns:1fr;gap:12px}.experience .steps{grid-template-columns:1fr}}
