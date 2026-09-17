@@ -78,4 +78,66 @@ document.addEventListener('DOMContentLoaded', () => {
     if (notSure) coverageSelect.insertBefore(option, notSure);
     else coverageSelect.appendChild(option);
   }
+
+  // Turn the package categories into accessible tabs so one section is shown at a time.
+  const pricingTabsHost = document.querySelector('#pricing .pricing-groups');
+  if (pricingTabsHost && !document.querySelector('.pricing-tabs')) {
+    const groups = [...pricingTabsHost.querySelectorAll(':scope > .pricing-group')];
+    const tabList = document.createElement('div');
+    tabList.className = 'pricing-tabs';
+    tabList.setAttribute('role', 'tablist');
+    tabList.setAttribute('aria-label', 'Photography package categories');
+
+    const activateTab = (index, moveFocus = false) => {
+      groups.forEach((group, groupIndex) => {
+        const isActive = groupIndex === index;
+        group.hidden = !isActive;
+        group.classList.toggle('active', isActive);
+        if (isActive) group.classList.add('visible');
+      });
+
+      [...tabList.children].forEach((tab, tabIndex) => {
+        const isActive = tabIndex === index;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', String(isActive));
+        tab.tabIndex = isActive ? 0 : -1;
+        if (isActive) {
+          tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+          if (moveFocus) tab.focus();
+        }
+      });
+    };
+
+    groups.forEach((group, index) => {
+      const label = group.querySelector('.pricing-group-heading .eyebrow')?.textContent.trim() || `Package category ${index + 1}`;
+      const panelId = `pricing-panel-${index + 1}`;
+      const tabId = `pricing-tab-${index + 1}`;
+      const tab = document.createElement('button');
+
+      group.id = panelId;
+      group.setAttribute('role', 'tabpanel');
+      group.setAttribute('aria-labelledby', tabId);
+      tab.type = 'button';
+      tab.id = tabId;
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-controls', panelId);
+      tab.textContent = label;
+      tab.addEventListener('click', () => activateTab(index));
+      tab.addEventListener('keydown', event => {
+        let nextIndex = index;
+        if (event.key === 'ArrowRight') nextIndex = (index + 1) % groups.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + groups.length) % groups.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = groups.length - 1;
+        else return;
+        event.preventDefault();
+        activateTab(nextIndex, true);
+      });
+      tabList.appendChild(tab);
+    });
+
+    pricingTabsHost.before(tabList);
+    activateTab(0);
+  }
+
 });
