@@ -33,6 +33,18 @@
 <link rel="canonical" href="https://www.th3nomadsphotography.com/"/>
 <link href="assets/logo.png" rel="icon"/>
 <link href="styles.css?v=20260917-intro-tagline1" rel="stylesheet"/>
+<style id="intro-mantra-layout">
+.intro{grid-template-columns:minmax(560px,1.2fr) minmax(380px,.8fr)!important}
+.brand-mantra{display:grid;gap:0;font-size:clamp(4rem,6.2vw,6.8rem)!important;line-height:.86!important}
+.brand-mantra>span,.brand-mantra>em{display:block;white-space:nowrap}
+@media(max-width:1000px){
+  .intro{grid-template-columns:1fr!important}
+  .brand-mantra{font-size:clamp(3.3rem,11vw,5.4rem)!important}
+}
+@media(max-width:420px){
+  .brand-mantra{font-size:clamp(2.75rem,13vw,3.4rem)!important}
+}
+</style>
 </head>
 <body>
 <div aria-hidden="true" class="cursor-glow"></div>
@@ -71,9 +83,7 @@
 <!-- <div class="section-number">01</div> -->
 <div class="intro-copy reveal">
 <p class="eyebrow">The TH3NOMADS approach</p>
-<h2>We roam.</h2>
-<h2>We capture.</h2>
-<h2><em>You remember.</em></h2>
+<h2 class="brand-mantra"><span>We roam.</span><span>We capture.</span><em>You remember.</em></h2>
 </div>
 <div class="intro-detail reveal">
 <p>As a nomad photographer, we are not just showing up with a camera—we are traveling alongside you, sharing the same roads, delays, and unexpected moments. We try to blend in more than stand out, so what we capture feels natural and true to what you actually experienced.</p>
