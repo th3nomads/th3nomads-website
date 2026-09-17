@@ -696,3 +696,29 @@ footer div{margin:20px 0}
 .pricing-group.active{animation:pricingPanelIn .35s ease both}
 @keyframes pricingPanelIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(max-width:600px){.pricing-tabs{margin-right:-22px;margin-bottom:28px;padding-right:22px}.pricing-tabs button{padding:11px 14px;font-size:.62rem}}
+
+
+/* Elegant editorial typography refresh */
+:root{--font-display:'Cormorant Garamond',Georgia,'Times New Roman',serif;--font-sans:'Manrope',Arial,Helvetica,sans-serif}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body,button,input,select,textarea{font-family:var(--font-sans)}
+body{font-weight:400;letter-spacing:-.008em}
+h1,h2,h3,.hero h1,.section h2,.creative-strip span,.creative-strip h3,.service-card h3,.client-gallery-info h3,.steps h3,.pricing-group-heading h3,.pricing-card h4 strong,.pricing-details .video-addon h3,.testimonial-card blockquote,.testimonial-modal blockquote{font-family:var(--font-display)}
+h1,h2,h3{text-wrap:balance}
+p,li,blockquote{text-wrap:pretty}
+.hero h1,.section h2{letter-spacing:-.035em}
+.hero h1{line-height:.88}
+.section h2{line-height:.94}
+.pricing-group-heading h3{letter-spacing:-.015em;line-height:1.08}
+.pricing-card h4 strong{font-family:var(--font-display);font-size:clamp(1.9rem,2.35vw,2.35rem);line-height:1.05;letter-spacing:-.02em;white-space:nowrap}
+.eyebrow,.hero-kicker,.nav-links a,.button,.text-link,.filters button,.package-label,.popular,.pricing-tabs button,.pricing-card>a,.social-links a,footer a{font-weight:600;letter-spacing:.13em}
+.eyebrow,.hero-kicker,.package-label,.popular,.button,.text-link,.pricing-tabs button,.pricing-card>a{white-space:nowrap}
+.video-bundle>span,.content-bundle>span{white-space:nowrap}
+.section-heading>p,.intro-detail p,.about-copy p,.story-copy p,.contact-copy>p{letter-spacing:0;line-height:1.75}
+@media(max-width:600px){
+  .hero h1{font-size:clamp(3.35rem,16vw,4.25rem)}
+  .section h2{font-size:clamp(2.65rem,13vw,3.35rem)}
+  .eyebrow,.hero-kicker{letter-spacing:.105em}
+  .pricing-card h4 strong{font-size:clamp(1.85rem,8.5vw,2.25rem)}
+  .video-bundle>span,.content-bundle>span{font-size:.61rem;letter-spacing:.055em}
+}
