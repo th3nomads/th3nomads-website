@@ -729,3 +729,24 @@ p,li,blockquote{text-wrap:pretty}
 .intro-copy{min-width:0}
 .intro-copy h2{white-space:nowrap}
 @media(max-width:600px){.intro-copy h2{font-size:clamp(2.55rem,12vw,3.15rem)}}
+
+
+/* Cleaner progressive-disclosure layout */
+.services .section-heading,.pricing .section-heading{margin-bottom:32px}
+.service-grid{gap:14px}
+.service-card{min-height:0;padding:30px 26px}
+.service-card h3{margin:24px 0 12px}
+.service-card>p{margin-top:0}
+.service-details,.package-options{margin:18px 0 22px;border-top:1px solid rgba(127,118,105,.28);border-bottom:1px solid rgba(127,118,105,.28)}
+.service-details summary,.package-options summary{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;cursor:pointer;color:var(--gold);font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;list-style:none}
+.service-details summary::-webkit-details-marker,.package-options summary::-webkit-details-marker{display:none}
+.service-details summary::after,.package-options summary::after{content:'+';font:400 1.25rem/1 var(--font-display);transition:transform .2s}
+.service-details[open] summary::after,.package-options[open] summary::after{content:'−'}
+.service-details ul{margin:0;padding:0 0 16px 18px}
+.package-options .video-bundle,.package-options .content-bundle{margin:0 0 12px}
+.pricing-card{min-height:0}
+.pricing-card>a{margin-top:auto}
+@media(max-width:600px){
+  .service-card{min-height:0;padding:25px 22px}
+  .service-details summary,.package-options summary{padding:13px 0}
+}
