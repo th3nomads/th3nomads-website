@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cards = [...document.querySelectorAll('.gallery-card')];
   const gallery = document.querySelector('#portfolioGallery');
   const controls = document.querySelector('#carouselControls');
+  const films = document.querySelector('#portfolioFilms');
   const prev = document.querySelector('#carouselPrev');
   const next = document.querySelector('#carouselNext');
   const currentSlide = document.querySelector('#currentSlide');
@@ -277,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const applyFilter = filter => {
     const showAll = filter === 'all';
+    const showFilms = filter === 'films';
     activePortfolioFilter = filter;
     stopPortfolioAutoplay();
     removeCarouselClones();
@@ -285,22 +287,23 @@ document.addEventListener('DOMContentLoaded', () => {
     order.forEach(card => gallery?.appendChild(card));
 
     cards.forEach(card => {
-      card.classList.toggle('hidden', !showAll && card.dataset.category !== filter);
+      card.classList.toggle('hidden', showFilms || (!showAll && card.dataset.category !== filter));
     });
 
     if (gallery) {
+      gallery.hidden = showFilms;
       gallery.classList.toggle('all-carousel', showAll);
       gallery.scrollTo({ left: 0, behavior: 'auto' });
     }
-
-    if (controls) controls.style.display = showAll ? 'flex' : 'none';
+    if (films) films.hidden = !showFilms;
+    if (controls) controls.style.display = showAll && !showFilms ? 'flex' : 'none';
 
     if (showAll) {
       requestAnimationFrame(() => {
         buildInfiniteCarousel();
         startPortfolioAutoplay();
       });
-    } else {
+    } else if (!showFilms) {
       requestAnimationFrame(updateCounter);
     }
   };
