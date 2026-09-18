@@ -913,3 +913,6 @@ p,li,blockquote{text-wrap:pretty}
   color:#fff;
 }
 .add-package-button[hidden],.additional-package-row[hidden]{display:none!important}
+
+/* Coverage spans the row after removing Hours Needed */
+.coverage-row{grid-template-columns:1fr}
