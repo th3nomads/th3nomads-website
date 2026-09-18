@@ -875,3 +875,7 @@ p,li,blockquote{text-wrap:pretty}
   .event-package-row{grid-template-columns:1fr;gap:16px;padding:17px 15px}
   .event-package-row .event-time-group{width:100%}
 }
+
+
+/* Make the full date input an obvious calendar trigger */
+.inquiry-form input[type="date"]:not(:disabled){cursor:pointer}
