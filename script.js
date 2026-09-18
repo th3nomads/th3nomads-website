@@ -253,9 +253,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const subtotal=packageBase==null?null:packageBase+additionalHoursFee;
       const city=cityField?.value.trim(),state=stateField?.value;
       if(priceInput) priceInput.value=''; if(travelInput) travelInput.value=''; if(distanceInput) distanceInput.value='';
-      if(subtotal==null){showTotal('Select package details to calculate');breakdownEl.innerHTML='';return;}
-      if(!city||!state){showTotal(money(subtotal)+' + travel');breakdownEl.innerHTML='';return;}
-      showTotal('Calculating…'); breakdownEl.innerHTML='';
+      if(subtotal==null){showTotal('Select package details');breakdownEl.innerHTML='';return;}
+      const baseRows=[['Package',money(packageBase)]];
+      if(additionalHoursFee)baseRows.push(['Additional hours ('+extraHours+' × '+money(ADDITIONAL_HOUR_RATE)+')',money(additionalHoursFee)]);
+      const renderRows=rows=>rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
+      if(!city||!state){showTotal(money(subtotal)+' + travel');breakdownEl.innerHTML=renderRows(baseRows);return;}
+      showTotal('Calculating…'); breakdownEl.innerHTML=renderRows(baseRows);
       try{
         const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(city));
         if(!response.ok) throw new Error();
@@ -267,12 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const tollFee=state==='NY'?NEW_YORK_TOLL_FEE:0;
         const travelFee=mileageFee+tollFee,total=subtotal+travelFee;
         showTotal(money(total));
-        const rows=[['Package',money(packageBase)]];
-        if(additionalHoursFee)rows.push(['Additional hours ('+extraHours+')',money(additionalHoursFee)]);
-        rows.push(['Travel fee',travelFee?money(travelFee):'Included']);
-        breakdownEl.innerHTML=rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
+        const rows=[...baseRows,['Travel fee',travelFee?money(travelFee):'Included']];
+        breakdownEl.innerHTML=renderRows(rows);
         if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
-      }catch(e){if(requestId!==estimateRequest)return;showTotal(money(subtotal)+' + travel TBD');breakdownEl.innerHTML='<div class="estimate-message">Travel will be confirmed with your quote.</div>';}
+      }catch(e){if(requestId!==estimateRequest)return;showTotal(money(subtotal)+' + travel TBD');breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';}
     };
     let cityLookupTimer;
     cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
