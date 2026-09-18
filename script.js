@@ -102,8 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
         tab.setAttribute('aria-selected', String(isActive));
         tab.tabIndex = isActive ? 0 : -1;
         if (isActive) {
-          tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-          if (moveFocus) tab.focus();
+          // Only scroll the tab strip after an explicit keyboard navigation action.
+          // Running scrollIntoView during initial page setup can move the entire page
+          // down to Pricing before the browser restores the top position.
+          if (moveFocus) {
+            tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            tab.focus();
+          }
         }
       });
     };
