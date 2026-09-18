@@ -787,3 +787,34 @@ p,li,blockquote{text-wrap:pretty}
 }
 
 #estimateBreakdown .estimate-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);color:#c8c8c8;font-size:.95rem;line-height:1.35}#estimateBreakdown .estimate-row strong{flex:0 0 auto;color:#fff;text-align:right}.estimate-message{color:#aaa;font-size:.85rem;line-height:1.5}@media(max-width:600px){#estimateBreakdown .estimate-row{font-size:.86rem;padding:8px 0}#estimateBreakdown .estimate-row strong{font-size:.9rem}.estimate-total-field{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+
+/* Clean inquiry form rebuild */
+.inquiry-form-clean{display:grid;gap:18px}
+.inquiry-form-clean .inquiry-section{padding:26px;border:1px solid rgba(127,118,105,.22);background:rgba(255,255,255,.018)}
+.inquiry-section-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px}
+.inquiry-section-heading>span{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid rgba(211,174,92,.45);border-radius:50%;color:var(--gold);font-size:.66rem;font-weight:700;letter-spacing:.08em}
+.inquiry-section-heading h3{margin:0 0 4px;color:#fff;font:400 1.65rem/1 var(--font-display);letter-spacing:-.01em}
+.inquiry-section-heading p{margin:0;color:#858585;font-size:.78rem;line-height:1.5}
+.inquiry-form-clean label{display:block}
+.inquiry-form-clean .optional{float:right;color:#6f6f6f;font-size:.58rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase}
+.inquiry-form-clean .form-row{gap:18px}
+.inquiry-form-clean .location-row{grid-template-columns:minmax(0,1fr) 130px}
+.inquiry-form-clean .estimate-box{margin:0;padding:26px;border-color:rgba(211,174,92,.48);background:linear-gradient(135deg,rgba(211,174,92,.07),rgba(255,255,255,.015))}
+.estimate-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:18px;border-bottom:1px solid rgba(211,174,92,.28)}
+.estimate-heading .eyebrow{margin:0 0 7px}
+.estimate-heading h3{margin:0;color:#fff;font:400 1.5rem/1 var(--font-display)}
+.estimate-heading .estimate-total-field{width:auto;min-width:160px;margin:0!important;padding:0!important;border:0!important;text-align:right;font-size:2rem!important;color:var(--gold)!important;-webkit-text-fill-color:var(--gold)!important}
+#estimateBreakdown{margin-top:12px}
+.estimate-note{margin:15px 0 5px;color:#c1c1c1;font-size:.78rem;line-height:1.55}
+.inquiry-submit{width:100%;margin-top:4px}
+.inquiry-form-clean .form-note{text-align:center}
+@media(max-width:600px){
+ .inquiry-form-clean{gap:14px}
+ .inquiry-form-clean .inquiry-section{padding:21px 18px}
+ .inquiry-section-heading{margin-bottom:20px}
+ .inquiry-section-heading h3{font-size:1.45rem}
+ .inquiry-form-clean .form-row,.inquiry-form-clean .location-row{grid-template-columns:1fr}
+ .estimate-heading{align-items:flex-start;flex-direction:column;gap:12px}
+ .estimate-heading .estimate-total-field{width:100%;min-width:0;text-align:left;font-size:2rem!important}
+ .inquiry-form-clean .estimate-box{padding:22px 18px}
+}
