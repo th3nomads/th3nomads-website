@@ -917,3 +917,57 @@ p,li,blockquote{text-wrap:pretty}
 
 /* Coverage spans the row after removing Hours Needed */
 .coverage-row{grid-template-columns:1fr}
+
+
+/* Mobile inquiry estimate: compact total and breakdown */
+@media (max-width: 600px) {
+  .inquiry-form-clean .estimate-box {
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 20px 16px !important;
+  }
+
+  .estimate-heading {
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding-bottom: 14px !important;
+  }
+
+  .estimate-heading .eyebrow {
+    margin: 0 0 8px !important;
+  }
+
+  .estimate-heading h3 {
+    margin: 0 0 10px !important;
+  }
+
+  .estimate-heading .estimate-total-field {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: left !important;
+    line-height: 1.1 !important;
+  }
+
+  #estimateBreakdown {
+    margin: 12px 0 10px !important;
+    gap: 0 !important;
+  }
+
+  #estimateBreakdown .estimate-row {
+    padding: 10px 0 !important;
+  }
+
+  .estimate-note {
+    margin: 12px 0 4px !important;
+  }
+
+  .estimate-box small {
+    margin: 0 !important;
+  }
+}
