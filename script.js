@@ -174,6 +174,40 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live package + travel estimate for booking inquiries.
   const inquiryForm = document.querySelector('#inquiryForm');
   if (inquiryForm) {
+    const emailField = inquiryForm.querySelector('[name="email"]');
+    if (emailField) {
+      emailField.required = true;
+      emailField.setAttribute('aria-required', 'true');
+      const emailLabel = emailField.closest('label');
+      emailLabel?.querySelector('.optional')?.remove();
+      if (emailLabel && !emailLabel.querySelector('.required-field')) {
+        const requiredLabel = document.createElement('span');
+        requiredLabel.className = 'required-field';
+        requiredLabel.textContent = 'Required';
+        emailLabel.insertBefore(requiredLabel, emailField);
+      }
+      let emailAlertOpen = false;
+      const showEmailAlert = () => {
+        if (emailAlertOpen) return;
+        emailAlertOpen = true;
+        const message = emailField.validity.valueMissing
+          ? 'Please provide your email address before submitting your inquiry.'
+          : 'Please enter a valid email address before submitting your inquiry.';
+        window.alert(message);
+        emailAlertOpen = false;
+        emailField.focus();
+      };
+      emailField.addEventListener('invalid', event => {
+        event.preventDefault();
+        showEmailAlert();
+      });
+      inquiryForm.addEventListener('submit', event => {
+        if (!emailField.checkValidity()) {
+          event.preventDefault();
+          showEmailAlert();
+        }
+      });
+    }
     const packageField = inquiryForm.querySelector('[name="package"]');
     const coverageField = inquiryForm.querySelector('[name="videography_addon"]');
     const cityField = inquiryForm.querySelector('[name="city"]');
