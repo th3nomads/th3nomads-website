@@ -880,3 +880,14 @@ p,li,blockquote{text-wrap:pretty}
 /* Make the full date input an obvious calendar trigger */
 .inquiry-form input[type="date"]:not(:disabled),
 .inquiry-form input[type="time"]:not(:disabled){cursor:pointer}
+
+
+/* Visible date and time controls on the dark inquiry form */
+.inquiry-form input[type="date"],
+.inquiry-form input[type="time"]{color-scheme:dark}
+.inquiry-form input[type="date"]::-webkit-calendar-picker-indicator,
+.inquiry-form input[type="time"]::-webkit-calendar-picker-indicator{
+  opacity:1;
+  cursor:pointer;
+  filter:invert(1) brightness(1.8);
+}
