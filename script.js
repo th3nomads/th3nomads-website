@@ -171,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
+});
+ 
+document.addEventListener('DOMContentLoaded', () => {
   // Live package + travel estimate for booking inquiries.
   const inquiryForm = document.querySelector('#inquiryForm');
   if (inquiryForm) {
@@ -396,5 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
     [packageField,...additionalPackageFields,coverageField,hoursField,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
     cityField?.addEventListener('change',updateEstimate); cityField?.addEventListener('blur',updateEstimate);
+    updateEstimate();
   }
 });
