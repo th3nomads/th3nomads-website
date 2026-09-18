@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
     const ROAD_DISTANCE_FACTOR = 1.18;
-    const ADDITIONAL_HOUR_RATE = 100;
+    const ADDITIONAL_HOUR_RATE = 150;
     const NEW_YORK_TOLL_FEE = 30;
     const HOME = { lat: 40.5793, lon: -74.4115 };
 
