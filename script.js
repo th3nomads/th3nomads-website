@@ -210,6 +210,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const packageField = inquiryForm.querySelector('[name="package"]');
     const additionalPackageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="package_"+n]')).filter(Boolean);
+    const additionalPackageTimeFields = [2,3,4].map(n => inquiryForm.querySelector('[name="event_time_"+n]'));
+    additionalPackageFields.forEach((field, index) => {
+      const timeField = additionalPackageTimeFields[index];
+      if (!timeField) return;
+      const syncPackageTime = () => {
+        const hasPackage = Boolean(field.value);
+        timeField.disabled = !hasPackage;
+        timeField.required = hasPackage;
+        timeField.setAttribute('aria-required', String(hasPackage));
+        if (!hasPackage) timeField.value = '';
+      };
+      field.addEventListener('change', syncPackageTime);
+      syncPackageTime();
+    });
     const coverageField = inquiryForm.querySelector('[name="videography_addon"]');
     const cityField = inquiryForm.querySelector('[name="city"]');
     const hoursField = inquiryForm.querySelector('[name="hours"]');
