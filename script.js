@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(coverage==='Photography + Content Creation package') return prices.content??null;
       if(coverage==='Content Creation only') return prices.contentOnly??null;
       if(coverage.startsWith('Videography only')) return 750;
-      return null;
+      return prices.photo??prices.contentOnly??null;
     };
     let estimateRequest=0;
     const updateEstimate=async()=>{
@@ -351,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(coverage==='Photography + Content Creation package') return sum+(prices.content??0);
         if(coverage==='Content Creation only') return sum+(prices.contentOnly??0);
         if(coverage.startsWith('Videography only')) return sum+750;
-        return sum;
+        return sum+(prices.photo??prices.contentOnly??0);
       },0);
       const extraHours=packageBase!=null&&included!=null&&requested!=null?Math.max(0,requested-included):0;
       const additionalHoursFee=extraHours*ADDITIONAL_HOUR_RATE;
@@ -369,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if(coverage==='Photography + Content Creation package') amount=prices.content??0;
         else if(coverage==='Content Creation only') amount=prices.contentOnly??0;
         else if(coverage.startsWith('Videography only')) amount=750;
+        else amount=prices.photo??prices.contentOnly??0;
         if(amount) baseRows.push([field.value,money(amount)]);
       });
       if(additionalHoursFee)baseRows.push(['Additional hours ('+extraHours+' × '+money(ADDITIONAL_HOUR_RATE)+')',money(additionalHoursFee)]);
