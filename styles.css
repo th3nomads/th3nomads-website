@@ -670,7 +670,9 @@ footer div{margin:20px 0}
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-x: contain;
     overscroll-behavior-inline: contain;
-    touch-action: pan-x pinch-zoom;
+    /* Allow normal vertical page scrolling even when a gesture starts on a card.
+       Horizontal swipes still move through the package carousel. */
+    touch-action: pan-x pan-y pinch-zoom;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: 2px;
     contain: layout paint;
