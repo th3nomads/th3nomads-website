@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const HOME = { lat: 40.5793, lon: -74.4115 };
 
     const packagePrices = {
-      'Intimate — up to 4 hours': { photo: 850, video: 1450, content: 1200 },
+      'Intimate — up to 3 hours': { photo: 850, video: 1450, content: 1200 },
       'Signature — up to 6 hours': { photo: 1650, video: 2700, content: 2300 },
       'Full Story — up to 8 hours': { photo: 2200, video: 3600, content: 3100 },
       'Mini Story — 30 minutes': { photo: 250, video: 450, content: 375 },
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Full Experience — up to 6 hours': { contentOnly: 800 }
     };
     const includedHours = {
-      'Intimate — up to 4 hours':4,'Signature — up to 6 hours':6,'Full Story — up to 8 hours':8,
+      'Intimate — up to 3 hours':3,'Signature — up to 6 hours':6,'Full Story — up to 8 hours':8,
       'Mini Story — 30 minutes':.5,'Classic Story — 60 minutes':1,'Editorial Story — up to 90 minutes':1.5,
       'Mini — 30 minutes':.5,'Signature — 60 minutes':1,'Extended Family — up to 90 minutes':1.5,
       'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
