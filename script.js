@@ -210,18 +210,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const packageField = inquiryForm.querySelector('[name="package"]');
     const additionalPackageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="package_"+n]')).filter(Boolean);
-    const additionalPackageTimeFields = [2,3,4].map(n => inquiryForm.querySelector('[name="event_time_"+n]'));
+    const formatTimeRange = (start, end) => start && end ? start + ' to ' + end : '';
+    const primaryStartTime = inquiryForm.querySelector('[name="event_start_time"]');
+    const primaryEndTime = inquiryForm.querySelector('[name="event_end_time"]');
+    const primaryCombinedTime = inquiryForm.querySelector('[name="event_time"]');
+    const syncPrimaryTime = () => {
+      if (primaryCombinedTime) primaryCombinedTime.value = formatTimeRange(primaryStartTime?.value, primaryEndTime?.value);
+    };
+    primaryStartTime?.addEventListener('input', syncPrimaryTime);
+    primaryEndTime?.addEventListener('input', syncPrimaryTime);
+
+    const additionalPackageTimeFields = [2,3,4].map(n => ({
+      start: inquiryForm.querySelector('[name="event_start_time_"+n]'),
+      end: inquiryForm.querySelector('[name="event_end_time_"+n]'),
+      combined: inquiryForm.querySelector('[name="event_time_"+n]')
+    }));
     additionalPackageFields.forEach((field, index) => {
-      const timeField = additionalPackageTimeFields[index];
-      if (!timeField) return;
+      const timeFields = additionalPackageTimeFields[index];
+      if (!timeFields?.start || !timeFields?.end || !timeFields?.combined) return;
+      const syncCombinedTime = () => {
+        timeFields.combined.value = formatTimeRange(timeFields.start.value, timeFields.end.value);
+      };
       const syncPackageTime = () => {
         const hasPackage = Boolean(field.value);
-        timeField.disabled = !hasPackage;
-        timeField.required = hasPackage;
-        timeField.setAttribute('aria-required', String(hasPackage));
-        if (!hasPackage) timeField.value = '';
+        [timeFields.start, timeFields.end].forEach(timeField => {
+          timeField.disabled = !hasPackage;
+          timeField.required = hasPackage;
+          timeField.setAttribute('aria-required', String(hasPackage));
+          if (!hasPackage) timeField.value = '';
+        });
+        timeFields.combined.disabled = !hasPackage;
+        syncCombinedTime();
       };
       field.addEventListener('change', syncPackageTime);
+      timeFields.start.addEventListener('input', syncCombinedTime);
+      timeFields.end.addEventListener('input', syncCombinedTime);
       syncPackageTime();
     });
     const coverageField = inquiryForm.querySelector('[name="videography_addon"]');
