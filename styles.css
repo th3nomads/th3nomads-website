@@ -853,3 +853,12 @@ p,li,blockquote{text-wrap:pretty}
   #estimateBreakdown .estimate-row{align-items:flex-start;gap:10px}
   #estimateBreakdown .estimate-row>span{flex:1 1 auto}
 }
+
+
+/* Package-specific start and end times */
+.event-time-group{min-width:0;margin:0;padding:0;border:0}
+.event-time-group legend{width:100%;margin:0 0 9px;padding:0;text-transform:uppercase;letter-spacing:.13em;font-size:.62rem;color:#bbb}
+.event-time-group legend .optional,.event-time-group legend .required-field{float:right}
+.event-time-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.event-time-fields label{font-size:.56rem;color:#8f8f8f}
+@media(max-width:420px){.event-time-fields{grid-template-columns:1fr}}
