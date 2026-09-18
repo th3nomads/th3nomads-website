@@ -226,6 +226,8 @@ window.addEventListener('pageshow', function () {
 <label>Event Date <span class="required-field">Required</span><input name="date" required="" aria-required="true" type="date"/></label>
 <fieldset class="event-time-group"><legend>Event Time <span class="required-field">Required</span></legend><div class="event-time-fields"><label>Start Time<input name="event_start_time" required="" aria-required="true" type="time"/></label><label>End Time<input name="event_end_time" required="" aria-required="true" type="time"/></label></div><input name="event_time" type="hidden"/></fieldset>
 </div>
+</div>
+<div class="form-row"><label>Coverage<select name="videography_addon" required=""><option value="">Select coverage type</option><option>Photography only</option><option>Photography + Videography package</option><option>Photography + Content Creation package</option><option>Videography only — starting at $750</option><option>Photo + video package with full dances</option><option>Photo + video package with full speeches</option><option>Photo + video package with full ceremony</option><option>Photo + video package with multiple full moments</option><option>Not sure — please help me choose</option></select></label><label>Hours Needed<select name="hours" required=""><option value="">Select hours</option><option>1 Hour</option><option>2 Hours</option><option>3 Hours</option><option>4 Hours</option><option>5 Hours</option><option>6 Hours</option><option>7 Hours</option><option>8 Hours</option><option>Full Day (8+ Hours)</option><option>Not Sure Yet</option></select></label></div>
 <button class="add-package-button" id="addPackageButton" type="button" aria-controls="additionalPackageOptions">＋ Add Additional Package</button>
 <div class="additional-package-options" id="additionalPackageOptions" aria-label="Additional event packages">
 <div class="form-row event-package-row additional-package-row" data-package-row="2" hidden>
@@ -245,8 +247,6 @@ window.addEventListener('pageshow', function () {
 </div>
 <small>Select a package for each event day. Date, start time, and end time are required for every selected package.</small>
 </div>
-</div>
-<div class="form-row"><label>Coverage<select name="videography_addon" required=""><option value="">Select coverage type</option><option>Photography only</option><option>Photography + Videography package</option><option>Photography + Content Creation package</option><option>Videography only — starting at $750</option><option>Photo + video package with full dances</option><option>Photo + video package with full speeches</option><option>Photo + video package with full ceremony</option><option>Photo + video package with multiple full moments</option><option>Not sure — please help me choose</option></select></label><label>Hours Needed<select name="hours" required=""><option value="">Select hours</option><option>1 Hour</option><option>2 Hours</option><option>3 Hours</option><option>4 Hours</option><option>5 Hours</option><option>6 Hours</option><option>7 Hours</option><option>8 Hours</option><option>Full Day (8+ Hours)</option><option>Not Sure Yet</option></select></label></div>
 </div>
 <div class="inquiry-section">
 <div class="inquiry-section-heading"><span>03</span><div><h3>Location</h3><p>We use your event city to estimate travel.</p></div></div>
