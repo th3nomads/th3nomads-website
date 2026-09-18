@@ -184,9 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const travelInput = document.querySelector('#estimatedTravelInput');
     const distanceInput = document.querySelector('#estimatedDistanceInput');
 
-    // Travel policy: first 25 estimated one-way miles are included, then $1/mile
+    // Travel policy: first 15 estimated one-way miles are included, then $1/mile
     // for each additional one-way mile. Change TRAVEL_RATE_PER_MILE here if desired.
-    const INCLUDED_MILES = 25;
+    const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
     const ROAD_DISTANCE_FACTOR = 1.18;
     const HOME = { lat: 40.5793, lon: -74.4115 }; // South Plainfield, NJ
