@@ -236,11 +236,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     updateAddPackageButton();
     const formatTimeRange = (start, end) => start && end ? start + ' to ' + end : '';
+    const calculateDuration = (start, end) => {
+      if (!start || !end) return null;
+      const [startHour,startMinute]=start.split(':').map(Number);
+      const [endHour,endMinute]=end.split(':').map(Number);
+      let minutes=(endHour*60+endMinute)-(startHour*60+startMinute);
+      if(minutes<=0) minutes+=24*60;
+      return minutes/60;
+    };
+    const formatDuration = hours => hours==null ? '' : (Number.isInteger(hours)?hours:Math.round(hours*100)/100) + ' Hours';
     const primaryStartTime = inquiryForm.querySelector('[name="event_start_time"]');
     const primaryEndTime = inquiryForm.querySelector('[name="event_end_time"]');
     const primaryCombinedTime = inquiryForm.querySelector('[name="event_time"]');
+    const primaryHoursInput = inquiryForm.querySelector('[name="hours"]');
     const syncPrimaryTime = () => {
       if (primaryCombinedTime) primaryCombinedTime.value = formatTimeRange(primaryStartTime?.value, primaryEndTime?.value);
+      if (primaryHoursInput) primaryHoursInput.value = formatDuration(calculateDuration(primaryStartTime?.value, primaryEndTime?.value));
     };
     primaryStartTime?.addEventListener('input', syncPrimaryTime);
     primaryEndTime?.addEventListener('input', syncPrimaryTime);
@@ -249,13 +260,15 @@ document.addEventListener('DOMContentLoaded', () => {
       date: inquiryForm.querySelector('[name="date_' + n + '"]'),
       start: inquiryForm.querySelector('[name="event_start_time_' + n + '"]'),
       end: inquiryForm.querySelector('[name="event_end_time_' + n + '"]'),
-      combined: inquiryForm.querySelector('[name="event_time_' + n + '"]')
+      combined: inquiryForm.querySelector('[name="event_time_' + n + '"]'),
+      hours: inquiryForm.querySelector('[name="hours_' + n + '"]')
     }));
     additionalPackageFields.forEach((field, index) => {
       const timeFields = additionalPackageTimeFields[index];
-      if (!timeFields?.date || !timeFields?.start || !timeFields?.end || !timeFields?.combined) return;
+      if (!timeFields?.date || !timeFields?.start || !timeFields?.end || !timeFields?.combined || !timeFields?.hours) return;
       const syncCombinedTime = () => {
         timeFields.combined.value = formatTimeRange(timeFields.start.value, timeFields.end.value);
+        timeFields.hours.value = formatDuration(calculateDuration(timeFields.start.value, timeFields.end.value));
       };
       const syncPackageTime = () => {
         const hasPackage = Boolean(field.value);
@@ -265,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
           timeField.setAttribute('aria-required', String(hasPackage));
         });
         timeFields.combined.disabled = !hasPackage;
+        timeFields.hours.disabled = !hasPackage;
         syncCombinedTime();
       };
       field.addEventListener('change', syncPackageTime);
@@ -274,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const coverageField = inquiryForm.querySelector('[name="videography_addon"]');
     const cityField = inquiryForm.querySelector('[name="city"]');
-    const hoursField = inquiryForm.querySelector('[name="hours"]');
     const stateField = inquiryForm.querySelector('[name="state"]');
     const totalEl = document.querySelector('#estimateTotal');
     const totalDisplay = document.querySelector('#estimateTotalDisplay');
@@ -324,14 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const h=Math.sin(dLat/2)**2+Math.cos(radians(a.lat))*Math.cos(radians(b.lat))*Math.sin(dLon/2)**2;
       return 2*R*Math.asin(Math.sqrt(h));
     };
-    const requestedHours = () => {
-      const v=hoursField?.value||'';
-      if(v.startsWith('Full Day')) return 8;
-      const m=v.match(/^(\d+) Hour/);
-      return m?Number(m[1]):null;
-    };
-    const selectedBasePrice = () => {
-      const prices=packagePrices[packageField?.value];
+    const priceForCoverage = prices => {
       if(!prices) return null;
       const coverage=coverageField?.value||'';
       if(coverage==='Photography only') return prices.photo??null;
@@ -341,63 +347,69 @@ document.addEventListener('DOMContentLoaded', () => {
       if(coverage.startsWith('Videography only')) return 750;
       return prices.photo??prices.contentOnly??null;
     };
+    const displayHours = value => Number.isInteger(value)?String(value):String(Math.round(value*100)/100);
     let estimateRequest=0;
     const updateEstimate=async()=>{
       const requestId=++estimateRequest;
-      const packageBase=selectedBasePrice(),included=includedHours[packageField?.value]??null,requested=requestedHours();
-      const coverage=coverageField?.value||'';
-      const extraPackageBase = additionalPackageFields.reduce((sum, field) => {
-        const prices=packagePrices[field.value];
-        if(!prices) return sum;
-        if(coverage==='Photography only') return sum+(prices.photo??0);
-        if(coverage==='Photography + Videography package'||coverage.includes('Photo + video package')) return sum+(prices.video??0);
-        if(coverage==='Photography + Content Creation package') return sum+(prices.content??0);
-        if(coverage==='Content Creation only') return sum+(prices.contentOnly??0);
-        if(coverage.startsWith('Videography only')) return sum+750;
-        return sum+(prices.photo??prices.contentOnly??0);
-      },0);
-      const extraHours=packageBase!=null&&included!=null&&requested!=null?Math.max(0,requested-included):0;
-      const additionalHoursFee=extraHours*ADDITIONAL_HOUR_RATE;
-      const subtotal=packageBase==null?null:packageBase+additionalHoursFee+extraPackageBase;
+      syncPrimaryTime();
+      const packageBase=priceForCoverage(packagePrices[packageField?.value]);
+      const primaryIncluded=includedHours[packageField?.value]??null;
+      const primaryRequested=calculateDuration(primaryStartTime?.value,primaryEndTime?.value);
+      const primaryExtraHours=packageBase!=null&&primaryIncluded!=null&&primaryRequested!=null?Math.max(0,primaryRequested-primaryIncluded):0;
+      const primaryAdditionalFee=primaryExtraHours*ADDITIONAL_HOUR_RATE;
+      let additionalPackagesTotal=0;
+      const additionalDetails=[];
+      additionalPackageFields.forEach((field,index)=>{
+        if(!field.value)return;
+        const base=priceForCoverage(packagePrices[field.value])??0;
+        const timeFields=additionalPackageTimeFields[index];
+        const requested=calculateDuration(timeFields?.start?.value,timeFields?.end?.value);
+        const included=includedHours[field.value]??null;
+        const extra=included!=null&&requested!=null?Math.max(0,requested-included):0;
+        const extraFee=extra*ADDITIONAL_HOUR_RATE;
+        additionalPackagesTotal+=base+extraFee;
+        additionalDetails.push({number:index+2,name:field.value,base,extra,extraFee});
+      });
+      const subtotal=packageBase==null?null:packageBase+primaryAdditionalFee+additionalPackagesTotal;
       const city=cityField?.value.trim(),state=stateField?.value;
       if(priceInput) priceInput.value=''; if(travelInput) travelInput.value=''; if(distanceInput) distanceInput.value='';
-      if(subtotal==null){showTotal('Select package details');breakdownEl.innerHTML='';return;}
-      const baseRows=[['Primary package',money(packageBase)]];
-      additionalPackageFields.forEach(field => {
-        if(!field.value) return;
-        const prices=packagePrices[field.value]||{};
-        let amount=0;
-        if(coverage==='Photography only') amount=prices.photo??0;
-        else if(coverage==='Photography + Videography package'||coverage.includes('Photo + video package')) amount=prices.video??0;
-        else if(coverage==='Photography + Content Creation package') amount=prices.content??0;
-        else if(coverage==='Content Creation only') amount=prices.contentOnly??0;
-        else if(coverage.startsWith('Videography only')) amount=750;
-        else amount=prices.photo??prices.contentOnly??0;
-        if(amount) baseRows.push([field.value,money(amount)]);
+      if(subtotal==null){showTotal('Select package details');if(breakdownEl)breakdownEl.innerHTML='';return;}
+      const baseRows=[['Package 1: '+packageField.value,money(packageBase)]];
+      if(primaryAdditionalFee)baseRows.push(['Package 1 additional time ('+displayHours(primaryExtraHours)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(primaryAdditionalFee)]);
+      additionalDetails.forEach(detail=>{
+        if(detail.base)baseRows.push(['Package '+detail.number+': '+detail.name,money(detail.base)]);
+        if(detail.extraFee)baseRows.push(['Package '+detail.number+' additional time ('+displayHours(detail.extra)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(detail.extraFee)]);
       });
-      if(additionalHoursFee)baseRows.push(['Additional hours ('+extraHours+' × '+money(ADDITIONAL_HOUR_RATE)+')',money(additionalHoursFee)]);
       const renderRows=rows=>rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
-      if(!city||!state){showTotal(money(subtotal)+' + travel');breakdownEl.innerHTML=renderRows(baseRows);return;}
-      showTotal('Calculating…'); breakdownEl.innerHTML=renderRows(baseRows);
+      if(!city||!state){showTotal(money(subtotal)+' + travel');if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows);if(priceInput)priceInput.value=money(subtotal)+' + travel';return;}
+      showTotal('Calculating…'); if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows);
       try{
         const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(city));
         if(!response.ok) throw new Error();
         const data=await response.json(); if(requestId!==estimateRequest)return;
         const places=(data.places||[]).filter(p=>p.latitude&&p.longitude); if(!places.length)throw new Error();
-        const destination={lat:places.reduce((s,p)=>s+Number(p.latitude),0)/places.length,lon:places.reduce((s,p)=>s+Number(p.longitude),0)/places.length};
+        const destination={lat:places.reduce((sum,place)=>sum+Number(place.latitude),0)/places.length,lon:places.reduce((sum,place)=>sum+Number(place.longitude),0)/places.length};
         const miles=Math.max(0,Math.round(straightLineMiles(HOME,destination)*ROAD_DISTANCE_FACTOR));
         const mileageFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE;
         const tollFee=state==='NY'?NEW_YORK_TOLL_FEE:0;
         const travelFee=mileageFee+tollFee,total=subtotal+travelFee;
         showTotal(money(total));
         const rows=[...baseRows,['Travel fee',travelFee?money(travelFee):'Included']];
-        breakdownEl.innerHTML=renderRows(rows);
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(rows);
         if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
-      }catch(e){if(requestId!==estimateRequest)return;showTotal(money(subtotal)+' + travel TBD');breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';}
+      }catch(error){
+        if(requestId!==estimateRequest)return;
+        showTotal(money(subtotal)+' + travel TBD');
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';
+      }
     };
     let cityLookupTimer;
     cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
-    [packageField,...additionalPackageFields,coverageField,hoursField,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
+    [packageField,...additionalPackageFields,coverageField,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
+    [primaryStartTime,primaryEndTime,...additionalPackageTimeFields.flatMap(fields=>[fields.start,fields.end])].forEach(field=>{
+      field?.addEventListener('input',updateEstimate);
+      field?.addEventListener('change',updateEstimate);
+    });
     cityField?.addEventListener('change',updateEstimate); cityField?.addEventListener('blur',updateEstimate);
     updateEstimate();
   }
