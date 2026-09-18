@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     const packageField = inquiryForm.querySelector('[name="package"]');
-    const additionalPackageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="package_"+n]')).filter(Boolean);
+    const additionalPackageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="package_' + n + '"]')).filter(Boolean);
     const addPackageButton = inquiryForm.querySelector('#addPackageButton');
     const additionalPackageRows = [...inquiryForm.querySelectorAll('.additional-package-row')];
     const updateAddPackageButton = () => {
@@ -246,10 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
     primaryEndTime?.addEventListener('input', syncPrimaryTime);
 
     const additionalPackageTimeFields = [2,3,4].map(n => ({
-      date: inquiryForm.querySelector('[name="date_"+n]'),
-      start: inquiryForm.querySelector('[name="event_start_time_"+n]'),
-      end: inquiryForm.querySelector('[name="event_end_time_"+n]'),
-      combined: inquiryForm.querySelector('[name="event_time_"+n]')
+      date: inquiryForm.querySelector('[name="date_' + n + '"]'),
+      start: inquiryForm.querySelector('[name="event_start_time_' + n + '"]'),
+      end: inquiryForm.querySelector('[name="event_end_time_' + n + '"]'),
+      combined: inquiryForm.querySelector('[name="event_time_' + n + '"]')
     }));
     additionalPackageFields.forEach((field, index) => {
       const timeFields = additionalPackageTimeFields[index];
