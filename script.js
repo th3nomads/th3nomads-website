@@ -177,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const packageField = inquiryForm.querySelector('[name="package"]');
     const coverageField = inquiryForm.querySelector('[name="videography_addon"]');
     const cityField = inquiryForm.querySelector('[name="city"]');
+    const hoursField = inquiryForm.querySelector('[name="hours"]');
     const stateField = inquiryForm.querySelector('[name="state"]');
     const totalEl = document.querySelector('#estimateTotal');
     const breakdownEl = document.querySelector('#estimateBreakdown');
@@ -189,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
     const ROAD_DISTANCE_FACTOR = 1.18;
+    const ADDITIONAL_HOUR_RATE = 200;
     const HOME = { lat: 40.5793, lon: -74.4115 }; // South Plainfield, NJ
 
     const packagePrices = {
@@ -219,6 +221,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return 2 * R * Math.asin(Math.sqrt(h));
     };
 
+    const includedHours = {
+      'Intimate — up to 3 hours': 3, 'Signature — up to 6 hours': 6, 'Full Story — up to 8 hours': 8,
+      'Mini Story — 30 minutes': 0.5, 'Classic Story — 60 minutes': 1, 'Editorial Story — up to 90 minutes': 1.5,
+      'Mini — 30 minutes': 0.5, 'Signature — 60 minutes': 1, 'Extended Family — up to 90 minutes': 1.5,
+      'Essential — up to 3 hours': 3, 'Celebration — up to 4 hours': 4, 'Complete Event — up to 5 hours': 5,
+      'Social Mini — up to 2 hours': 2, 'Event Story — up to 4 hours': 4, 'Full Experience — up to 6 hours': 6
+    };
+
+    const requestedHours = () => {
+      const value = hoursField?.value || '';
+      if (value.startsWith('Full Day')) return 8;
+      const match = value.match(/^(\d+) Hour/);
+      return match ? Number(match[1]) : null;
+    };
+
     const selectedBasePrice = () => {
       const prices = packagePrices[packageField?.value];
       if (!prices) return null;
@@ -234,7 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let estimateRequest = 0;
     const updateEstimate = async () => {
       const requestId = ++estimateRequest;
-      const base = selectedBasePrice();
+      const packageBase = selectedBasePrice();
+      const included = includedHours[packageField?.value] ?? null;
+      const requested = requestedHours();
+      const extraHours = packageBase != null && included != null && requested != null ? Math.max(0, requested - included) : 0;
+      const additionalHoursFee = extraHours * ADDITIONAL_HOUR_RATE;
+      const base = packageBase == null ? null : packageBase + additionalHoursFee;
       const city = cityField?.value.trim();
       const state = stateField?.value;
       priceInput.value = '';
@@ -248,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       if (!city || !state) {
         totalEl.textContent = money(base) + ' + travel';
-        breakdownEl.textContent = 'Enter the event city and state to estimate travel.';
+        breakdownEl.textContent = (additionalHoursFee ? 'Package + additional hours: ' + money(base) + '. ' : '') + 'Enter the event city and state to estimate travel.';
         return;
       }
 
@@ -270,7 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const travelFee = Math.max(0, miles - INCLUDED_MILES) * TRAVEL_RATE_PER_MILE;
         const total = base + travelFee;
         totalEl.textContent = 'Estimated total: ' + money(total);
-        breakdownEl.innerHTML = '<span>Package: <strong>' + money(base) + '</strong></span><span>Estimated travel distance: <strong>' + miles + ' miles</strong></span><span>Estimated travel fee: <strong>' + (travelFee ? money(travelFee) : 'Included') + '</strong></span>';
+        breakdownEl.innerHTML = '<span>Package: <strong>' + money(packageBase) + '</strong></span>' + (additionalHoursFee ? '<span>Additional hours (' + extraHours + '): <strong>' + money(additionalHoursFee) + '</strong></span>' : '') + '<span>Estimated travel distance: <strong>' + miles + ' miles</strong></span><span>Estimated travel fee: <strong>' + (travelFee ? money(travelFee) : 'Included') + '</strong></span>';
         priceInput.value = money(total);
         travelInput.value = travelFee ? money(travelFee) : 'Included';
         distanceInput.value = miles + ' estimated one-way miles';
@@ -282,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
 
-    [packageField, coverageField, stateField].forEach(field => field?.addEventListener('change', updateEstimate));
+    [packageField, coverageField, hoursField, stateField].forEach(field => field?.addEventListener('change', updateEstimate));
     cityField?.addEventListener('change', updateEstimate);
     cityField?.addEventListener('blur', updateEstimate);
   }
