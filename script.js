@@ -170,4 +170,121 @@ document.addEventListener('DOMContentLoaded', () => {
     details.append(summary, ...bundles);
   });
 
+
+  // Live package + travel estimate for booking inquiries.
+  const inquiryForm = document.querySelector('#inquiryForm');
+  if (inquiryForm) {
+    const packageField = inquiryForm.querySelector('[name="package"]');
+    const coverageField = inquiryForm.querySelector('[name="videography_addon"]');
+    const cityField = inquiryForm.querySelector('[name="city"]');
+    const stateField = inquiryForm.querySelector('[name="state"]');
+    const totalEl = document.querySelector('#estimateTotal');
+    const breakdownEl = document.querySelector('#estimateBreakdown');
+    const priceInput = document.querySelector('#estimatedPriceInput');
+    const travelInput = document.querySelector('#estimatedTravelInput');
+    const distanceInput = document.querySelector('#estimatedDistanceInput');
+
+    // Travel policy: first 25 estimated one-way miles are included, then $1/mile
+    // for each additional one-way mile. Change TRAVEL_RATE_PER_MILE here if desired.
+    const INCLUDED_MILES = 25;
+    const TRAVEL_RATE_PER_MILE = 1;
+    const ROAD_DISTANCE_FACTOR = 1.18;
+    const HOME = { lat: 40.5793, lon: -74.4115 }; // South Plainfield, NJ
+
+    const packagePrices = {
+      'Intimate — up to 3 hours': { photo: 850, video: 1450, content: 1200 },
+      'Signature — up to 6 hours': { photo: 1650, video: 2700, content: 2300 },
+      'Full Story — up to 8 hours': { photo: 2200, video: 3600, content: 3100 },
+      'Mini Story — 30 minutes': { photo: 250, video: 450, content: 375 },
+      'Classic Story — 60 minutes': { photo: 400, video: 700, content: 600 },
+      'Editorial Story — up to 90 minutes': { photo: 550, video: 950, content: 825 },
+      'Mini — 30 minutes': { photo: 250, video: 450, content: 375 },
+      'Signature — 60 minutes': { photo: 400, video: 700, content: 600 },
+      'Extended Family — up to 90 minutes': { photo: 600, video: 1000, content: 875 },
+      'Essential — up to 3 hours': { photo: 500, video: 1100, content: 850 },
+      'Celebration — up to 4 hours': { photo: 700, video: 1450, content: 1200 },
+      'Complete Event — up to 5 hours': { photo: 1100, video: 2000, content: 1750 },
+      'Social Mini — up to 2 hours': { contentOnly: 350 },
+      'Event Story — up to 4 hours': { contentOnly: 550 },
+      'Full Experience — up to 6 hours': { contentOnly: 800 }
+    };
+
+    const money = value => '$' + Math.round(value).toLocaleString('en-US');
+    const radians = degrees => degrees * Math.PI / 180;
+    const straightLineMiles = (a, b) => {
+      const R = 3958.7613;
+      const dLat = radians(b.lat - a.lat);
+      const dLon = radians(b.lon - a.lon);
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(radians(a.lat)) * Math.cos(radians(b.lat)) * Math.sin(dLon / 2) ** 2;
+      return 2 * R * Math.asin(Math.sqrt(h));
+    };
+
+    const selectedBasePrice = () => {
+      const prices = packagePrices[packageField?.value];
+      if (!prices) return null;
+      const coverage = coverageField?.value || '';
+      if (coverage === 'Photography only') return prices.photo ?? null;
+      if (coverage === 'Photography + Videography package' || coverage.includes('Photo + video package')) return prices.video ?? null;
+      if (coverage === 'Photography + Content Creation package') return prices.content ?? null;
+      if (coverage === 'Content Creation only') return prices.contentOnly ?? null;
+      if (coverage.startsWith('Videography only')) return 750;
+      return null;
+    };
+
+    let estimateRequest = 0;
+    const updateEstimate = async () => {
+      const requestId = ++estimateRequest;
+      const base = selectedBasePrice();
+      const city = cityField?.value.trim();
+      const state = stateField?.value;
+      priceInput.value = '';
+      travelInput.value = '';
+      distanceInput.value = '';
+
+      if (base == null) {
+        totalEl.textContent = 'Select a package and coverage option';
+        breakdownEl.textContent = '';
+        return;
+      }
+      if (!city || !state) {
+        totalEl.textContent = money(base) + ' + travel';
+        breakdownEl.textContent = 'Enter the event city and state to estimate travel.';
+        return;
+      }
+
+      totalEl.textContent = 'Calculating estimate…';
+      breakdownEl.textContent = '';
+      try {
+        const url = 'https://api.zippopotam.us/us/' + encodeURIComponent(state.toLowerCase()) + '/' + encodeURIComponent(city);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Location not found');
+        const data = await response.json();
+        if (requestId !== estimateRequest) return;
+        const places = (data.places || []).filter(place => place.latitude && place.longitude);
+        if (!places.length) throw new Error('Location not found');
+        const destination = {
+          lat: places.reduce((sum, place) => sum + Number(place.latitude), 0) / places.length,
+          lon: places.reduce((sum, place) => sum + Number(place.longitude), 0) / places.length
+        };
+        const miles = Math.max(0, Math.round(straightLineMiles(HOME, destination) * ROAD_DISTANCE_FACTOR));
+        const travelFee = Math.max(0, miles - INCLUDED_MILES) * TRAVEL_RATE_PER_MILE;
+        const total = base + travelFee;
+        totalEl.textContent = 'Estimated total: ' + money(total);
+        breakdownEl.innerHTML = '<span>Package: <strong>' + money(base) + '</strong></span><span>Estimated travel distance: <strong>' + miles + ' miles</strong></span><span>Estimated travel fee: <strong>' + (travelFee ? money(travelFee) : 'Included') + '</strong></span>';
+        priceInput.value = money(total);
+        travelInput.value = travelFee ? money(travelFee) : 'Included';
+        distanceInput.value = miles + ' estimated one-way miles';
+      } catch (error) {
+        if (requestId !== estimateRequest) return;
+        totalEl.textContent = money(base) + ' + travel';
+        breakdownEl.textContent = 'We could not estimate travel for that city. Your package price is shown; travel will be confirmed with your quote.';
+        priceInput.value = money(base) + ' + travel TBD';
+      }
+    };
+
+    [packageField, coverageField, stateField].forEach(field => field?.addEventListener('change', updateEstimate));
+    cityField?.addEventListener('change', updateEstimate);
+    cityField?.addEventListener('blur', updateEstimate);
+  }
+
 });
