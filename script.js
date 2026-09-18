@@ -241,10 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const syncPackageTime = () => {
         const hasPackage = Boolean(field.value);
         [timeFields.date, timeFields.start, timeFields.end].forEach(timeField => {
-          timeField.disabled = !hasPackage;
+          timeField.disabled = false;
           timeField.required = hasPackage;
           timeField.setAttribute('aria-required', String(hasPackage));
-          if (!hasPackage) timeField.value = '';
         });
         timeFields.combined.disabled = !hasPackage;
         syncCombinedTime();
