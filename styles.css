@@ -818,3 +818,37 @@ p,li,blockquote{text-wrap:pretty}
  .estimate-heading .estimate-total-field{width:100%;max-width:none;min-width:0;text-align:left;font-size:clamp(1.35rem,6vw,2rem)!important;white-space:normal}
  .inquiry-form-clean .estimate-box{padding:22px 18px}
 }
+
+
+/* Inquiry form consistency across desktop, tablet, and mobile */
+.inquiry-form-clean,
+.inquiry-form-clean .inquiry-section,
+.inquiry-form-clean .form-row,
+.inquiry-form-clean label,
+.inquiry-form-clean input,
+.inquiry-form-clean select,
+.inquiry-form-clean textarea,
+.inquiry-form-clean .estimate-box{min-width:0;box-sizing:border-box}
+.inquiry-form-clean select{padding-right:30px;white-space:nowrap;text-overflow:ellipsis}
+.estimate-heading>div{min-width:0}
+#estimateBreakdown .estimate-row>span{min-width:0;overflow-wrap:anywhere}
+@media(max-width:760px){
+  .inquiry-form-clean .form-row,
+  .inquiry-form-clean .location-row{grid-template-columns:1fr}
+  .estimate-heading{align-items:flex-start;flex-direction:column;gap:12px}
+  .estimate-heading .estimate-total-field{
+    width:100%;
+    max-width:none;
+    min-width:0;
+    text-align:left;
+    font-size:clamp(1.35rem,5.5vw,2rem)!important;
+    white-space:normal;
+    overflow:visible;
+  }
+}
+@media(max-width:420px){
+  .inquiry-form-clean .inquiry-section{padding:20px 16px}
+  .inquiry-form-clean .estimate-box{padding:20px 16px}
+  #estimateBreakdown .estimate-row{align-items:flex-start;gap:10px}
+  #estimateBreakdown .estimate-row>span{flex:1 1 auto}
+}
