@@ -269,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showTotal(money(total));
         const rows=[['Package',money(packageBase)]];
         if(additionalHoursFee)rows.push(['Additional hours ('+extraHours+')',money(additionalHoursFee)]);
-        rows.push(['Travel distance',miles+' miles']);
         rows.push(['Travel fee',travelFee?money(travelFee):'Included']);
         breakdownEl.innerHTML=rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
         if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
