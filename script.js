@@ -216,6 +216,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const packageField = inquiryForm.querySelector('[name="package"]');
     const additionalPackageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="package_"+n]')).filter(Boolean);
+    const addPackageButton = inquiryForm.querySelector('#addPackageButton');
+    const additionalPackageRows = [...inquiryForm.querySelectorAll('.additional-package-row')];
+    const updateAddPackageButton = () => {
+      if (addPackageButton) addPackageButton.hidden = !additionalPackageRows.some(row => row.hidden);
+    };
+    additionalPackageFields.forEach((field, index) => {
+      if (field.value && additionalPackageRows[index]) additionalPackageRows[index].hidden = false;
+    });
+    addPackageButton?.addEventListener('click', () => {
+      const nextRow = additionalPackageRows.find(row => row.hidden);
+      if (!nextRow) return;
+      nextRow.hidden = false;
+      nextRow.querySelector('select')?.focus();
+      updateAddPackageButton();
+    });
+    updateAddPackageButton();
     const formatTimeRange = (start, end) => start && end ? start + ' to ' + end : '';
     const primaryStartTime = inquiryForm.querySelector('[name="event_start_time"]');
     const primaryEndTime = inquiryForm.querySelector('[name="event_end_time"]');
