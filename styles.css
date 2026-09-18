@@ -878,4 +878,5 @@ p,li,blockquote{text-wrap:pretty}
 
 
 /* Make the full date input an obvious calendar trigger */
-.inquiry-form input[type="date"]:not(:disabled){cursor:pointer}
+.inquiry-form input[type="date"]:not(:disabled),
+.inquiry-form input[type="time"]:not(:disabled){cursor:pointer}
