@@ -174,10 +174,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live package + travel estimate for booking inquiries.
   const inquiryForm = document.querySelector('#inquiryForm');
   if (inquiryForm) {
-    inquiryForm.querySelectorAll('input[type="date"]').forEach(dateField => {
-      dateField.addEventListener('click', () => {
-        if (dateField.disabled || typeof dateField.showPicker !== 'function') return;
-        try { dateField.showPicker(); } catch (error) {}
+    inquiryForm.querySelectorAll('input[type="date"], input[type="time"]').forEach(pickerField => {
+      pickerField.addEventListener('click', () => {
+        if (pickerField.disabled || typeof pickerField.showPicker !== 'function') return;
+        try { pickerField.showPicker(); } catch (error) {}
       });
     });
     const emailField = inquiryForm.querySelector('[name="email"]');
