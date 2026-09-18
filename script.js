@@ -187,13 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const travelInput = document.querySelector('#estimatedTravelInput');
     const distanceInput = document.querySelector('#estimatedDistanceInput');
 
-    // Travel policy: first 15 estimated one-way miles are included, then $1/mile
-    // for each additional one-way mile. Change TRAVEL_RATE_PER_MILE here if desired.
     const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
     const ROAD_DISTANCE_FACTOR = 1.18;
     const ADDITIONAL_HOUR_RATE = 200;
-    const HOME = { lat: 40.5793, lon: -74.4115 }; // South Plainfield, NJ
+    const HOME = { lat: 40.5793, lon: -74.4115 };
 
     const packagePrices = {
       'Intimate — up to 3 hours': { photo: 850, video: 1450, content: 1200 },
@@ -212,220 +210,70 @@ document.addEventListener('DOMContentLoaded', () => {
       'Event Story — up to 4 hours': { contentOnly: 550 },
       'Full Experience — up to 6 hours': { contentOnly: 800 }
     };
-
-    const money = value => '
-    const radians = degrees => degrees * Math.PI / 180;
-    const straightLineMiles = (a, b) => {
-      const R = 3958.7613;
-      const dLat = radians(b.lat - a.lat);
-      const dLon = radians(b.lon - a.lon);
-      const h = Math.sin(dLat / 2) ** 2 + Math.cos(radians(a.lat)) * Math.cos(radians(b.lat)) * Math.sin(dLon / 2) ** 2;
-      return 2 * R * Math.asin(Math.sqrt(h));
-    };
-
     const includedHours = {
-      'Intimate — up to 3 hours': 3, 'Signature — up to 6 hours': 6, 'Full Story — up to 8 hours': 8,
-      'Mini Story — 30 minutes': 0.5, 'Classic Story — 60 minutes': 1, 'Editorial Story — up to 90 minutes': 1.5,
-      'Mini — 30 minutes': 0.5, 'Signature — 60 minutes': 1, 'Extended Family — up to 90 minutes': 1.5,
-      'Essential — up to 3 hours': 3, 'Celebration — up to 4 hours': 4, 'Complete Event — up to 5 hours': 5,
-      'Social Mini — up to 2 hours': 2, 'Event Story — up to 4 hours': 4, 'Full Experience — up to 6 hours': 6
+      'Intimate — up to 3 hours':3,'Signature — up to 6 hours':6,'Full Story — up to 8 hours':8,
+      'Mini Story — 30 minutes':.5,'Classic Story — 60 minutes':1,'Editorial Story — up to 90 minutes':1.5,
+      'Mini — 30 minutes':.5,'Signature — 60 minutes':1,'Extended Family — up to 90 minutes':1.5,
+      'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
+      'Social Mini — up to 2 hours':2,'Event Story — up to 4 hours':4,'Full Experience — up to 6 hours':6
     };
 
+    const money = value => '$' + Math.round(value).toLocaleString('en-US');
+    const showTotal = value => { if (totalEl) totalEl.textContent=value; if (totalDisplay) totalDisplay.value=value; };
+    const radians = d => d*Math.PI/180;
+    const straightLineMiles = (a,b) => {
+      const R=3958.7613,dLat=radians(b.lat-a.lat),dLon=radians(b.lon-a.lon);
+      const h=Math.sin(dLat/2)**2+Math.cos(radians(a.lat))*Math.cos(radians(b.lat))*Math.sin(dLon/2)**2;
+      return 2*R*Math.asin(Math.sqrt(h));
+    };
     const requestedHours = () => {
-      const value = hoursField?.value || '';
-      if (value.startsWith('Full Day')) return 8;
-      const match = value.match(/^(\d+) Hour/);
-      return match ? Number(match[1]) : null;
+      const v=hoursField?.value||'';
+      if(v.startsWith('Full Day')) return 8;
+      const m=v.match(/^(\d+) Hour/);
+      return m?Number(m[1]):null;
     };
-
     const selectedBasePrice = () => {
-      const prices = packagePrices[packageField?.value];
-      if (!prices) return null;
-      const coverage = coverageField?.value || '';
-      if (coverage === 'Photography only') return prices.photo ?? null;
-      if (coverage === 'Photography + Videography package' || coverage.includes('Photo + video package')) return prices.video ?? null;
-      if (coverage === 'Photography + Content Creation package') return prices.content ?? null;
-      if (coverage === 'Content Creation only') return prices.contentOnly ?? null;
-      if (coverage.startsWith('Videography only')) return 750;
+      const prices=packagePrices[packageField?.value];
+      if(!prices) return null;
+      const coverage=coverageField?.value||'';
+      if(coverage==='Photography only') return prices.photo??null;
+      if(coverage==='Photography + Videography package'||coverage.includes('Photo + video package')) return prices.video??null;
+      if(coverage==='Photography + Content Creation package') return prices.content??null;
+      if(coverage==='Content Creation only') return prices.contentOnly??null;
+      if(coverage.startsWith('Videography only')) return 750;
       return null;
     };
-
-    let estimateRequest = 0;
-    const updateEstimate = async () => {
-      const requestId = ++estimateRequest;
-      const packageBase = selectedBasePrice();
-      const included = includedHours[packageField?.value] ?? null;
-      const requested = requestedHours();
-      const extraHours = packageBase != null && included != null && requested != null ? Math.max(0, requested - included) : 0;
-      const additionalHoursFee = extraHours * ADDITIONAL_HOUR_RATE;
-      const base = packageBase == null ? null : packageBase + additionalHoursFee;
-      const city = cityField?.value.trim();
-      const state = stateField?.value;
-      priceInput.value = '';
-      travelInput.value = '';
-      distanceInput.value = '';
-
-      if (base == null) {
-        showTotal('Select a package and coverage option');
-        breakdownEl.textContent = '';
-        return;
-      }
-      if (!city || !state) {
-        showTotal(money(base) + ' + travel');
-        breakdownEl.textContent = (additionalHoursFee ? 'Package + additional hours: ' + money(base) + '. ' : '') + 'Enter the event city and state to estimate travel.';
-        return;
-      }
-
-      showTotal('Calculating estimate…');
-      breakdownEl.textContent = '';
-      try {
-        const url = 'https://api.zippopotam.us/us/' + encodeURIComponent(state.toLowerCase()) + '/' + encodeURIComponent(city);
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Location not found');
-        const data = await response.json();
-        if (requestId !== estimateRequest) return;
-        const places = (data.places || []).filter(place => place.latitude && place.longitude);
-        if (!places.length) throw new Error('Location not found');
-        const destination = {
-          lat: places.reduce((sum, place) => sum + Number(place.latitude), 0) / places.length,
-          lon: places.reduce((sum, place) => sum + Number(place.longitude), 0) / places.length
-        };
-        const miles = Math.max(0, Math.round(straightLineMiles(HOME, destination) * ROAD_DISTANCE_FACTOR));
-        const travelFee = Math.max(0, miles - INCLUDED_MILES) * TRAVEL_RATE_PER_MILE;
-        const total = base + travelFee;
-        showTotal('Estimated total: ' + money(total));
-        breakdownEl.innerHTML = '<span>Package: <strong>' + money(packageBase) + '</strong></span>' + (additionalHoursFee ? '<span>Additional hours (' + extraHours + '): <strong>' + money(additionalHoursFee) + '</strong></span>' : '') + '<span>Estimated travel distance: <strong>' + miles + ' miles</strong></span><span>Estimated travel fee: <strong>' + (travelFee ? money(travelFee) : 'Included') + '</strong></span>';
-        priceInput.value = money(total);
-        travelInput.value = travelFee ? money(travelFee) : 'Included';
-        distanceInput.value = miles + ' estimated one-way miles';
-      } catch (error) {
-        if (requestId !== estimateRequest) return;
-        showTotal(money(base) + ' + travel');
-        breakdownEl.textContent = 'We could not estimate travel for that city. Your package price is shown; travel will be confirmed with your quote.';
-        priceInput.value = money(base) + ' + travel TBD';
-      }
+    let estimateRequest=0;
+    const updateEstimate=async()=>{
+      const requestId=++estimateRequest;
+      const packageBase=selectedBasePrice(),included=includedHours[packageField?.value]??null,requested=requestedHours();
+      const extraHours=packageBase!=null&&included!=null&&requested!=null?Math.max(0,requested-included):0;
+      const additionalHoursFee=extraHours*ADDITIONAL_HOUR_RATE;
+      const subtotal=packageBase==null?null:packageBase+additionalHoursFee;
+      const city=cityField?.value.trim(),state=stateField?.value;
+      if(priceInput) priceInput.value=''; if(travelInput) travelInput.value=''; if(distanceInput) distanceInput.value='';
+      if(subtotal==null){showTotal('Select package details to calculate');breakdownEl.innerHTML='';return;}
+      if(!city||!state){showTotal(money(subtotal)+' + travel');breakdownEl.innerHTML='';return;}
+      showTotal('Calculating…'); breakdownEl.innerHTML='';
+      try{
+        const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(city));
+        if(!response.ok) throw new Error();
+        const data=await response.json(); if(requestId!==estimateRequest)return;
+        const places=(data.places||[]).filter(p=>p.latitude&&p.longitude); if(!places.length)throw new Error();
+        const destination={lat:places.reduce((s,p)=>s+Number(p.latitude),0)/places.length,lon:places.reduce((s,p)=>s+Number(p.longitude),0)/places.length};
+        const miles=Math.max(0,Math.round(straightLineMiles(HOME,destination)*ROAD_DISTANCE_FACTOR));
+        const travelFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE,total=subtotal+travelFee;
+        showTotal(money(total));
+        const rows=[['Package',money(packageBase)]];
+        if(additionalHoursFee)rows.push(['Additional hours ('+extraHours+')',money(additionalHoursFee)]);
+        rows.push(['Travel distance',miles+' miles'],['Travel fee',travelFee?money(travelFee):'Included']);
+        breakdownEl.innerHTML=rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
+        if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
+      }catch(e){if(requestId!==estimateRequest)return;showTotal(money(subtotal)+' + travel TBD');breakdownEl.innerHTML='<div class="estimate-message">Travel will be confirmed with your quote.</div>';}
     };
-
     let cityLookupTimer;
-    cityField?.addEventListener('input', () => {
-      clearTimeout(cityLookupTimer);
-      const query = cityField.value.trim();
-      const state = stateField?.value;
-      if (!state || query.length < 2 || !citySuggestions) return;
-      cityLookupTimer = setTimeout(async () => {
-        try {
-          const response = await fetch('https://api.zippopotam.us/us/' + encodeURIComponent(state.toLowerCase()) + '/' + encodeURIComponent(query));
-          if (!response.ok) return;
-          const data = await response.json();
-          const names = [...new Set((data.places || []).map(place => place['place name']).filter(Boolean))];
-          citySuggestions.innerHTML = names.map(name => '<option value="' + name.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"></option>').join('');
-        } catch (_) {}
-      }, 250);
-    });
-
-    [packageField, coverageField, hoursField, stateField].forEach(field => field?.addEventListener('change', updateEstimate));
-    cityField?.addEventListener('change', updateEstimate);
-    cityField?.addEventListener('blur', updateEstimate);
+    cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
+    [packageField,coverageField,hoursField,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
+    cityField?.addEventListener('change',updateEstimate); cityField?.addEventListener('blur',updateEstimate);
   }
-
-});
- + Math.round(value).toLocaleString('en-US');
-    const showTotal = value => { totalEl.textContent = value; if (totalDisplay) totalDisplay.value = value; };
-    const radians = degrees => degrees * Math.PI / 180;
-    const straightLineMiles = (a, b) => {
-      const R = 3958.7613;
-      const dLat = radians(b.lat - a.lat);
-      const dLon = radians(b.lon - a.lon);
-      const h = Math.sin(dLat / 2) ** 2 + Math.cos(radians(a.lat)) * Math.cos(radians(b.lat)) * Math.sin(dLon / 2) ** 2;
-      return 2 * R * Math.asin(Math.sqrt(h));
-    };
-
-    const includedHours = {
-      'Intimate — up to 3 hours': 3, 'Signature — up to 6 hours': 6, 'Full Story — up to 8 hours': 8,
-      'Mini Story — 30 minutes': 0.5, 'Classic Story — 60 minutes': 1, 'Editorial Story — up to 90 minutes': 1.5,
-      'Mini — 30 minutes': 0.5, 'Signature — 60 minutes': 1, 'Extended Family — up to 90 minutes': 1.5,
-      'Essential — up to 3 hours': 3, 'Celebration — up to 4 hours': 4, 'Complete Event — up to 5 hours': 5,
-      'Social Mini — up to 2 hours': 2, 'Event Story — up to 4 hours': 4, 'Full Experience — up to 6 hours': 6
-    };
-
-    const requestedHours = () => {
-      const value = hoursField?.value || '';
-      if (value.startsWith('Full Day')) return 8;
-      const match = value.match(/^(\d+) Hour/);
-      return match ? Number(match[1]) : null;
-    };
-
-    const selectedBasePrice = () => {
-      const prices = packagePrices[packageField?.value];
-      if (!prices) return null;
-      const coverage = coverageField?.value || '';
-      if (coverage === 'Photography only') return prices.photo ?? null;
-      if (coverage === 'Photography + Videography package' || coverage.includes('Photo + video package')) return prices.video ?? null;
-      if (coverage === 'Photography + Content Creation package') return prices.content ?? null;
-      if (coverage === 'Content Creation only') return prices.contentOnly ?? null;
-      if (coverage.startsWith('Videography only')) return 750;
-      return null;
-    };
-
-    let estimateRequest = 0;
-    const updateEstimate = async () => {
-      const requestId = ++estimateRequest;
-      const packageBase = selectedBasePrice();
-      const included = includedHours[packageField?.value] ?? null;
-      const requested = requestedHours();
-      const extraHours = packageBase != null && included != null && requested != null ? Math.max(0, requested - included) : 0;
-      const additionalHoursFee = extraHours * ADDITIONAL_HOUR_RATE;
-      const base = packageBase == null ? null : packageBase + additionalHoursFee;
-      const city = cityField?.value.trim();
-      const state = stateField?.value;
-      priceInput.value = '';
-      travelInput.value = '';
-      distanceInput.value = '';
-
-      if (base == null) {
-        showTotal('Select a package and coverage option');
-        breakdownEl.textContent = '';
-        return;
-      }
-      if (!city || !state) {
-        showTotal(money(base) + ' + travel');
-        breakdownEl.textContent = (additionalHoursFee ? 'Package + additional hours: ' + money(base) + '. ' : '') + 'Enter the event city and state to estimate travel.';
-        return;
-      }
-
-      showTotal('Calculating estimate…');
-      breakdownEl.textContent = '';
-      try {
-        const url = 'https://api.zippopotam.us/us/' + encodeURIComponent(state.toLowerCase()) + '/' + encodeURIComponent(city);
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Location not found');
-        const data = await response.json();
-        if (requestId !== estimateRequest) return;
-        const places = (data.places || []).filter(place => place.latitude && place.longitude);
-        if (!places.length) throw new Error('Location not found');
-        const destination = {
-          lat: places.reduce((sum, place) => sum + Number(place.latitude), 0) / places.length,
-          lon: places.reduce((sum, place) => sum + Number(place.longitude), 0) / places.length
-        };
-        const miles = Math.max(0, Math.round(straightLineMiles(HOME, destination) * ROAD_DISTANCE_FACTOR));
-        const travelFee = Math.max(0, miles - INCLUDED_MILES) * TRAVEL_RATE_PER_MILE;
-        const total = base + travelFee;
-        showTotal('Estimated total: ' + money(total));
-        breakdownEl.innerHTML = '<span>Package: <strong>' + money(packageBase) + '</strong></span>' + (additionalHoursFee ? '<span>Additional hours (' + extraHours + '): <strong>' + money(additionalHoursFee) + '</strong></span>' : '') + '<span>Estimated travel distance: <strong>' + miles + ' miles</strong></span><span>Estimated travel fee: <strong>' + (travelFee ? money(travelFee) : 'Included') + '</strong></span>';
-        priceInput.value = money(total);
-        travelInput.value = travelFee ? money(travelFee) : 'Included';
-        distanceInput.value = miles + ' estimated one-way miles';
-      } catch (error) {
-        if (requestId !== estimateRequest) return;
-        showTotal(money(base) + ' + travel');
-        breakdownEl.textContent = 'We could not estimate travel for that city. Your package price is shown; travel will be confirmed with your quote.';
-        priceInput.value = money(base) + ' + travel TBD';
-      }
-    };
-
-    [packageField, coverageField, hoursField, stateField].forEach(field => field?.addEventListener('change', updateEstimate));
-    cityField?.addEventListener('change', updateEstimate);
-    cityField?.addEventListener('blur', updateEstimate);
-  }
-
 });
