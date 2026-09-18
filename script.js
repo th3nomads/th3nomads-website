@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const packageSelect = document.querySelector('#inquiryForm select[name="package"]');
-  if (packageSelect && !packageSelect.querySelector('optgroup[data-content-packages]')) {
+  if (packageSelect && !packageSelect.querySelector('[data-content-packages]')) {
     const group = document.createElement('optgroup');
     group.label = 'Content Creation Only';
     group.dataset.contentPackages = 'true';
