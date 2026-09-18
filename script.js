@@ -191,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const TRAVEL_RATE_PER_MILE = 1;
     const ROAD_DISTANCE_FACTOR = 1.18;
     const ADDITIONAL_HOUR_RATE = 200;
+    const NEW_YORK_TOLL_FEE = 30;
     const HOME = { lat: 40.5793, lon: -74.4115 };
 
     const packagePrices = {
@@ -262,11 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const places=(data.places||[]).filter(p=>p.latitude&&p.longitude); if(!places.length)throw new Error();
         const destination={lat:places.reduce((s,p)=>s+Number(p.latitude),0)/places.length,lon:places.reduce((s,p)=>s+Number(p.longitude),0)/places.length};
         const miles=Math.max(0,Math.round(straightLineMiles(HOME,destination)*ROAD_DISTANCE_FACTOR));
-        const travelFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE,total=subtotal+travelFee;
+        const mileageFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE;
+        const tollFee=state==='NY'?NEW_YORK_TOLL_FEE:0;
+        const travelFee=mileageFee+tollFee,total=subtotal+travelFee;
         showTotal(money(total));
         const rows=[['Package',money(packageBase)]];
         if(additionalHoursFee)rows.push(['Additional hours ('+extraHours+')',money(additionalHoursFee)]);
-        rows.push(['Travel distance',miles+' miles'],['Travel fee',travelFee?money(travelFee):'Included']);
+        rows.push(['Travel distance',miles+' miles']);
+        if(tollFee) rows.push(['NY toll allowance',money(tollFee)]);
+        rows.push(['Travel fee',travelFee?money(travelFee):'Included']);
         breakdownEl.innerHTML=rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
         if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
       }catch(e){if(requestId!==estimateRequest)return;showTotal(money(subtotal)+' + travel TBD');breakdownEl.innerHTML='<div class="estimate-message">Travel will be confirmed with your quote.</div>';}
