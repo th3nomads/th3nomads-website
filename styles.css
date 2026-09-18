@@ -803,7 +803,7 @@ p,li,blockquote{text-wrap:pretty}
 .estimate-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:18px;border-bottom:1px solid rgba(211,174,92,.28)}
 .estimate-heading .eyebrow{margin:0 0 7px}
 .estimate-heading h3{margin:0;color:#fff;font:400 1.5rem/1 var(--font-display)}
-.estimate-heading .estimate-total-field{width:auto;min-width:160px;margin:0!important;padding:0!important;border:0!important;text-align:right;font-size:2rem!important;color:var(--gold)!important;-webkit-text-fill-color:var(--gold)!important}
+.estimate-heading .estimate-total-field{flex:1 1 360px;width:100%;min-width:0;max-width:58%;margin:0!important;padding:0!important;border:0!important;text-align:right;font-size:clamp(1.35rem,2.5vw,2rem)!important;color:var(--gold)!important;-webkit-text-fill-color:var(--gold)!important;white-space:nowrap;overflow:visible;text-overflow:clip}
 #estimateBreakdown{margin-top:12px}
 .estimate-note{margin:15px 0 5px;color:#c1c1c1;font-size:.78rem;line-height:1.55}
 .inquiry-submit{width:100%;margin-top:4px}
@@ -815,6 +815,6 @@ p,li,blockquote{text-wrap:pretty}
  .inquiry-section-heading h3{font-size:1.45rem}
  .inquiry-form-clean .form-row,.inquiry-form-clean .location-row{grid-template-columns:1fr}
  .estimate-heading{align-items:flex-start;flex-direction:column;gap:12px}
- .estimate-heading .estimate-total-field{width:100%;min-width:0;text-align:left;font-size:2rem!important}
+ .estimate-heading .estimate-total-field{width:100%;max-width:none;min-width:0;text-align:left;font-size:clamp(1.35rem,6vw,2rem)!important;white-space:normal}
  .inquiry-form-clean .estimate-box{padding:22px 18px}
 }
