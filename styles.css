@@ -767,3 +767,21 @@ p,li,blockquote{text-wrap:pretty}
 .partner-package-inline>a{white-space:nowrap;color:var(--gold);font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .experience .steps{grid-template-columns:repeat(3,1fr)}
 @media(max-width:900px){.partner-package-inline{grid-template-columns:1fr;gap:12px}.experience .steps{grid-template-columns:1fr}}
+
+
+/* Inquiry estimate: clean, readable mobile breakdown */
+.estimate-box{margin:8px 0 28px;padding:22px;border:1px solid rgba(211,174,92,.35);background:rgba(255,255,255,.025)}
+.estimate-box .eyebrow{margin:0 0 14px;color:var(--gold)}
+.estimate-total-field{display:block;width:100%;margin:0 0 16px!important;padding:0 0 14px!important;border:0!important;border-bottom:1px solid rgba(211,174,92,.35)!important;background:transparent!important;color:#fff!important;font-size:clamp(1.55rem,5vw,2rem)!important;font-weight:700!important;line-height:1.2!important;letter-spacing:-.02em!important;opacity:1!important;-webkit-text-fill-color:#fff!important}
+#estimateBreakdown{display:grid;gap:9px;margin:0 0 16px}
+#estimateBreakdown span{display:flex;align-items:baseline;justify-content:space-between;gap:18px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.08);font-size:.95rem;line-height:1.45;color:#c8c8c8}
+#estimateBreakdown span strong{flex:0 0 auto;color:#fff;font-size:1rem;text-align:right}
+.estimate-box small{display:block;color:#9d9d9d;font-size:.78rem;line-height:1.65}
+@media(max-width:600px){
+  .estimate-box{padding:20px 18px;margin-top:4px}
+  .estimate-total-field{font-size:1.55rem!important}
+  #estimateBreakdown{gap:7px}
+  #estimateBreakdown span{font-size:.88rem;gap:12px}
+  #estimateBreakdown span strong{font-size:.92rem}
+  .estimate-box small{font-size:.72rem;line-height:1.6}
+}
