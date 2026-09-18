@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const packageField = inquiryForm.querySelector('[name="package"]');
     const additionalPackageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="package_' + n + '"]')).filter(Boolean);
+    const additionalCoverageFields = [2,3,4].map(n => inquiryForm.querySelector('[name="videography_addon_' + n + '"]')).filter(Boolean);
     const addPackageButton = inquiryForm.querySelector('#addPackageButton');
     const additionalPackageRows = [...inquiryForm.querySelectorAll('.additional-package-row')];
     const updateAddPackageButton = () => {
@@ -265,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }));
     additionalPackageFields.forEach((field, index) => {
       const timeFields = additionalPackageTimeFields[index];
+      const additionalCoverageField = additionalCoverageFields[index];
       if (!timeFields?.date || !timeFields?.start || !timeFields?.end || !timeFields?.combined || !timeFields?.hours) return;
       const syncCombinedTime = () => {
         timeFields.combined.value = formatTimeRange(timeFields.start.value, timeFields.end.value);
@@ -277,6 +279,11 @@ document.addEventListener('DOMContentLoaded', () => {
           timeField.required = hasPackage;
           timeField.setAttribute('aria-required', String(hasPackage));
         });
+        if (additionalCoverageField) {
+          additionalCoverageField.disabled = !hasPackage;
+          additionalCoverageField.required = hasPackage;
+          additionalCoverageField.setAttribute('aria-required', String(hasPackage));
+        }
         timeFields.combined.disabled = !hasPackage;
         timeFields.hours.disabled = !hasPackage;
         syncCombinedTime();
@@ -337,15 +344,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const h=Math.sin(dLat/2)**2+Math.cos(radians(a.lat))*Math.cos(radians(b.lat))*Math.sin(dLon/2)**2;
       return 2*R*Math.asin(Math.sqrt(h));
     };
-    const priceForCoverage = prices => {
+    const priceForCoverage = (prices, selectedCoverage = coverageField?.value || '', allowFallback = true) => {
       if(!prices) return null;
-      const coverage=coverageField?.value||'';
+      const coverage=selectedCoverage;
       if(coverage==='Photography only') return prices.photo??null;
       if(coverage==='Photography + Videography package'||coverage.includes('Photo + video package')) return prices.video??null;
       if(coverage==='Photography + Content Creation package') return prices.content??null;
       if(coverage==='Content Creation only') return prices.contentOnly??null;
       if(coverage.startsWith('Videography only')) return 750;
-      return prices.photo??prices.contentOnly??null;
+      return allowFallback ? prices.photo??prices.contentOnly??null : null;
     };
     const displayHours = value => Number.isInteger(value)?String(value):String(Math.round(value*100)/100);
     let estimateRequest=0;
@@ -361,14 +368,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const additionalDetails=[];
       additionalPackageFields.forEach((field,index)=>{
         if(!field.value)return;
-        const base=priceForCoverage(packagePrices[field.value])??0;
+        const selectedCoverage=additionalCoverageFields[index]?.value||'';
+        const base=priceForCoverage(packagePrices[field.value],selectedCoverage,false);
         const timeFields=additionalPackageTimeFields[index];
         const requested=calculateDuration(timeFields?.start?.value,timeFields?.end?.value);
         const included=includedHours[field.value]??null;
         const extra=included!=null&&requested!=null?Math.max(0,requested-included):0;
         const extraFee=extra*ADDITIONAL_HOUR_RATE;
-        additionalPackagesTotal+=base+extraFee;
-        additionalDetails.push({number:index+2,name:field.value,base,extra,extraFee});
+        if(base!=null) additionalPackagesTotal+=base+extraFee;
+        additionalDetails.push({number:index+2,name:field.value,coverage:selectedCoverage,base,extra,extraFee});
       });
       const subtotal=packageBase==null?null:packageBase+primaryAdditionalFee+additionalPackagesTotal;
       const city=cityField?.value.trim(),state=stateField?.value;
@@ -377,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const baseRows=[['Package 1: '+packageField.value,money(packageBase)]];
       if(primaryAdditionalFee)baseRows.push(['Package 1 additional time ('+displayHours(primaryExtraHours)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(primaryAdditionalFee)]);
       additionalDetails.forEach(detail=>{
-        if(detail.base)baseRows.push(['Package '+detail.number+': '+detail.name,money(detail.base)]);
+        if(detail.base!=null)baseRows.push(['Package '+detail.number+': '+detail.name+(detail.coverage?' — '+detail.coverage:''),money(detail.base)]);
         if(detail.extraFee)baseRows.push(['Package '+detail.number+' additional time ('+displayHours(detail.extra)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(detail.extraFee)]);
       });
       const renderRows=rows=>rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
@@ -405,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let cityLookupTimer;
     cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
-    [packageField,...additionalPackageFields,coverageField,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
+    [packageField,...additionalPackageFields,coverageField,...additionalCoverageFields,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
     [primaryStartTime,primaryEndTime,...additionalPackageTimeFields.flatMap(fields=>[fields.start,fields.end])].forEach(field=>{
       field?.addEventListener('input',updateEstimate);
       field?.addEventListener('change',updateEstimate);
