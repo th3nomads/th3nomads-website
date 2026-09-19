@@ -223,7 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const addPackageButton = inquiryForm.querySelector('#addPackageButton');
     const additionalPackageRows = [...inquiryForm.querySelectorAll('.additional-package-row')];
     const updateAddPackageButton = () => {
-      if (addPackageButton) addPackageButton.hidden = !additionalPackageRows.some(row => row.hidden);
+      if (!addPackageButton) return;
+      const hasHiddenRows = additionalPackageRows.some(row => row.hidden);
+      addPackageButton.hidden = !hasHiddenRows;
+      if (!hasHiddenRows) return;
+      const lastVisibleRow = [...additionalPackageRows].reverse().find(row => !row.hidden);
+      if (lastVisibleRow) lastVisibleRow.insertAdjacentElement('afterend', addPackageButton);
+      else inquiryForm.querySelector('.event-package-list')?.insertAdjacentElement('afterend', addPackageButton);
     };
     additionalPackageFields.forEach((field, index) => {
       if (field.value && additionalPackageRows[index]) additionalPackageRows[index].hidden = false;
