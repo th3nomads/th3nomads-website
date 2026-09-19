@@ -437,23 +437,3 @@ document.addEventListener('DOMContentLoaded', () => {
     updateEstimate();
   }
 });
-+Math.round(travelFee).toLocaleString('en-US'):'Included']];
-        if(breakdownEl)breakdownEl.innerHTML=renderRows(rows);
-        if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
-      }catch(error){
-        if(requestId!==estimateRequest)return;
-        showTotal(money(subtotal)+' + travel TBD');
-        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';
-      }
-    };
-    let cityLookupTimer;
-    cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
-    [packageField,...additionalPackageFields,coverageField,...additionalCoverageFields,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
-    [primaryStartTime,primaryEndTime,...additionalPackageTimeFields.flatMap(fields=>[fields.start,fields.end])].forEach(field=>{
-      field?.addEventListener('input',updateEstimate);
-      field?.addEventListener('change',updateEstimate);
-    });
-    cityField?.addEventListener('change',updateEstimate); cityField?.addEventListener('blur',updateEstimate);
-    updateEstimate();
-  }
-});
