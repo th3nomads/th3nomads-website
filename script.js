@@ -415,7 +415,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const travelFee=travelFeePerTrip*tripCount,total=subtotal+travelFee;
         showTotal(money(total));
         const travelLabel=tripCount>1?'Travel fee ('+tripCount+' event dates)':'Travel fee';
-        const rows=[...baseRows,[travelLabel,travelFee?'
+        const rows=[...baseRows,[travelLabel,travelFee?money(travelFee):'Included']];
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(rows);
+        if(priceInput)priceInput.value=money(total);
+        if(travelInput)travelInput.value=travelFee?money(travelFee):'Included';
+        if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
       }catch(error){
         if(requestId!==estimateRequest)return;
         showTotal(money(subtotal)+' + travel TBD');
