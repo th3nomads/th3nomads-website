@@ -400,9 +400,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const miles=Math.max(0,Math.round(straightLineMiles(HOME,destination)*ROAD_DISTANCE_FACTOR));
         const mileageFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE;
         const tollFee=state==='NY'?NEW_YORK_TOLL_FEE:0;
-        const travelFee=mileageFee+tollFee,total=subtotal+travelFee;
+        const travelFeePerTrip=mileageFee+tollFee;
+        // Charge travel once for each unique event date. Multiple packages on the
+        // same date share a single trip charge because this form uses one event location.
+        const primaryDate=inquiryForm.querySelector('[name="date"]')?.value||'';
+        const eventDates=new Set();
+        if(packageField?.value&&primaryDate) eventDates.add(primaryDate);
+        additionalPackageFields.forEach((field,index)=>{
+          if(field.value&&additionalPackageTimeFields[index]?.date?.value) eventDates.add(additionalPackageTimeFields[index].date.value);
+        });
+        // Before all selected dates are entered, keep one trip in the estimate rather
+        // than accidentally multiplying incomplete package rows.
+        const tripCount=Math.max(1,eventDates.size);
+        const travelFee=travelFeePerTrip*tripCount,total=subtotal+travelFee;
         showTotal(money(total));
-        const rows=[...baseRows,['Travel fee',travelFee?money(travelFee):'Included']];
+        const travelLabel=tripCount>1?'Travel fee ('+tripCount+' event dates)':'Travel fee';
+        const rows=[...baseRows,[travelLabel,travelFee?'
+      }catch(error){
+        if(requestId!==estimateRequest)return;
+        showTotal(money(subtotal)+' + travel TBD');
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';
+      }
+    };
+    let cityLookupTimer;
+    cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
+    [packageField,...additionalPackageFields,coverageField,...additionalCoverageFields,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
+    [inquiryForm.querySelector('[name="date"]'),primaryStartTime,primaryEndTime,...additionalPackageTimeFields.flatMap(fields=>[fields.date,fields.start,fields.end])].forEach(field=>{
+      field?.addEventListener('input',updateEstimate);
+      field?.addEventListener('change',updateEstimate);
+    });
+    cityField?.addEventListener('change',updateEstimate); cityField?.addEventListener('blur',updateEstimate);
+    updateEstimate();
+  }
+});
++Math.round(travelFee).toLocaleString('en-US'):'Included']];
         if(breakdownEl)breakdownEl.innerHTML=renderRows(rows);
         if(priceInput)priceInput.value=money(total); if(travelInput)travelInput.value=travelFee?money(travelFee):'Included'; if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
       }catch(error){
