@@ -971,3 +971,36 @@ p,li,blockquote{text-wrap:pretty}
     margin: 0 !important;
   }
 }
+
+
+/* Compact event package cards */
+@media(max-width:760px){
+  .event-package-row,.additional-package-row{
+    gap:10px;
+    padding:14px 14px 12px;
+  }
+  .event-package-row label,
+  .additional-package-row label{margin:0}
+  .event-package-row input,
+  .event-package-row select,
+  .additional-package-row input,
+  .additional-package-row select{
+    min-height:46px;
+    padding-top:10px;
+    padding-bottom:10px;
+  }
+  .event-package-row .event-time-group,
+  .additional-package-row .event-time-group{margin-top:1px}
+  .event-time-group legend{margin-bottom:5px}
+  .event-time-fields{
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:10px;
+  }
+  .event-time-fields label{min-width:0}
+  .additional-package-options{gap:12px;margin-top:12px}
+  .add-package-button{margin:12px 0 0;padding:12px 14px}
+}
+@media(max-width:420px){
+  .event-package-row,.additional-package-row{padding:13px 12px 11px}
+  .event-time-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
