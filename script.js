@@ -426,9 +426,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const tripCount=Math.max(1,eventDates.size);
         const travelFee=travelFeePerTrip*tripCount,total=subtotal+travelFee;
         showTotal(money(total));
-        const travelLabel=tripCount>1?'Travel fee ('+tripCount+' event dates)':'Travel fee';
-        const rows=[...baseRows,[travelLabel,travelFee?money(travelFee):'Included']];
-        if(breakdownEl)breakdownEl.innerHTML=renderRows(rows);
+        // Travel remains included in the total and submitted estimate, but is
+        // intentionally omitted from the client-facing breakdown.
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows);
         if(priceInput)priceInput.value=money(total);
         if(travelInput)travelInput.value=travelFee?money(travelFee):'Included';
         if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
