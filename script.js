@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h4>Content creation only · Starting at <strong>$350</strong></h4>
             <ul>
               <li>Up to 2 hours of coverage</li>
-              <li>20+ edited vertical clips</li>
+              <li>20+ edited vertical clips</li>\n              <li>20 fully edited digital photos</li>
               <li>2 edited highlight reels</li>
               <li>Behind-the-scenes moments</li>
               <li>48–72 hour delivery</li>
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h4>Content creation only · Starting at <strong>$550</strong></h4>
             <ul>
               <li>Up to 4 hours of coverage</li>
-              <li>40+ edited vertical clips</li>
+              <li>40+ edited vertical clips</li>\n              <li>30 fully edited digital photos</li>
               <li>3 edited highlight reels</li>
               <li>Behind-the-scenes + key moments</li>
               <li>48–72 hour delivery</li>
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h4>Content creation only · Starting at <strong>$800</strong></h4>
             <ul>
               <li>Up to 6 hours of coverage</li>
-              <li>60+ edited vertical clips</li>
+              <li>60+ edited vertical clips</li>\n              <li>40 fully edited digital photos</li>
               <li>4 edited highlight reels</li>
               <li>Extended behind-the-scenes coverage</li>
               <li>48–72 hour delivery</li>
