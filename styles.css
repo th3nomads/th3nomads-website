@@ -1004,3 +1004,6 @@ p,li,blockquote{text-wrap:pretty}
   .event-package-row,.additional-package-row{padding:13px 12px 11px}
   .event-time-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 }
+
+/* Direct visitors to the right package without adding more cards to the homepage. */
+.service-shortcuts{display:flex;align-items:center;justify-content:center;gap:14px 22px;flex-wrap:wrap;background:#151515;color:#f3efe8;padding:22px 5vw;font-size:.76rem;letter-spacing:.05em}.service-shortcuts span{color:#c9a85d;text-transform:uppercase;font-weight:700;letter-spacing:.13em}.service-shortcuts a{border-bottom:1px solid rgba(201,168,93,.6);padding:7px 0}.service-shortcuts a:hover,.service-shortcuts a:focus-visible{color:#dfc57d}.pricing-group[id]{scroll-margin-top:105px}@media(max-width:600px){.service-shortcuts{justify-content:flex-start;gap:8px 14px;padding:20px 22px}.service-shortcuts span{width:100%}}
