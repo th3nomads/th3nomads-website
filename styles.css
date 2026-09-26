@@ -746,6 +746,7 @@ p,li,blockquote{text-wrap:pretty}
 .service-details[open] summary::after,.package-options[open] summary::after{content:'−'}
 .service-details ul{margin:0;padding:0 0 16px 18px}
 .package-options .video-bundle,.package-options .content-bundle{margin:0 0 12px}
+.pricing-card .bundle-select{display:inline-flex;justify-self:start;margin-top:12px;padding:8px 0 3px;border-bottom:1px solid currentColor;color:var(--gold);font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .pricing-card{min-height:0}
 .pricing-card>.package-options{margin-top:auto}
 .pricing-card>a{margin-top:0}
