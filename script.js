@@ -156,6 +156,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Carry a pricing-card choice into the first package on the inquiry form.
+  const inquiryPackage = document.querySelector('#inquiryForm select[name="package"]');
+  const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
+  const inquiryCoverage = document.querySelector('#inquiryForm select[name="videography_addon"]');
+  const packageChoices = [
+    { event: 'Wedding / Nikkah', packages: ['Intimate — up to 3 hours', 'Signature — up to 6 hours', 'Full Story — up to 8 hours'] },
+    { event: 'Engagement / Proposal', packages: ['Mini Story — 30 minutes', 'Classic Story — 60 minutes', 'Editorial Story — up to 90 minutes'] },
+    { event: 'Maternity / Family', packages: ['Mini — 30 minutes', 'Signature — 60 minutes', 'Extended Family — up to 90 minutes'] },
+    { event: 'Birthday / Event', packages: ['Essential — up to 3 hours', 'Celebration — up to 4 hours', 'Complete Event — up to 5 hours'] },
+    { event: 'Content Creation', packages: ['Social Mini — up to 2 hours', 'Event Story — up to 4 hours', 'Full Experience — up to 6 hours'] }
+  ];
+  document.querySelectorAll('#pricing .pricing-groups > .pricing-group').forEach((group, groupIndex) => {
+    group.querySelectorAll('.pricing-card').forEach((card, cardIndex) => {
+      const link = card.querySelector(':scope > a[href="#contact"]');
+      const choice = packageChoices[groupIndex];
+      const packageName = choice?.packages[cardIndex];
+      if (!link || !packageName || !inquiryPackage) return;
+      link.textContent = 'Select package ↗';
+      link.setAttribute('aria-label', `Select ${card.querySelector('.package-label')?.textContent.trim() || packageName} package`);
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        inquiryPackage.value = packageName;
+        inquiryPackage.dispatchEvent(new Event('change', { bubbles: true }));
+        if (inquiryEvent) inquiryEvent.value = choice.event;
+        if (inquiryCoverage) {
+          inquiryCoverage.value = groupIndex === 4 ? 'Content Creation only' : 'Photography only';
+          inquiryCoverage.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  });
+
 
   // Reduce visual density while keeping every service and bundle detail available.
   document.querySelectorAll('.service-card').forEach(card => {
