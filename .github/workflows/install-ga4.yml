@@ -1,0 +1,49 @@
+name: Install GA4 tag
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/install-ga4.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Add Google Analytics tag
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          measurement_id = 'G-5MLE6ZN3G1'
+          marker = f'gtag/js?id={measurement_id}'
+          if marker not in text:
+              tag = '''<!-- Google tag (gtag.js) -->
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MLE6ZN3G1"></script>
+          <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-5MLE6ZN3G1');
+          </script>
+          '''
+              text = text.replace('<head>\n', '<head>\n' + tag, 1)
+              path.write_text(text, encoding='utf-8')
+      - name: Commit GA4 installation
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "GA4 tag already installed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Install GA4 tracking tag"
+          git push origin main
