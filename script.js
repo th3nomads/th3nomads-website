@@ -173,18 +173,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const choice = packageChoices[groupIndex];
       const packageName = choice?.packages[cardIndex];
       if (!link || !packageName || !inquiryPackage) return;
-      link.textContent = 'Select package ↗';
-      link.setAttribute('aria-label', `Select ${card.querySelector('.package-label')?.textContent.trim() || packageName} package`);
-      link.addEventListener('click', event => {
-        event.preventDefault();
+      const selectChoice = coverage => {
         inquiryPackage.value = packageName;
         inquiryPackage.dispatchEvent(new Event('change', { bubbles: true }));
         if (inquiryEvent) inquiryEvent.value = choice.event;
         if (inquiryCoverage) {
-          inquiryCoverage.value = groupIndex === 4 ? 'Content Creation only' : 'Photography only';
+          inquiryCoverage.value = coverage;
           inquiryCoverage.dispatchEvent(new Event('change', { bubbles: true }));
         }
         document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      link.textContent = 'Select package ↗';
+      const label = card.querySelector('.package-label')?.textContent.trim() || packageName;
+      link.setAttribute('aria-label', `Select ${label} photography package`);
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        selectChoice(groupIndex === 4 ? 'Content Creation only' : 'Photography only');
+      });
+      [
+        ['.video-bundle', 'Photography + Videography package', 'photography and videography'],
+        ['.content-bundle', 'Photography + Content Creation package', 'photography and content creation']
+      ].forEach(([selector, coverage, description]) => {
+        const bundle = card.querySelector(`:scope > ${selector}`);
+        if (!bundle) return;
+        const bundleLink = document.createElement('a');
+        bundleLink.className = 'bundle-select';
+        bundleLink.href = '#contact';
+        bundleLink.textContent = 'Select package ↗';
+        bundleLink.setAttribute('aria-label', `Select ${label} ${description} package`);
+        bundleLink.addEventListener('click', event => {
+          event.preventDefault();
+          selectChoice(coverage);
+        });
+        bundle.appendChild(bundleLink);
       });
     });
   });
