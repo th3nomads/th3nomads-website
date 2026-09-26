@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pricingTabsHost = document.querySelector('#pricing .pricing-groups');
   if (pricingTabsHost && !document.querySelector('.pricing-tabs')) {
     const groups = [...pricingTabsHost.querySelectorAll(':scope > .pricing-group')];
+    const shortcutTargets = groups.map(group => group.id);
     const tabList = document.createElement('div');
     tabList.className = 'pricing-tabs';
     tabList.setAttribute('role', 'tablist');
@@ -143,6 +144,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pricingTabsHost.before(tabList);
     activateTab(0);
+
+    document.querySelectorAll('.service-shortcuts [data-pricing-target]').forEach(link => {
+      link.addEventListener('click', event => {
+        const index = shortcutTargets.indexOf(link.dataset.pricingTarget);
+        if (index < 0) return;
+        event.preventDefault();
+        activateTab(index);
+        document.querySelector('#pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   }
 
 
