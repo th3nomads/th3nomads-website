@@ -747,7 +747,8 @@ p,li,blockquote{text-wrap:pretty}
 .service-details ul{margin:0;padding:0 0 16px 18px}
 .package-options .video-bundle,.package-options .content-bundle{margin:0 0 12px}
 .pricing-card{min-height:0}
-.pricing-card>a{margin-top:auto}
+.pricing-card>.package-options{margin-top:auto}
+.pricing-card>a{margin-top:0}
 @media(max-width:600px){
   .service-card{min-height:0;padding:25px 22px}
   .service-details summary,.package-options summary{padding:13px 0}
