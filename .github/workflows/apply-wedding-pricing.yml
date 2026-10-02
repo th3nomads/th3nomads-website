@@ -1,4 +1,4 @@
-name: Apply Signature wedding coverage update
+name: Rebalance photography package pricing
 on:
   push:
     paths:
@@ -10,43 +10,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set Signature wedding package to 5 hours
+      - name: Rebalance package cards and estimator
         run: |
           python - <<'PY'
           from pathlib import Path
 
           p = Path('index.html')
           s = p.read_text()
-          old = 'Signature — up to 6 hours'
-          assert old in s, old
-          s = s.replace(old, 'Signature — up to 5 hours')
-
-          # Change only the Signature wedding card's coverage line.
-          marker = '<p class="package-label">Signature</p>'
-          start = s.index(marker)
-          end = s.index('</div>', start)
-          block = s[start:end]
-          assert '<li>Up to 6 hours</li>' in block
-          block = block.replace('<li>Up to 6 hours</li>', '<li>Up to 5 hours</li>', 1)
-          s = s[:start] + block + s[end:]
+          replacements = {
+            '<strong>Starting at $1,200</strong><small>Photo coverage, social-ready vertical clips, and one edited highlight reel.</small>':'<strong>Starting at $950</strong><small>Photo coverage, social-ready vertical clips, and one edited highlight reel.</small>',
+            '<strong>Starting at $2,300</strong><small>Photo coverage, social-ready vertical clips, and two edited highlight reels.</small>':'<strong>Starting at $1,500</strong><small>Photo coverage, social-ready vertical clips, and two edited highlight reels.</small>',
+            '<strong>Starting at $3,100</strong><small>Full photo coverage, an extended vertical clip collection, and three edited highlight reels.</small>':'<strong>Starting at $1,900</strong><small>Full photo coverage, an extended vertical clip collection, and three edited highlight reels.</small>',
+            '<p class="package-label">Complete Event</p><h4>Photography only · Starting at <strong>$1,100</strong></h4>':'<p class="package-label">Complete Event</p><h4>Photography only · Starting at <strong>$850</strong></h4>',
+            '<strong>Starting at $2,000</strong><small>Coordinated coverage with a 4–5 minute cinematic event highlight film.</small>':'<strong>Starting at $1,700</strong><small>Coordinated coverage with a 4–5 minute cinematic event highlight film.</small>',
+            '<strong>Starting at $1,750</strong><small>Full photo coverage, an extended vertical clip collection, and three edited event reels.</small>':'<strong>Starting at $1,400</strong><small>Full photo coverage, an extended vertical clip collection, and three edited event reels.</small>',
+            'Additional photography coverage: $150/hour':'Additional photography coverage: $200/hour'
+          }
+          for old,new in replacements.items():
+              assert old in s, old
+              s = s.replace(old,new,1)
           p.write_text(s)
 
           p = Path('script.js')
           s = p.read_text()
-          assert 'Signature — up to 6 hours' in s
-          s = s.replace('Signature — up to 6 hours', 'Signature — up to 5 hours')
-          assert "'Signature — up to 5 hours':6" in s
-          s = s.replace("'Signature — up to 5 hours':6", "'Signature — up to 5 hours':5")
+          replacements = {
+            'const ADDITIONAL_HOUR_RATE = 150;':'const ADDITIONAL_HOUR_RATE = 200;',
+            "'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 1200 }":"'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 950 }",
+            "'Signature — up to 5 hours': { photo: 950, video: 1900, content: 2300 }":"'Signature — up to 5 hours': { photo: 950, video: 1900, content: 1500 }",
+            "'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 3100 }":"'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 1900 }",
+            "'Complete Event — up to 5 hours': { photo: 1100, video: 2000, content: 1750 }":"'Complete Event — up to 5 hours': { photo: 850, video: 1700, content: 1400 }"
+          }
+          for old,new in replacements.items():
+              assert old in s, old
+              s = s.replace(old,new,1)
           p.write_text(s)
           PY
       - name: Verify and commit
         run: |
-          grep -q 'Signature — up to 5 hours' index.html
-          grep -q "'Signature — up to 5 hours':5" script.js
-          ! grep -q 'Signature — up to 6 hours' index.html
-          ! grep -q 'Signature — up to 6 hours' script.js
+          grep -q 'Additional photography coverage: $200/hour' index.html
+          grep -q 'Complete Event</p><h4>Photography only · Starting at <strong>$850' index.html
+          grep -q "content: 950" script.js
+          grep -q "content: 1500" script.js
+          grep -q "content: 1900" script.js
+          grep -q "photo: 850, video: 1700, content: 1400" script.js
+          grep -q 'const ADDITIONAL_HOUR_RATE = 200;' script.js
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html script.js
-          git commit -m 'Set Signature wedding package to 5 hours'
+          git commit -m 'Rebalance photography package pricing'
           git push
