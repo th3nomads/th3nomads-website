@@ -384,14 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
     const ROAD_DISTANCE_FACTOR = 1.18;
-    const ADDITIONAL_HOUR_RATE = 150;
+    const ADDITIONAL_HOUR_RATE = 200;
     const NEW_YORK_TOLL_FEE = 30;
     const HOME = { lat: 40.5793, lon: -74.4115 };
 
     const packagePrices = {
-      'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 1200 },
-      'Signature — up to 5 hours': { photo: 950, video: 1900, content: 2300 },
-      'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 3100 },
+      'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 950 },
+      'Signature — up to 5 hours': { photo: 950, video: 1900, content: 1500 },
+      'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 1900 },
       'Mini Story — 30 minutes': { photo: 250, video: 450, content: 375 },
       'Classic Story — 60 minutes': { photo: 400, video: 700, content: 600 },
       'Editorial Story — up to 90 minutes': { photo: 550, video: 950, content: 825 },
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Extended Family — up to 90 minutes': { photo: 600, video: 1000, content: 875 },
       'Essential — up to 3 hours': { photo: 500, video: 1100, content: 850 },
       'Celebration — up to 4 hours': { photo: 700, video: 1450, content: 1200 },
-      'Complete Event — up to 5 hours': { photo: 1100, video: 2000, content: 1750 },
+      'Complete Event — up to 5 hours': { photo: 850, video: 1700, content: 1400 },
       'Social Mini — up to 2 hours': { contentOnly: 350 },
       'Event Story — up to 4 hours': { contentOnly: 550 },
       'Full Experience — up to 6 hours': { contentOnly: 800 }
