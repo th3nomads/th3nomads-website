@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
   const inquiryCoverage = document.querySelector('#inquiryForm select[name="videography_addon"]');
   const packageChoices = [
-    { event: 'Wedding / Nikkah', packages: ['Intimate — up to 3 hours', 'Signature — up to 6 hours', 'Full Story — up to 7 hours'] },
+    { event: 'Wedding / Nikkah', packages: ['Intimate — up to 3 hours', 'Signature — up to 5 hours', 'Full Story — up to 7 hours'] },
     { event: 'Engagement / Proposal', packages: ['Mini Story — 30 minutes', 'Classic Story — 60 minutes', 'Editorial Story — up to 90 minutes'] },
     { event: 'Maternity / Family', packages: ['Mini — 30 minutes', 'Signature — 60 minutes', 'Extended Family — up to 90 minutes'] },
     { event: 'Birthday / Event', packages: ['Essential — up to 3 hours', 'Celebration — up to 4 hours', 'Complete Event — up to 5 hours'] },
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const packagePrices = {
       'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 1200 },
-      'Signature — up to 6 hours': { photo: 950, video: 1900, content: 2300 },
+      'Signature — up to 5 hours': { photo: 950, video: 1900, content: 2300 },
       'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 3100 },
       'Mini Story — 30 minutes': { photo: 250, video: 450, content: 375 },
       'Classic Story — 60 minutes': { photo: 400, video: 700, content: 600 },
@@ -406,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Full Experience — up to 6 hours': { contentOnly: 800 }
     };
     const includedHours = {
-      'Intimate — up to 3 hours':3,'Signature — up to 6 hours':6,'Full Story — up to 7 hours':7,
+      'Intimate — up to 3 hours':3,'Signature — up to 5 hours':5,'Full Story — up to 7 hours':7,
       'Mini Story — 30 minutes':.5,'Classic Story — 60 minutes':1,'Editorial Story — up to 90 minutes':1.5,
       'Mini — 30 minutes':.5,'Signature — 60 minutes':1,'Extended Family — up to 90 minutes':1.5,
       'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
