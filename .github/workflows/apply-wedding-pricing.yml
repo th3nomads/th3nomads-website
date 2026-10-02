@@ -1,4 +1,4 @@
-name: Apply wedding pricing update
+name: Apply Signature wedding coverage update
 on:
   push:
     paths:
@@ -10,35 +10,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update wedding pricing and coverage
+      - name: Set Signature wedding package to 5 hours
         run: |
           python - <<'PY'
           from pathlib import Path
-          p=Path('index.html'); s=p.read_text()
-          reps={
-          'Photography only · Starting at <strong>$850</strong>':'Photography only · Starting at <strong>$600</strong>',
-          'Starting at $1,450</strong><small>Coordinated photo and video coverage with a 2–3 minute cinematic highlight film.':'Starting at $1,200</strong><small>Coordinated photo and video coverage with a 2–3 minute cinematic highlight film.',
-          'Photography only · Starting at <strong>$1,650</strong>':'Photography only · Starting at <strong>$950</strong>',
-          'Starting at $2,700</strong><small>Coordinated photo and video coverage with a 4–5 minute cinematic highlight film.':'Starting at $1,900</strong><small>Coordinated photo and video coverage with a 4–5 minute cinematic highlight film.',
-          'Photography only · Starting at <strong>$2,200</strong>':'Photography only · Starting at <strong>$1,200</strong>',
-          'Starting at $3,600</strong><small>Coordinated photo and video coverage with a 5–7 minute cinematic highlight film.':'Starting at $2,400</strong><small>Coordinated photo and video coverage with a 5–7 minute cinematic highlight film.',
-          'Full Story — up to 8 hours':'Full Story — up to 7 hours','<li>Up to 8 hours</li>':'<li>Up to 7 hours</li>'}
-          for a,b in reps.items():
-              assert a in s,a; s=s.replace(a,b)
-          a='<li>Up to 6 hours</li><li>350+ edited photos</li><li>Timeline guidance</li><li>Pre- or post-wedding shoot included</li><li>Private online gallery</li>'
-          b='<li>Up to 6 hours</li><li>350+ edited photos</li><li>Timeline guidance</li><li>Private online gallery</li>'
-          assert a in s; s=s.replace(a,b,1); p.write_text(s)
-          p=Path('script.js'); s=p.read_text()
-          reps={"'Full Story — up to 8 hours'":"'Full Story — up to 7 hours'","'Intimate — up to 3 hours': { photo: 850, video: 1450, content: 1200 }":"'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 1200 }","'Signature — up to 6 hours': { photo: 1650, video: 2700, content: 2300 }":"'Signature — up to 6 hours': { photo: 950, video: 1900, content: 2300 }","'Full Story — up to 7 hours': { photo: 2200, video: 3600, content: 3100 }":"'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 3100 }","'Full Story — up to 7 hours':8":"'Full Story — up to 7 hours':7"}
-          for a,b in reps.items(): assert a in s,a; s=s.replace(a,b)
+
+          p = Path('index.html')
+          s = p.read_text()
+          old = 'Signature — up to 6 hours'
+          assert old in s, old
+          s = s.replace(old, 'Signature — up to 5 hours')
+
+          # Change only the Signature wedding card's coverage line.
+          marker = '<p class="package-label">Signature</p>'
+          start = s.index(marker)
+          end = s.index('</div>', start)
+          block = s[start:end]
+          assert '<li>Up to 6 hours</li>' in block
+          block = block.replace('<li>Up to 6 hours</li>', '<li>Up to 5 hours</li>', 1)
+          s = s[:start] + block + s[end:]
+          p.write_text(s)
+
+          p = Path('script.js')
+          s = p.read_text()
+          assert 'Signature — up to 6 hours' in s
+          s = s.replace('Signature — up to 6 hours', 'Signature — up to 5 hours')
+          assert "'Signature — up to 5 hours':6" in s
+          s = s.replace("'Signature — up to 5 hours':6", "'Signature — up to 5 hours':5")
           p.write_text(s)
           PY
       - name: Verify and commit
         run: |
-          grep -q "'Full Story — up to 7 hours': { photo: 1200, video: 2400" script.js
-          test "$(grep -o 'Pre- or post-wedding shoot included' index.html | wc -l)" -eq 1
+          grep -q 'Signature — up to 5 hours' index.html
+          grep -q "'Signature — up to 5 hours':5" script.js
+          ! grep -q 'Signature — up to 6 hours' index.html
+          ! grep -q 'Signature — up to 6 hours' script.js
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add index.html script.js
-          git commit -m 'Update wedding package pricing and coverage'
+          git commit -m 'Set Signature wedding package to 5 hours'
           git push
