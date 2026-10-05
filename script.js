@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
+    const ROUND_TRIP_MULTIPLIER = 2;
     const ROAD_DISTANCE_FACTOR = 1.18;
     const ADDITIONAL_HOUR_RATE = 200;
     const NEW_YORK_TOLL_FEE = 30;
@@ -475,7 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const places=(data.places||[]).filter(p=>p.latitude&&p.longitude); if(!places.length)throw new Error();
         const destination={lat:places.reduce((sum,place)=>sum+Number(place.latitude),0)/places.length,lon:places.reduce((sum,place)=>sum+Number(place.longitude),0)/places.length};
         const miles=Math.max(0,Math.round(straightLineMiles(HOME,destination)*ROAD_DISTANCE_FACTOR));
-        const mileageFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE;
+        // Apply the included radius to each leg, then charge for driving there and home.
+        const mileageFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE*ROUND_TRIP_MULTIPLIER;
         const tollFee=state==='NY'?NEW_YORK_TOLL_FEE:0;
         const travelFeePerTrip=mileageFee+tollFee;
         // Charge travel once for each unique event date. Multiple packages on the
