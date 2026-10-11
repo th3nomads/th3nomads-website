@@ -635,26 +635,37 @@ if (videoCarousel) {
     });
   }
 
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', event => {
-      const id = link.getAttribute('href');
-      if (!id || id === '#') return;
-      const target = document.querySelector(id);
-      if (!target) return;
+  // Delegate so dynamically added package buttons use the same booking destination.
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || event.button > 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const id = link.getAttribute('href');
+    if (!id || id === '#') return;
+    const isInquiry = id === '#contact' || id === '#inquiryForm';
+    const target = document.querySelector(isInquiry ? '#inquiryForm' : id);
+    if (!target) return;
 
-      event.preventDefault();
-      closeMenu();
+    event.preventDefault();
+    closeMenu();
 
-      const scrollToTarget = () => {
-        const offset = (header?.offsetHeight || 0) + 12;
-        const top = target.getBoundingClientRect().top + window.scrollY - offset;
-        window.scrollTo({ top, behavior: 'smooth' });
-      };
+    // Booking must be visible immediately, even in an in-app browser that
+    // delays intersection callbacks until the visitor touches the screen.
+    if (isInquiry) {
+      target.classList.remove('reveal');
+      target.classList.add('visible');
+      header?.classList.add('scrolled');
+    }
+    const scrollToTarget = () => {
+      const offset = (header?.offsetHeight || 0) + 12;
+      const top = target.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo({ top, behavior: isInquiry ? 'instant' : 'smooth' });
+    };
 
-      scrollToTarget();
+    scrollToTarget();
+    if (!isInquiry) {
       setTimeout(scrollToTarget, 250);
       setTimeout(scrollToTarget, 700);
-      history.replaceState(null, '', id);
-    });
+    }
+    history.replaceState(null, '', id);
   });
 });

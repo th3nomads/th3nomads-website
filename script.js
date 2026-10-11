@@ -1,7 +1,7 @@
 'use strict';
 
 // Preserve the existing site behavior from the previous script file.
-document.write('<script src="script-base.js?v=20260917-streamlined-home1"><\/script>');
+document.write('<script src="script-base.js?v=20261011-inquiry-visibility"><\/script>');
 
 document.addEventListener('DOMContentLoaded', () => {
   const pricingGroups = document.querySelector('#pricing .pricing-groups');
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
           inquiryCoverage.value = coverage;
           inquiryCoverage.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // The delegated anchor handler scrolls after package values are applied.
       };
       link.textContent = 'Select package ↗';
       const label = card.querySelector('.package-label')?.textContent.trim() || packageName;
