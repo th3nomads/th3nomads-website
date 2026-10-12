@@ -353,13 +353,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasPackage = Boolean(field.value);
         [timeFields.date, timeFields.start, timeFields.end].forEach(timeField => {
           timeField.disabled = false;
-          timeField.required = hasPackage;
-          timeField.setAttribute('aria-required', String(hasPackage));
+          timeField.required = timeField === timeFields.date && hasPackage && !inquiryForm.querySelector('[name="date_undecided_' + (index + 2) + '"]')?.checked;
+          timeField.setAttribute('aria-required', String(timeField.required));
         });
         if (additionalCoverageField) {
           additionalCoverageField.disabled = !hasPackage;
-          additionalCoverageField.required = hasPackage;
-          additionalCoverageField.setAttribute('aria-required', String(hasPackage));
+          additionalCoverageField.required = false;
+          additionalCoverageField.setAttribute('aria-required', 'false');
         }
         timeFields.combined.disabled = !hasPackage;
         timeFields.hours.disabled = !hasPackage;
@@ -380,6 +380,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceInput = document.querySelector('#estimatedPriceInput');
     const travelInput = document.querySelector('#estimatedTravelInput');
     const distanceInput = document.querySelector('#estimatedDistanceInput');
+
+    // Keep planning details flexible while retaining explicit undecided answers.
+    const dateChoices = ['', '_2', '_3', '_4'].map((suffix, index) => {
+      const date = inquiryForm.querySelector('[name="date' + suffix + '"]');
+      const undecided = inquiryForm.querySelector('[name="date_undecided' + suffix + '"]');
+      const packageSelect = index === 0 ? packageField : additionalPackageFields[index - 1];
+      const sync = () => {
+        const needsDate = index === 0 || Boolean(packageSelect?.value);
+        date.disabled = undecided.checked;
+        date.required = needsDate && !undecided.checked;
+        date.setAttribute('aria-required', String(date.required));
+      };
+      undecided.addEventListener('change', () => { sync(); updateEstimate(); });
+      packageSelect?.addEventListener('change', sync);
+      sync();
+      return { date, undecided };
+    });
+    const locationUndecided = inquiryForm.querySelector('[name="location_undecided"]');
+    const syncLocation = () => {
+      [cityField, stateField].forEach(field => {
+        field.disabled = locationUndecided.checked;
+        field.required = !locationUndecided.checked;
+        field.setAttribute('aria-required', String(field.required));
+      });
+    };
+    locationUndecided.addEventListener('change', () => { syncLocation(); updateEstimate(); });
+    syncLocation();
 
     const INCLUDED_MILES = 15;
     const TRAVEL_RATE_PER_MILE = 1;
@@ -437,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateEstimate=async()=>{
       const requestId=++estimateRequest;
       syncPrimaryTime();
-      const packageBase=priceForCoverage(packagePrices[packageField?.value]);
+      const packageBase=priceForCoverage(packagePrices[packageField?.value], coverageField?.value || '', false);
       const primaryIncluded=includedHours[packageField?.value]??null;
       const primaryRequested=calculateDuration(primaryStartTime?.value,primaryEndTime?.value);
       const primaryExtraHours=packageBase!=null&&primaryIncluded!=null&&primaryRequested!=null?Math.max(0,primaryRequested-primaryIncluded):0;
@@ -459,7 +486,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const subtotal=packageBase==null?null:packageBase+primaryAdditionalFee+additionalPackagesTotal;
       const city=cityField?.value.trim(),state=stateField?.value;
       if(priceInput) priceInput.value=''; if(travelInput) travelInput.value=''; if(distanceInput) distanceInput.value='';
-      if(subtotal==null){showTotal('Select package details');if(breakdownEl)breakdownEl.innerHTML='';return;}
+      const primaryComplete = packageBase != null && primaryRequested != null &&
+        dateChoices[0].date.value && !dateChoices[0].undecided.checked;
+      const additionalComplete = additionalDetails.every(detail => {
+        const index = detail.number - 2;
+        const fields = additionalPackageTimeFields[index];
+        return detail.base != null && fields.start.value && fields.end.value &&
+          fields.date.value && !dateChoices[index + 1].undecided.checked;
+      });
+      if (!primaryComplete || !additionalComplete || locationUndecided.checked || !city || !state) {
+        showTotal('Quote after inquiry');
+        if (breakdownEl) breakdownEl.textContent = 'Still planning? Send your inquiry with the details you know. We will help you choose coverage and confirm pricing.';
+        return;
+      }
       const baseRows=[['Package 1: '+packageField.value,money(packageBase)]];
       if(primaryAdditionalFee)baseRows.push(['Package 1 additional time ('+displayHours(primaryExtraHours)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(primaryAdditionalFee)]);
       additionalDetails.forEach(detail=>{
