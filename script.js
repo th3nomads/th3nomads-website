@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateEstimate=async()=>{
       const requestId=++estimateRequest;
       syncPrimaryTime();
-      const packageBase=priceForCoverage(packagePrices[packageField?.value], coverageField?.value || '', false);
+      const packageBase=priceForCoverage(packagePrices[packageField?.value], coverageField?.value || '', true);
       const primaryIncluded=includedHours[packageField?.value]??null;
       const primaryRequested=calculateDuration(primaryStartTime?.value,primaryEndTime?.value);
       const primaryExtraHours=packageBase!=null&&primaryIncluded!=null&&primaryRequested!=null?Math.max(0,primaryRequested-primaryIncluded):0;
@@ -474,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
       additionalPackageFields.forEach((field,index)=>{
         if(!field.value)return;
         const selectedCoverage=additionalCoverageFields[index]?.value||'';
-        const base=priceForCoverage(packagePrices[field.value],selectedCoverage,false);
+        const base=priceForCoverage(packagePrices[field.value],selectedCoverage,true);
         const timeFields=additionalPackageTimeFields[index];
         const requested=calculateDuration(timeFields?.start?.value,timeFields?.end?.value);
         const included=includedHours[field.value]??null;
@@ -486,19 +486,21 @@ document.addEventListener('DOMContentLoaded', () => {
       const subtotal=packageBase==null?null:packageBase+primaryAdditionalFee+additionalPackagesTotal;
       const city=cityField?.value.trim(),state=stateField?.value;
       if(priceInput) priceInput.value=''; if(travelInput) travelInput.value=''; if(distanceInput) distanceInput.value='';
-      const primaryComplete = packageBase != null && primaryRequested != null &&
-        dateChoices[0].date.value && !dateChoices[0].undecided.checked;
-      const additionalComplete = additionalDetails.every(detail => {
-        const index = detail.number - 2;
-        const fields = additionalPackageTimeFields[index];
-        return detail.base != null && fields.start.value && fields.end.value &&
-          fields.date.value && !dateChoices[index + 1].undecided.checked;
-      });
-      if (!primaryComplete || !additionalComplete || locationUndecided.checked || !city || !state) {
-        showTotal('Quote after inquiry');
-        if (breakdownEl) breakdownEl.textContent = 'Still planning? Send your inquiry with the details you know. We will help you choose coverage and confirm pricing.';
+      const coveragePending = priceForCoverage(packagePrices[packageField?.value], coverageField?.value || '', false) == null ||
+        additionalDetails.some(detail => priceForCoverage(packagePrices[detail.name], detail.coverage, false) == null);
+      const detailsPending = coveragePending || primaryRequested == null || !dateChoices[0].date.value ||
+        dateChoices[0].undecided.checked || additionalDetails.some(detail => {
+          const fields = additionalPackageTimeFields[detail.number - 2];
+          return detail.base == null || !fields.start.value || !fields.end.value || !fields.date.value ||
+            dateChoices[detail.number - 2].undecided.checked;
+        });
+      if (subtotal == null) {
+        showTotal('Select a package');
+        if (breakdownEl) breakdownEl.textContent = 'Choose a package to see its starting price, or send an inquiry for a custom quote.';
         return;
       }
+      const estimateLabel = value => (detailsPending ? 'Starting at ' : '') + money(value);
+      const pendingNote = detailsPending ? '<div class="estimate-message">Starting estimate uses photography-only pricing where coverage is undecided (or content creation for content-only packages). Coverage, extra time, and travel update as you add details.</div>' : '';
       const baseRows=[['Package 1: '+packageField.value,money(packageBase)]];
       if(primaryAdditionalFee)baseRows.push(['Package 1 additional time ('+displayHours(primaryExtraHours)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(primaryAdditionalFee)]);
       additionalDetails.forEach(detail=>{
@@ -506,8 +508,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if(detail.extraFee)baseRows.push(['Package '+detail.number+' additional time ('+displayHours(detail.extra)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(detail.extraFee)]);
       });
       const renderRows=rows=>rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
-      if(!city||!state){showTotal(money(subtotal)+' + travel');if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows);if(priceInput)priceInput.value=money(subtotal)+' + travel';return;}
-      showTotal('Calculating…'); if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows);
+      if(locationUndecided.checked||!city||!state){showTotal(estimateLabel(subtotal)+' + travel TBD');if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;if(priceInput)priceInput.value=estimateLabel(subtotal)+' + travel TBD';return;}
+      showTotal(estimateLabel(subtotal)+' + travel TBD'); if(priceInput)priceInput.value=estimateLabel(subtotal)+' + travel TBD'; if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
       try{
         const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(city));
         if(!response.ok) throw new Error();
@@ -531,16 +533,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // than accidentally multiplying incomplete package rows.
         const tripCount=Math.max(1,eventDates.size);
         const travelFee=travelFeePerTrip*tripCount,total=subtotal+travelFee;
-        showTotal(money(total));
+        showTotal(estimateLabel(total));
         // Travel remains included in the total and submitted estimate, but is
         // intentionally omitted from the client-facing breakdown.
-        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows);
-        if(priceInput)priceInput.value=money(total);
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
+        if(priceInput)priceInput.value=estimateLabel(total);
         if(travelInput)travelInput.value=travelFee?money(travelFee):'Included';
         if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
       }catch(error){
         if(requestId!==estimateRequest)return;
-        showTotal(money(subtotal)+' + travel TBD');
+        showTotal(estimateLabel(subtotal)+' + travel TBD');
         if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';
       }
     };
