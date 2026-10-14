@@ -3,3 +3,6 @@
 /* Keep each pricing card at its own content height when bundle details are expanded. */
 .pricing-cards{align-items:start}
 .pricing-card{align-self:start}
+
+/* Fail-safe: site text must remain visible if scroll animations or JavaScript fail. */
+.reveal:not(.visible){opacity:1!important;transform:none!important;visibility:visible!important}
