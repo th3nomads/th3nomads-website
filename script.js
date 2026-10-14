@@ -156,6 +156,29 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  document.querySelectorAll('#pricing .pricing-card').forEach(card => {
+    const video = card.querySelector(':scope > .video-bundle');
+    const content = card.querySelector(':scope > .content-bundle');
+    const photo = Number(card.querySelector('h4 strong')?.textContent.replace(/[^0-9]/g, ''));
+    const vp = Number(video?.querySelector('strong')?.textContent.replace(/[^0-9]/g, ''));
+    const cp = Number(content?.querySelector('strong')?.textContent.replace(/[^0-9]/g, ''));
+    if (!video || !content || !photo || !vp || !cp || card.querySelector(':scope > .triple-bundle')) return;
+    const bundle = document.createElement('div');
+    bundle.className = 'video-bundle triple-bundle';
+    const heading = document.createElement('span');
+    heading.textContent = 'Photography + Videography + Content Creation';
+    const amount = document.createElement('strong');
+    amount.textContent = 'Starting at ' + String.fromCharCode(36) + Math.round((vp + cp - photo) * 0.9).toLocaleString('en-US');
+    const details = document.createElement('small');
+    details.textContent = 'Photo gallery, cinematic film, and social-ready content. Includes 10% bundle savings.';
+    bundle.append(heading, amount, details);
+    content.insertAdjacentElement('afterend', bundle);
+  });
+  document.querySelectorAll('#inquiryForm select[name^="videography_addon"]').forEach(select => {
+    const value = 'Photography + Videography + Content Creation package';
+    if (![...select.options].some(option => option.value === value)) select.add(new Option(value, value));
+  });
+
   // Carry a pricing-card choice into the first package on the inquiry form.
   const inquiryPackage = document.querySelector('#inquiryForm select[name="package"]');
   const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
@@ -183,7 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // The delegated anchor handler scrolls after package values are applied.
       };
-      link.textContent = 'Select package ↗';
+      link.textContent = groupIndex === 4 ? 'Select Content Creation Only ↗' : 'Select Photography Only ↗';
+      const photoDetails = card.querySelector(':scope > ul');
+      if (photoDetails) photoDetails.insertAdjacentElement('afterend', link);
       const label = card.querySelector('.package-label')?.textContent.trim() || packageName;
       link.setAttribute('aria-label', `Select ${label} photography package`);
       link.addEventListener('click', event => {
@@ -192,14 +217,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       [
         ['.video-bundle', 'Photography + Videography package', 'photography and videography'],
-        ['.content-bundle', 'Photography + Content Creation package', 'photography and content creation']
+        ['.content-bundle', 'Photography + Content Creation package', 'photography and content creation'],
+        ['.triple-bundle', 'Photography + Videography + Content Creation package', 'photography videography and content creation']
       ].forEach(([selector, coverage, description]) => {
         const bundle = card.querySelector(`:scope > ${selector}`);
         if (!bundle) return;
         const bundleLink = document.createElement('a');
         bundleLink.className = 'bundle-select';
         bundleLink.href = '#contact';
-        bundleLink.textContent = 'Select package ↗';
+        bundleLink.textContent = coverage === 'Photography + Videography package' ? 'Select Photo + Video ↗' : coverage === 'Photography + Content Creation package' ? 'Select Photo + Content ↗' : 'Select Complete Bundle ↗';
         bundleLink.setAttribute('aria-label', `Select ${label} ${description} package`);
         bundleLink.addEventListener('click', event => {
           event.preventDefault();
@@ -444,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if(coverage==='Photography only') return prices.photo??null;
       if(coverage==='Photography + Videography package'||coverage.includes('Photo + video package')) return prices.video??null;
       if(coverage==='Photography + Content Creation package') return prices.content??null;
+      if(coverage==='Photography + Videography + Content Creation package') return prices.photo != null && prices.video != null && prices.content != null ? Math.round((prices.video + prices.content - prices.photo) * 0.9) : null;
       if(coverage==='Content Creation only') return prices.contentOnly??null;
       if(coverage.startsWith('Videography only')) return 750;
       return allowFallback ? prices.photo??prices.contentOnly??null : null;
