@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Show the three-service bundle alongside existing visible bundle choices.
+  // Render complete-coverage pricing and inquiry choices.
   document.querySelectorAll('#pricing .pricing-card').forEach(card => {
     const video = card.querySelector(':scope > .video-bundle');
     const content = card.querySelector(':scope > .content-bundle');
@@ -167,7 +167,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const price = Math.round((videoPrice + contentPrice - photoPrice) * 0.9);
     const bundle = document.createElement('div');
     bundle.className = 'video-bundle triple-bundle';
-    bundle.innerHTML = '<span>Photography + Videography + Content Creation</span><strong>Starting at 
+    const title = document.createElement('span');
+    title.textContent = 'Photography + Videography + Content Creation';
+    const amount = document.createElement('strong');
+    amount.textContent = 'Starting at $' + price.toLocaleString('en-US');
+    const detail = document.createElement('small');
+    detail.textContent = 'Edited photo gallery, cinematic highlight film, and social-ready vertical content. Includes 10% bundle savings.';
+    bundle.append(title, amount, detail);
+    content.insertAdjacentElement('afterend', bundle);
+  });
+  document.querySelectorAll('#inquiryForm select[name^="videography_addon"]').forEach(select => {
+    if ([...select.options].some(option => option.textContent === 'Photography + Videography + Content Creation package')) return;
+    const option = document.createElement('option');
+    option.textContent = 'Photography + Videography + Content Creation package';
+    select.add(option);
+  });
+
   const inquiryPackage = document.querySelector('#inquiryForm select[name="package"]');
   const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
   const inquiryCoverage = document.querySelector('#inquiryForm select[name="videography_addon"]');
