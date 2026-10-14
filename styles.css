@@ -45,3 +45,17 @@
 #pricing .pricing-card>.triple-bundle>span{color:#f3efe5}
 #pricing .pricing-card>a[href="#contact"]:hover,
 #pricing .pricing-card .bundle-select:hover{border-color:#b9a475;background:#33312b}
+
+/* Balanced luxury palette: warmth and hierarchy without gold overload. */
+#pricing .pricing-card>a[href="#contact"]{background:#292721;border-color:#70644d;color:#ead9b1}
+#pricing .pricing-card>.video-bundle,
+#pricing .pricing-card>.content-bundle{background:#211f1d;border-color:#48443d}
+#pricing .pricing-card>.video-bundle>span,
+#pricing .pricing-card>.content-bundle>span{color:#e6d2a7}
+#pricing .pricing-card .bundle-select{background:#302d28;border-color:#625b4d;color:#f2e9d8}
+#pricing .pricing-card>.triple-bundle{background:linear-gradient(125deg,#302b22,#242321);border:1px solid #b3985c;box-shadow:inset 3px 0 0 #b3985c}
+#pricing .pricing-card>.triple-bundle>span{color:#e7c987}
+#pricing .pricing-card>.triple-bundle .bundle-select{background:#b99d64;border-color:#b99d64;color:#171510;font-weight:700}
+#pricing .pricing-card>a[href="#contact"]:hover,
+#pricing .pricing-card .bundle-select:hover{background:#494032;border-color:#c5a86e;color:#fff}
+#pricing .pricing-card>.triple-bundle .bundle-select:hover{background:#d0b57a;color:#171510}
