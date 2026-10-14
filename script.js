@@ -224,17 +224,6 @@ document.addEventListener('DOMContentLoaded', () => {
     card.insertBefore(details, link);
   });
 
-  document.querySelectorAll('#pricing .pricing-card').forEach(card => {
-    const bundles = [...card.querySelectorAll(':scope > .video-bundle, :scope > .content-bundle')];
-    if (!bundles.length || card.querySelector('.package-options')) return;
-    const details = document.createElement('details');
-    details.className = 'package-options';
-    const summary = document.createElement('summary');
-    summary.textContent = 'View bundle options';
-    card.insertBefore(details, bundles[0]);
-    details.append(summary, ...bundles);
-  });
-
 
 });
  
