@@ -194,7 +194,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         // The delegated anchor handler scrolls after package values are applied.
       };
-      link.textContent = 'Select package ↗';
+      link.textContent = groupIndex === 4 ? 'Select Content Creation Only ↗' : 'Select Photography Only ↗';
+      const photoDetails = card.querySelector(':scope > ul');
+      if (photoDetails) photoDetails.insertAdjacentElement('afterend', link);
       const label = card.querySelector('.package-label')?.textContent.trim() || packageName;
       link.setAttribute('aria-label', `Select ${label} photography package`);
       link.addEventListener('click', event => {
@@ -211,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const bundleLink = document.createElement('a');
         bundleLink.className = 'bundle-select';
         bundleLink.href = '#contact';
-        bundleLink.textContent = 'Select package ↗';
+        bundleLink.textContent = coverage === 'Photography + Videography package' ? 'Select Photo + Video ↗' : coverage === 'Photography + Content Creation package' ? 'Select Photo + Content ↗' : 'Select Complete Bundle ↗';
         bundleLink.setAttribute('aria-label', `Select ${label} ${description} package`);
         bundleLink.addEventListener('click', event => {
           event.preventDefault();
