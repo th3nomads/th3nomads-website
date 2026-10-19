@@ -237,6 +237,25 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
+  // Keep starting photography prices prominent and make bundles an optional comparison.
+  document.querySelectorAll('#pricing .pricing-card').forEach(card => {
+    const bundles = [...card.children].filter(el => el.matches('.video-bundle, .content-bundle, .triple-bundle'));
+    if (!bundles.length || card.querySelector('.package-bundle-details')) return;
+    const details = document.createElement('details');
+    details.className = 'package-bundle-details';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Explore photo + video & content bundles';
+    details.appendChild(summary);
+    bundles[0].before(details);
+    bundles.forEach(bundle => details.appendChild(bundle));
+    const mainLink = card.querySelector(':scope > a[href="#contact"]');
+    if (mainLink) {
+      mainLink.textContent = 'Check availability & get a quote ↗';
+      mainLink.setAttribute('aria-label', 'Check availability and request a personalized quote for ' + (card.querySelector('.package-label')?.textContent.trim() || 'this package'));
+    }
+  });
+
+
   // Reduce visual density while keeping every service and bundle detail available.
   document.querySelectorAll('.service-card').forEach(card => {
     const list = card.querySelector(':scope > ul');
