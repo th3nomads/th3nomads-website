@@ -122,3 +122,35 @@
 @media (max-width:760px){
  #pricing .pricing-cards>.pricing-card{min-height:0!important;height:auto!important}
 }
+
+/* Bundle rows: stack long service labels above prices to prevent collisions. */
+#pricing .package-bundle-details>.video-bundle,
+#pricing .package-bundle-details>.content-bundle,
+#pricing .package-bundle-details>.triple-bundle{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ gap:8px!important;
+ min-width:0!important;
+}
+#pricing .package-bundle-details>div>span{
+ display:block!important;
+ width:100%!important;
+ min-width:0!important;
+ overflow-wrap:break-word!important;
+ white-space:normal!important;
+ line-height:1.45!important;
+ font-size:.73rem!important;
+}
+#pricing .package-bundle-details>div>strong{
+ display:block!important;
+ width:100%!important;
+ max-width:100%!important;
+ text-align:left!important;
+ white-space:normal!important;
+ font-size:1.02rem!important;
+ line-height:1.4!important;
+ margin:0!important;
+}
+#pricing .package-bundle-details>div>small{display:block!important;width:100%!important}
+#pricing .package-bundle-details .bundle-select{width:100%;box-sizing:border-box}
