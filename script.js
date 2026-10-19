@@ -427,12 +427,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const TRAVEL_RATE_PER_MILE = 1;
     const ROUND_TRIP_MULTIPLIER = 2;
     const ROAD_DISTANCE_FACTOR = 1.18;
-    const ADDITIONAL_HOUR_RATE = 200;
+    const ADDITIONAL_HOUR_RATE = 150;
     const NEW_YORK_TOLL_FEE = 30;
     const HOME = { lat: 40.5793, lon: -74.4115 };
 
     const packagePrices = {
-      'Intimate — up to 3 hours': { photo: 600, video: 1200, content: 950 },
+      'Intimate — up to 3 hours': { photo: 650, video: 1200, content: 950 },
       'Signature — up to 5 hours': { photo: 950, video: 1900, content: 1500 },
       'Full Story — up to 7 hours': { photo: 1200, video: 2400, content: 1900 },
       'Mini Story — 30 minutes': { photo: 250, video: 450, content: 375 },
