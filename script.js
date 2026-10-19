@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const packageBase=priceForCoverage(packagePrices[packageField?.value], coverageField?.value || '', true);
       const primaryIncluded=includedHours[packageField?.value]??null;
       const primaryRequested=calculateDuration(primaryStartTime?.value,primaryEndTime?.value);
-      const primaryExtraHours=packageBase!=null&&primaryIncluded!=null&&primaryRequested!=null?Math.max(0,primaryRequested-primaryIncluded):0;
+      const primaryExtraHours=packageBase!=null&&primaryIncluded!=null&&primaryRequested!=null?Math.ceil(Math.max(0,primaryRequested-primaryIncluded)):0;
       const primaryAdditionalFee=primaryExtraHours*ADDITIONAL_HOUR_RATE;
       let additionalPackagesTotal=0;
       const additionalDetails=[];
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeFields=additionalPackageTimeFields[index];
         const requested=calculateDuration(timeFields?.start?.value,timeFields?.end?.value);
         const included=includedHours[field.value]??null;
-        const extra=included!=null&&requested!=null?Math.max(0,requested-included):0;
+        const extra=included!=null&&requested!=null?Math.ceil(Math.max(0,requested-included)):0;
         const extraFee=extra*ADDITIONAL_HOUR_RATE;
         if(base!=null) additionalPackagesTotal+=base+extraFee;
         additionalDetails.push({number:index+2,name:field.value,coverage:selectedCoverage,base,extra,extraFee});
