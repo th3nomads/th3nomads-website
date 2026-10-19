@@ -105,3 +105,20 @@
  #pricing .package-bundle-details>div{grid-template-columns:minmax(0,1fr)}
  #pricing .package-bundle-details>div>span,#pricing .package-bundle-details>div>strong{grid-column:1;grid-row:auto;text-align:left}
 }
+
+/* Consistent collapsed package cards without stretching siblings when expanded. */
+@media (min-width:761px){
+ #pricing .pricing-cards{align-items:start!important}
+ #pricing .pricing-cards>.pricing-card{
+   min-height:465px!important;
+   height:auto!important;
+   align-self:start!important;
+   display:flex!important;
+   flex-direction:column!important;
+ }
+ #pricing .pricing-card>a[href="#contact"]{margin-top:auto!important}
+ #pricing .pricing-card>.package-bundle-details{margin-top:0!important}
+}
+@media (max-width:760px){
+ #pricing .pricing-cards>.pricing-card{min-height:0!important;height:auto!important}
+}
