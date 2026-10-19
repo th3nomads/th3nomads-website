@@ -93,3 +93,15 @@
   #pricing .package-bundle-details>div{grid-template-columns:1fr}
   #pricing .package-bundle-details>div>strong{grid-column:1;grid-row:auto}
 }
+
+/* Independent bundle expansion: prevent a single open card stretching its siblings. */
+#pricing .pricing-cards{align-items:start!important}
+#pricing .pricing-cards>.pricing-card{height:auto!important;align-self:start!important;min-height:0!important}
+#pricing .pricing-card>.package-bundle-details{width:100%;min-width:0}
+#pricing .package-bundle-details>div{min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,auto)}
+#pricing .package-bundle-details>div>span{min-width:0;overflow-wrap:anywhere;word-break:normal;line-height:1.45}
+#pricing .package-bundle-details>div>strong{min-width:0;max-width:100%;white-space:normal;text-align:right;overflow-wrap:normal;line-height:1.4;font-size:.92rem}
+@media(max-width:1100px){
+ #pricing .package-bundle-details>div{grid-template-columns:minmax(0,1fr)}
+ #pricing .package-bundle-details>div>span,#pricing .package-bundle-details>div>strong{grid-column:1;grid-row:auto;text-align:left}
+}
