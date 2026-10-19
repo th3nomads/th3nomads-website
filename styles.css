@@ -68,3 +68,28 @@
   #pricing .pricing-cards{align-items:stretch}
   #pricing .pricing-cards>.pricing-card{height:auto;align-self:stretch}
 }
+
+/* Clear starting prices, compact mobile cards, optional bundle comparison. */
+#pricing .pricing-card h4{font-size:.78rem;letter-spacing:.02em;line-height:1.55}
+#pricing .pricing-card h4 strong{display:block;margin-top:4px;font-size:2.15rem;line-height:1.1;letter-spacing:-.035em;color:#f5eee2}
+#pricing .pricing-card>.package-bundle-details{margin-top:2px;border-top:1px solid #4a453c;padding-top:10px}
+#pricing .package-bundle-details>summary{cursor:pointer;list-style:none;padding:10px 30px 10px 12px;border:1px solid #605849;border-radius:6px;color:#e5d2ac;font-size:.75rem;font-weight:600;position:relative}
+#pricing .package-bundle-details>summary::-webkit-details-marker{display:none}
+#pricing .package-bundle-details>summary::after{content:'+';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:1.2rem}
+#pricing .package-bundle-details[open]>summary::after{content:'−'}
+#pricing .package-bundle-details>.video-bundle,
+#pricing .package-bundle-details>.content-bundle,
+#pricing .package-bundle-details>.triple-bundle{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center;margin:10px 0 0;padding:12px;border:1px solid #48443d;border-radius:6px;background:#211f1d}
+#pricing .package-bundle-details>.triple-bundle{background:#302b22;border-color:#8f7a50}
+#pricing .package-bundle-details>div>span{grid-column:1;font-size:.7rem;color:#e6d2a7}
+#pricing .package-bundle-details>div>strong{grid-column:2;grid-row:1;color:#fff;font-size:1rem;white-space:nowrap}
+#pricing .package-bundle-details>div>small{grid-column:1/-1;color:#bcb6ac;font-size:.7rem;line-height:1.5}
+#pricing .package-bundle-details .bundle-select{grid-column:1/-1;display:block;padding:10px;text-align:center;border:1px solid #625b4d;border-radius:5px;background:#302d28;color:#f2e9d8;font-size:.7rem}
+#pricing .pricing-card>a[href="#contact"]{margin-top:auto;padding:13px 10px;font-size:.72rem}
+#pricing .pricing-cards>.pricing-card{min-width:0}
+@media(max-width:760px){
+  #pricing .pricing-card{padding:20px 17px}
+  #pricing .pricing-card h4 strong{font-size:2rem}
+  #pricing .package-bundle-details>div{grid-template-columns:1fr}
+  #pricing .package-bundle-details>div>strong{grid-column:1;grid-row:auto}
+}
