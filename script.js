@@ -491,7 +491,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if(coverage==='Photography + Content Creation package') return prices.content??null;
       if(coverage==='Photography + Videography + Content Creation package') return prices.photo != null && prices.video != null && prices.content != null ? Math.round((prices.video + prices.content - prices.photo) * 0.9) : null;
       if(coverage==='Content Creation only') return prices.contentOnly??null;
-      if(coverage.startsWith('Videography only')) return 750;
+      if(coverage.startsWith('Videography only')) {
+        const packageName = Object.keys(packagePrices).find(name => packagePrices[name] === prices);
+        const hours = includedHours[packageName];
+        return hours != null ? 300 + 150 * hours : null;
+      }
       return allowFallback ? prices.photo??prices.contentOnly??null : null;
     };
     const displayHours = value => Number.isInteger(value)?String(value):String(Math.round(value*100)/100);
