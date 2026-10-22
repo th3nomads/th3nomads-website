@@ -88,23 +88,23 @@ export default {
         const expected = await signAsset(`${gallery}|__all__|${exp}`, env.SESSION_SECRET);
         if (!safeEqual(sig, expected)) return new Response('Unauthorized', { status: 401, headers: cors });
 
-        const prefix = `galleries/${gallery}/photos/`;
-        const objects = (await listAll(env.GALLERY_BUCKET, prefix))
-          .filter(o => IMAGE_RE.test(o.key) || VIDEO_RE.test(o.key))
-          .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true }));
-        if (!objects.length) return new Response('No media found', { status: 404, headers: cors });
-
-        const estimated = objects.reduce((sum, o) => sum + Number(o.size || 0) + 256, 22);
-        if (objects.some(o => Number(o.size || 0) > 0xffffffff) || estimated > 0xffffffff) {
-          return new Response('Gallery is too large for a single ZIP download', { status: 413, headers: cors });
+        // Bulk archives are prepared offline and stored privately in R2.
+        // Never build a large ZIP inside a request: Workers can exceed CPU
+        // limits and leave clients with corrupt, partially written archives.
+        const archiveKey = `galleries/${gallery}/gallery-download.zip`;
+        const archive = await env.GALLERY_BUCKET.get(archiveKey);
+        if (!archive) {
+          return new Response('Gallery ZIP is being prepared. Please try again later or download individual photos.', {
+            status: 503,
+            headers: { ...Object.fromEntries(cors), 'Cache-Control': 'no-store', 'Retry-After': '3600' }
+          });
         }
-
-        const stream = makeZipStream(env.GALLERY_BUCKET, objects, prefix);
         const headers = new Headers(cors);
         headers.set('Content-Type', 'application/zip');
         headers.set('Content-Disposition', `attachment; filename="${gallery}-gallery.zip"`);
+        headers.set('Content-Length', String(archive.size));
         headers.set('Cache-Control', 'private, no-store');
-        return new Response(stream, { headers });
+        return new Response(archive.body, { headers });
       }
 
       const fileMatch = url.pathname.match(/^\/api\/gallery\/([a-z0-9-]+)\/file\/(.+)$/);
