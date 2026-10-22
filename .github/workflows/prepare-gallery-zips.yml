@@ -1,0 +1,33 @@
+name: Prepare client gallery ZIPs
+on:
+  workflow_dispatch:
+    inputs:
+      gallery_slug:
+        description: 'Optional gallery slug; leave blank to check all galleries'
+        required: false
+        type: string
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: gallery-zip-preparation
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'boto3>=1.35,<2'
+      - name: Build and upload changed gallery archives
+        env:
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: th3nomads-client-galleries
+          GALLERY_SLUG: ${{ inputs.gallery_slug }}
+        run: python scripts/prepare_gallery_zips.py
