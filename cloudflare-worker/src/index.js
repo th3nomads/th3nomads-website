@@ -171,42 +171,67 @@ async function listAll(bucket, prefix) {
 }
 
 function makeZipStream(bucket, objects, prefix) {
+  // Generate ZIP chunks only as the consumer requests them. Running the entire
+  // archive inside ReadableStream.start() buffers large galleries in memory and
+  // can terminate before the central directory is delivered.
+  const iterator = zipChunks(bucket, objects, prefix);
   return new ReadableStream({
-    async start(controller) {
+    async pull(controller) {
       try {
-        let offset = 0;
-        const central = [];
-        const { time, date } = dosDateTime(new Date());
-        for (const listed of objects) {
-          const name = listed.key.slice(prefix.length).replace(/[\\/]/g, '_');
-          const nameBytes = enc.encode(name);
-          const localOffset = offset;
-          const local = zipLocalHeader(nameBytes, time, date);
-          controller.enqueue(local); offset += local.byteLength;
-          const object = await bucket.get(listed.key);
-          if (!object) throw new Error('Missing object');
-          const reader = object.body.getReader();
-          let crc = 0xffffffff, size = 0;
-          while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            if (!value || !value.byteLength) continue;
-            crc = crc32Update(crc, value); size += value.byteLength;
-            controller.enqueue(value); offset += value.byteLength;
-          }
-          crc = (crc ^ 0xffffffff) >>> 0;
-          const descriptor = zipDataDescriptor(crc, size);
-          controller.enqueue(descriptor); offset += descriptor.byteLength;
-          central.push(zipCentralHeader(nameBytes, time, date, crc, size, localOffset));
-        }
-        const centralOffset = offset;
-        let centralSize = 0;
-        for (const entry of central) { controller.enqueue(entry); centralSize += entry.byteLength; offset += entry.byteLength; }
-        controller.enqueue(zipEndOfCentralDirectory(central.length, centralSize, centralOffset));
-        controller.close();
-      } catch (err) { controller.error(err); }
+        const { value, done } = await iterator.next();
+        if (done) controller.close();
+        else controller.enqueue(value);
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+    async cancel() {
+      await iterator.return();
     }
-  });
+  }, { highWaterMark: 1 });
+}
+
+async function* zipChunks(bucket, objects, prefix) {
+  let offset = 0;
+  const central = [];
+  const { time, date } = dosDateTime(new Date());
+  for (const listed of objects) {
+    const name = listed.key.slice(prefix.length).replace(/[\\/]/g, '_');
+    const nameBytes = enc.encode(name);
+    if (nameBytes.length > 0xffff) throw new Error('ZIP filename too long');
+    const object = await bucket.get(listed.key);
+    if (!object) throw new Error('Missing gallery media: ' + listed.key);
+    const localOffset = offset;
+    const local = zipLocalHeader(nameBytes, time, date);
+    yield local; offset += local.byteLength;
+    const reader = object.body.getReader();
+    let crc = 0xffffffff, size = 0;
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (!value || !value.byteLength) continue;
+        crc = crc32Update(crc, value);
+        size += value.byteLength;
+        if (size > 0xffffffff) throw new Error('ZIP entry exceeds 4 GB');
+        yield value; offset += value.byteLength;
+      }
+    } finally {
+      reader.releaseLock();
+    }
+    crc = (crc ^ 0xffffffff) >>> 0;
+    const descriptor = zipDataDescriptor(crc, size);
+    yield descriptor; offset += descriptor.byteLength;
+    central.push(zipCentralHeader(nameBytes, time, date, crc, size, localOffset));
+  }
+  const centralOffset = offset;
+  let centralSize = 0;
+  for (const entry of central) {
+    yield entry;
+    centralSize += entry.byteLength;
+    offset += entry.byteLength;
+  }
+  yield zipEndOfCentralDirectory(central.length, centralSize, centralOffset);
 }
 
 function zipLocalHeader(name, time, date) {
