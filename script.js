@@ -550,11 +550,30 @@ document.addEventListener('DOMContentLoaded', () => {
       if(locationUndecided.checked||!city||!state){showTotal(estimateLabel(subtotal)+' + travel TBD');if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;if(priceInput)priceInput.value=estimateLabel(subtotal)+' + travel TBD';return;}
       showTotal(estimateLabel(subtotal)+' + travel TBD'); if(priceInput)priceInput.value=estimateLabel(subtotal)+' + travel TBD'; if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
       try{
-        const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(city));
-        if(!response.ok) throw new Error();
-        const data=await response.json(); if(requestId!==estimateRequest)return;
-        const places=(data.places||[]).filter(p=>p.latitude&&p.longitude); if(!places.length)throw new Error();
-        const destination={lat:places.reduce((sum,place)=>sum+Number(place.latitude),0)/places.length,lon:places.reduce((sum,place)=>sum+Number(place.longitude),0)/places.length};
+        // Prefer city/state geocoding; the ZIP-based provider is a fallback only.
+        // A failed provider must not leave a valid event location stuck at "travel TBD".
+        let destination=null;
+        try {
+          const geoResponse=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(city)+'&count=30&language=en&format=json&countryCode=US');
+          if(geoResponse.ok){
+            const geoData=await geoResponse.json();
+            const normalizedState=state.trim().toUpperCase();
+            const stateLabel=({NJ:'New Jersey',NY:'New York',PA:'Pennsylvania'})[normalizedState]||normalizedState;
+            const matches=(geoData.results||[]).filter(place=>place.country_code==='US'&&
+              (place.admin1||'').toLowerCase()===stateLabel.toLowerCase()&&
+              (place.name||'').toLowerCase()===city.toLowerCase());
+            if(matches.length) destination={lat:Number(matches[0].latitude),lon:Number(matches[0].longitude)};
+          }
+        }catch(error){console.warn('Primary travel geocoding unavailable',error);}
+        if(!destination){
+          const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(city));
+          if(!response.ok) throw new Error('Travel location lookup failed');
+          const data=await response.json();
+          const places=(data.places||[]).filter(p=>p.latitude&&p.longitude);
+          if(!places.length)throw new Error('No coordinates for event city');
+          destination={lat:places.reduce((sum,place)=>sum+Number(place.latitude),0)/places.length,lon:places.reduce((sum,place)=>sum+Number(place.longitude),0)/places.length};
+        }
+        if(requestId!==estimateRequest)return;
         const miles=Math.max(0,Math.round(straightLineMiles(HOME,destination)*ROAD_DISTANCE_FACTOR));
         // Apply the included radius to each leg, then charge for driving there and home.
         const mileageFee=Math.max(0,miles-INCLUDED_MILES)*TRAVEL_RATE_PER_MILE*ROUND_TRIP_MULTIPLIER;
@@ -585,6 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';
       }
     };
+    let estimateCityTimer;
     let cityLookupTimer;
     cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
     [packageField,...additionalPackageFields,coverageField,...additionalCoverageFields,stateField].forEach(field=>field?.addEventListener('change',updateEstimate));
@@ -592,6 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
       field?.addEventListener('input',updateEstimate);
       field?.addEventListener('change',updateEstimate);
     });
+    cityField?.addEventListener('input',()=>{clearTimeout(estimateCityTimer);estimateCityTimer=setTimeout(updateEstimate,450);});
     cityField?.addEventListener('change',updateEstimate); cityField?.addEventListener('blur',updateEstimate);
     updateEstimate();
   }
