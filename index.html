@@ -79,6 +79,37 @@ window.addEventListener('pageshow', function () {
  .hero .scroll-cue{display:none}
 }
 </style>
+<style id="inquiry-select-refinement">
+/* Refined mobile-friendly dropdowns; retain native accessible select behavior. */
+#contact select {
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  min-height:54px;
+  box-sizing:border-box;
+  border:1px solid rgba(201,168,93,.28);
+  border-radius:8px;
+  background-color:#202020;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23c9a85d' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 17px center;
+  background-size:18px 18px;
+  padding:13px 48px 13px 16px;
+  color:#f4f0e9;
+  font-family:Manrope,sans-serif;
+  font-size:clamp(14px,3.6vw,16px);
+  font-weight:400;
+  line-height:1.45;
+  letter-spacing:0;
+  text-align:left;
+  box-shadow:none;
+}
+#contact select:focus-visible{outline:2px solid #c9a85d;outline-offset:2px}
+#contact select:disabled{opacity:.55}
+#contact select:has(option:checked[value=""]){color:#b5b0a9}
+#contact select option{background:#202020;color:#f4f0e9}
+@media(max-width:600px){#contact select{font-size:16px;min-height:56px}}
+</style>
 </head>
 <body>
 <div aria-hidden="true" class="cursor-glow"></div>
