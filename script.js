@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { event: 'Wedding / Nikkah', packages: ['Intimate — up to 3 hours', 'Signature — up to 5 hours', 'Full Story — up to 7 hours'] },
     { event: 'Engagement / Proposal', packages: ['Mini Story — 30 minutes', 'Classic Story — 60 minutes', 'Editorial Story — up to 90 minutes'] },
     { event: 'Maternity / Family', packages: ['Mini — 30 minutes', 'Signature — 60 minutes', 'Extended Family — up to 90 minutes'] },
-    { event: 'Birthday / Event', packages: ['Essential — up to 3 hours', 'Celebration — up to 4 hours', 'Complete Event — up to 5 hours'] },
+    { event: 'Birthday / Event', packages: ['Intimate Celebration — up to 2 hours', 'Essential — up to 3 hours', 'Celebration — up to 4 hours', 'Complete Event — up to 5 hours'] },
     { event: 'Content Creation', packages: ['Social Mini — up to 2 hours', 'Event Story — up to 4 hours', 'Full Experience — up to 6 hours'] }
   ];
   document.querySelectorAll('#pricing .pricing-groups > .pricing-group').forEach((group, groupIndex) => {
@@ -460,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Mini — 30 minutes': { photo: 250, video: 450, content: 375 },
       'Signature — 60 minutes': { photo: 400, video: 700, content: 600 },
       'Extended Family — up to 90 minutes': { photo: 600, video: 1000, content: 875 },
+      'Intimate Celebration — up to 2 hours': { photo: 350 },
       'Essential — up to 3 hours': { photo: 500, video: 1100, content: 850 },
       'Celebration — up to 4 hours': { photo: 700, video: 1450, content: 1200 },
       'Complete Event — up to 5 hours': { photo: 850, video: 1700, content: 1400 },
@@ -471,7 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Intimate — up to 3 hours':3,'Signature — up to 5 hours':5,'Full Story — up to 7 hours':7,
       'Mini Story — 30 minutes':.5,'Classic Story — 60 minutes':1,'Editorial Story — up to 90 minutes':1.5,
       'Mini — 30 minutes':.5,'Signature — 60 minutes':1,'Extended Family — up to 90 minutes':1.5,
-      'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
+      'Intimate Celebration — up to 2 hours':2,'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
       'Social Mini — up to 2 hours':2,'Event Story — up to 4 hours':4,'Full Experience — up to 6 hours':6
     };
 
