@@ -111,7 +111,41 @@ window.addEventListener('pageshow', function () {
 #contact select option{background:#202020;color:#f4f0e9}
 @media(max-width:600px){#contact select{font-size:16px;min-height:56px}}
 </style>
-<style id="multi-page-layout">.hero,.service-shortcuts{display:none!important;} section#testimonials,section#pricing,section#about,section#contact{display:none!important} main{padding-top:95px;min-height:65vh} </style></head>
+<style id="multi-page-layout">.hero,.service-shortcuts{display:none!important;} section#testimonials,section#pricing,section#about,section#contact{display:none!important} main{padding-top:95px;min-height:65vh} </style><style id="portfolio-static-layout">
+/* Portfolio-only gallery: responsive, non-scrolling masonry grid. */
+#portfolioGallery,#portfolioGallery.all-carousel{display:block!important;column-count:3!important;column-gap:18px!important;overflow:visible!important;scroll-snap-type:none!important;padding:0!important;width:100%!important}
+#portfolioGallery .gallery-card,#portfolioGallery.all-carousel .gallery-card{display:inline-block;width:100%!important;max-width:100%!important;break-inside:avoid;page-break-inside:avoid;margin:0 0 18px!important;scroll-snap-align:none!important;vertical-align:top}
+#portfolioGallery .gallery-card.hidden,#portfolioGallery[hidden]{display:none!important}
+#portfolioGallery .gallery-card img,#portfolioGallery.all-carousel .gallery-card img{display:block;width:100%;height:auto!important;max-height:none!important;object-fit:cover}
+#carouselControls{display:none!important}
+@media(max-width:900px){#portfolioGallery,#portfolioGallery.all-carousel{column-count:2!important}}
+@media(max-width:600px){#portfolioGallery,#portfolioGallery.all-carousel{column-count:1!important;column-gap:0!important}#portfolioGallery .gallery-card,#portfolioGallery.all-carousel .gallery-card{margin-bottom:16px!important}}
+</style>
+<script>
+/* Override carousel setup only on this dedicated Portfolio page. */
+document.addEventListener('DOMContentLoaded',function(){
+  const gallery=document.getElementById('portfolioGallery');
+  if(!gallery)return;
+  const controls=document.getElementById('carouselControls');
+  const filters=[...document.querySelectorAll('#portfolio .filters [data-filter]')];
+  const films=document.getElementById('portfolioFilms');
+  const cards=[...gallery.querySelectorAll('.gallery-card:not(.carousel-clone)')];
+  const show=filter=>{
+    gallery.querySelectorAll('.carousel-clone').forEach(el=>el.remove());
+    gallery.classList.remove('all-carousel');
+    cards.forEach(card=>{card.classList.toggle('hidden',filter==='films'||(filter!=='all'&&card.dataset.category!==filter));});
+    gallery.hidden=filter==='films';
+    if(films)films.hidden=filter!=='films';
+    if(controls)controls.style.setProperty('display','none','important');
+  };
+  filters.forEach(btn=>btn.addEventListener('click',()=>show(btn.dataset.filter||'all')));
+  show(filters.find(b=>b.classList.contains('active'))?.dataset.filter||'all');
+  const observer=new MutationObserver(()=>{
+    if(gallery.querySelector('.carousel-clone')||gallery.classList.contains('all-carousel'))show(filters.find(b=>b.classList.contains('active'))?.dataset.filter||'all');
+  });
+  observer.observe(gallery,{childList:true,attributes:true,attributeFilter:['class']});
+});
+</script></head>
 <body>
 <div aria-hidden="true" class="cursor-glow"></div>
 <header class="site-header" id="top">
@@ -147,7 +181,7 @@ window.addEventListener('pageshow', function () {
 <section class="portfolio section" id="portfolio">
 <div class="section-heading reveal">
 <div><p class="eyebrow">Selected work</p><h2>A portfolio of<br/><em>real moments.</em></h2></div>
-<p>Browse the featured carousel or filter the collection by weddings, engagements, maternity, and portraits.</p>
+<p>Explore the full collection below, or filter by weddings, engagements, maternity, portraits, and films.</p>
 </div>
 <div aria-label="Filter portfolio" class="filters" role="group">
 <button class="active" data-filter="all" type="button">All</button>
@@ -157,7 +191,7 @@ window.addEventListener('pageshow', function () {
 <button data-filter="portraits" type="button">Portraits</button>
 <button data-filter="films" id="portfolioFilmsTab" type="button">Films</button>
 </div>
-<div class="carousel-controls" id="carouselControls">
+<div class="carousel-controls" id="carouselControls" hidden>
 <button aria-label="Previous photograph" id="carouselPrev" type="button">‹</button>
 <div aria-live="polite" class="carousel-status">
 <span id="currentSlide">01</span><span>/</span><span id="totalSlides">00</span>
@@ -165,7 +199,7 @@ window.addEventListener('pageshow', function () {
 </div>
 <button aria-label="Next photograph" id="carouselNext" type="button">›</button>
 </div>
-<div class="gallery-grid all-carousel" id="portfolioGallery">
+<div class="gallery-grid portfolio-static-grid" id="portfolioGallery">
  <!-- Wedding -->
 <figure class="gallery-card" data-category="weddings" tabindex="0"><img alt="Bride in embroidered red bridal attire" loading="lazy" src="/assets/images/1-_DSC1171.jpg"/><figcaption><span>Weddings</span><button aria-label="Open image" type="button">View</button></figcaption></figure>
 <figure class="gallery-card" data-category="weddings" tabindex="0"><img alt="Bride showing bridal jewelry" loading="lazy" src="/assets/images/2-_DSC1176.jpg"/><figcaption><span>Weddings</span><button aria-label="Open image" type="button">View</button></figcaption></figure>
