@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.service-shortcuts [data-pricing-target]').forEach(link => {
       link.addEventListener('click', event => {
         const index = shortcutTargets.indexOf(link.dataset.pricingTarget);
-        if (index < 0) return;
+        if (index < 0 || window.location.pathname !== '/packages/') return;
         event.preventDefault();
         activateTab(index);
         document.querySelector('#pricing')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -183,6 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const inquiryPackage = document.querySelector('#inquiryForm select[name="package"]');
   const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
   const inquiryCoverage = document.querySelector('#inquiryForm select[name="videography_addon"]');
+  const onContactPage = window.location.pathname.replace(/\/+$/, '') === '/contact';
+  const goToContactWithChoice = (packageName, eventType, coverage) => {
+    const params = new URLSearchParams({ package: packageName, event: eventType, coverage });
+    window.location.assign('/contact/?' + params.toString());
+  };
   const packageChoices = [
     { event: 'Wedding / Nikkah', packages: ['Intimate — up to 3 hours', 'Signature — up to 5 hours', 'Full Story — up to 7 hours'] },
     { event: 'Engagement / Proposal', packages: ['Mini Story — 30 minutes', 'Classic Story — 60 minutes', 'Editorial Story — up to 90 minutes'] },
@@ -204,7 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
           inquiryCoverage.value = coverage;
           inquiryCoverage.dispatchEvent(new Event('change', { bubbles: true }));
         }
-        // The delegated anchor handler scrolls after package values are applied.
+        if (!onContactPage) goToContactWithChoice(packageName, choice.event, coverage);
+        // On Contact, the delegated anchor handler scrolls to the visible inquiry form.
       };
       link.textContent = groupIndex === 4 ? 'Select Content Creation Only ↗' : 'Select Photography Only ↗';
       const photoDetails = card.querySelector(':scope > ul');
@@ -236,6 +242,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
+  // Restore a selected package after navigating from Packages to Contact.
+  if (onContactPage && inquiryPackage) {
+    const selected = new URLSearchParams(window.location.search);
+    const applyChoice = (field, value) => {
+      if (!field || !value || ![...field.options].some(option => option.value === value)) return;
+      field.value = value;
+      field.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    if (selected.has('package')) {
+      applyChoice(inquiryEvent, selected.get('event'));
+      applyChoice(inquiryPackage, selected.get('package'));
+      applyChoice(inquiryCoverage, selected.get('coverage'));
+      // Estimate listeners are installed later in this callback.
+      window.setTimeout(() => {
+        inquiryPackage.dispatchEvent(new Event('change', { bubbles: true }));
+        document.querySelector('#inquiryForm')?.scrollIntoView({ block: 'start' });
+      }, 0);
+    }
+  }
 
   // Keep starting photography prices prominent and make bundles an optional comparison.
   document.querySelectorAll('#pricing .pricing-card').forEach(card => {
