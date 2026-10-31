@@ -111,7 +111,41 @@ window.addEventListener('pageshow', function () {
 #contact select option{background:#202020;color:#f4f0e9}
 @media(max-width:600px){#contact select{font-size:16px;min-height:56px}}
 </style>
-<style id="multi-page-layout">.hero,.service-shortcuts{display:none!important;} section#portfolio,section#testimonials,section#about,section#contact{display:none!important} main{padding-top:95px;min-height:65vh} </style></head>
+<style id="multi-page-layout">.hero,.service-shortcuts{display:none!important;} section#portfolio,section#testimonials,section#about,section#contact{display:none!important} main{padding-top:95px;min-height:65vh} </style>
+<style id="mobile-package-categories">
+/* Show every category without horizontal scrolling on phones and tablets. */
+@media (max-width: 760px) {
+  #pricing .pricing-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    margin: 0 0 28px;
+    padding: 0 0 18px;
+    overflow: visible;
+  }
+  #pricing .pricing-tabs button {
+    min-width: 0;
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    padding: 12px 10px;
+    white-space: normal;
+    overflow-wrap: break-word;
+    font-size: .7rem;
+    line-height: 1.5;
+    letter-spacing: .06em;
+  }
+  #pricing .pricing-tabs button:first-child { grid-column: 1 / -1; }
+  #pricing .pricing-tabs button:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+  }
+}
+</style>
+</head>
 <body>
 <div aria-hidden="true" class="cursor-glow"></div>
 <header class="site-header" id="top">
