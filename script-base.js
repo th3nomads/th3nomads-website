@@ -1,16 +1,6 @@
 'use strict';
 
-// Google Analytics 4
-const GA_MEASUREMENT_ID = 'G-HY84HFZZC1';
-window.dataLayer = window.dataLayer || [];
-window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
-window.gtag('js', new Date());
-window.gtag('config', GA_MEASUREMENT_ID);
-
-const gaScript = document.createElement('script');
-gaScript.async = true;
-gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-document.head.appendChild(gaScript);
+// GA4 is initialized once in each page head; preserve business event tracking here.
 
 const trackEvent = (name, params = {}) => {
   if (typeof window.gtag !== 'function') return;

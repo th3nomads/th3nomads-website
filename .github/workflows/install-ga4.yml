@@ -19,16 +19,16 @@ jobs:
           from pathlib import Path
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          measurement_id = 'G-5MLE6ZN3G1'
+          measurement_id = 'G-HY84HFZZC1'
           marker = f'gtag/js?id={measurement_id}'
           if marker not in text:
               tag = '''<!-- Google tag (gtag.js) -->
-          <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MLE6ZN3G1"></script>
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-HY84HFZZC1"></script>
           <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-5MLE6ZN3G1');
+            gtag('config', 'G-HY84HFZZC1');
           </script>
           '''
               text = text.replace('<head>\n', '<head>\n' + tag, 1)
