@@ -119,7 +119,14 @@ window.addEventListener('pageshow', function () {
 #portfolioGallery .gallery-card img,#portfolioGallery.all-carousel .gallery-card img{display:block;width:100%;height:auto!important;max-height:none!important;object-fit:cover}
 #carouselControls{display:none!important}
 @media(max-width:900px){#portfolioGallery,#portfolioGallery.all-carousel{column-count:2!important}}
-@media(max-width:600px){#portfolioGallery,#portfolioGallery.all-carousel{column-count:1!important;column-gap:0!important}#portfolioGallery .gallery-card,#portfolioGallery.all-carousel .gallery-card{margin-bottom:16px!important}}
+@media(max-width:600px){
+  #portfolioGallery,#portfolioGallery.all-carousel{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px!important;column-count:auto!important;align-items:start}
+  #portfolioGallery .gallery-card,#portfolioGallery.all-carousel .gallery-card{display:block;min-width:0;margin:0!important;aspect-ratio:4/5;border-radius:8px}
+  #portfolioGallery .gallery-card img,#portfolioGallery.all-carousel .gallery-card img{height:100%!important;object-fit:cover}
+  #portfolioGallery .gallery-card figcaption{padding:24px 8px 10px;gap:4px}
+  #portfolioGallery .gallery-card figcaption span,#portfolioGallery .gallery-card figcaption button{font-size:.55rem;letter-spacing:.04em}
+  #portfolioGallery[hidden]{display:none!important}
+}
 </style>
 <script>
 /* Override carousel setup only on this dedicated Portfolio page. */
