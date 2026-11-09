@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Carry a pricing-card choice into the first package on the inquiry form.
   const inquiryPackage = document.querySelector('#inquiryForm select[name="package"]');
-  const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
+  const inquiryEvent = document.querySelector('#inquiryForm [name="event"]');
   const inquiryCoverage = document.querySelector('#inquiryForm select[name="videography_addon"]');
   const onContactPage = window.location.pathname.replace(/\/+$/, '') === '/contact';
   const contactUrlForChoice = (packageName, eventType, coverage) => {
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (onContactPage && inquiryPackage) {
     const selected = new URLSearchParams(window.location.search);
     const applyChoice = (field, value) => {
-      if (!field || !value || ![...field.options].some(option => option.value === value)) return;
+      if (!field || !value || (field.options && ![...field.options].some(option => option.value === value))) return;
       field.value = value;
       field.dispatchEvent(new Event('change', { bubbles: true }));
     };
