@@ -1,7 +1,7 @@
 'use strict';
 
 // Preserve the existing site behavior from the previous script file.
-document.write('<script src="script-base.js?v=20261101-analytics"><\/script>');
+document.write('<script src="script-base.js?v=20261109-prefill"><\/script>');
 
 document.addEventListener('DOMContentLoaded', () => {
   const pricingGroups = document.querySelector('#pricing .pricing-groups');
