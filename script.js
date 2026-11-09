@@ -574,11 +574,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if(detail.extraFee)baseRows.push(['Package '+detail.number+' additional time ('+displayHours(detail.extra)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(detail.extraFee)]);
       });
       const renderRows=rows=>rows.map(row=>'<div class="estimate-row"><span>'+row[0]+'</span><strong>'+row[1]+'</strong></div>').join('');
-      if(locationUndecided.checked||!city||!state){showTotal(estimateLabel(subtotal)+' + travel TBD');if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;if(priceInput)priceInput.value=estimateLabel(subtotal)+' + travel TBD';return;}
-      showTotal(estimateLabel(subtotal)+' + travel TBD'); if(priceInput)priceInput.value=estimateLabel(subtotal)+' + travel TBD'; if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
+      if(locationUndecided.checked||!city||!state){showTotal(estimateLabel(subtotal)+' · final price pending');if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;if(priceInput)priceInput.value=estimateLabel(subtotal)+' · final price pending';return;}
+      showTotal(estimateLabel(subtotal)+' · final price pending'); if(priceInput)priceInput.value=estimateLabel(subtotal)+' · final price pending'; if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
       try{
         // Prefer city/state geocoding; the ZIP-based provider is a fallback only.
-        // A failed provider must not leave a valid event location stuck at "travel TBD".
+        // A failed provider must not leave a valid event location stuck with a pending final price.
         let destination=null;
         try {
           const geoResponse=await fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(city)+'&count=30&language=en&format=json&countryCode=US');
@@ -621,14 +621,14 @@ document.addEventListener('DOMContentLoaded', () => {
         showTotal(estimateLabel(total));
         // Travel remains included in the total and submitted estimate, but is
         // intentionally omitted from the client-facing breakdown.
-        if(breakdownEl)breakdownEl.innerHTML=renderRows([...baseRows,['Travel cost'+(tripCount>1?' ('+tripCount+' event dates)':''),travelFee?money(travelFee):'Included']])+pendingNote;
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
         if(priceInput)priceInput.value=estimateLabel(total);
         if(travelInput)travelInput.value=travelFee?money(travelFee):'Included';
         if(distanceInput)distanceInput.value=miles+' estimated one-way miles';
       }catch(error){
         if(requestId!==estimateRequest)return;
-        showTotal(estimateLabel(subtotal)+' + travel TBD');
-        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Travel will be confirmed with your quote.</div>';
+        showTotal(estimateLabel(subtotal)+' · final price pending');
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Your final all-inclusive price will be confirmed with your quote.</div>';
       }
     };
     let estimateCityTimer;
