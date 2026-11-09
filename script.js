@@ -184,9 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const inquiryEvent = document.querySelector('#inquiryForm select[name="event"]');
   const inquiryCoverage = document.querySelector('#inquiryForm select[name="videography_addon"]');
   const onContactPage = window.location.pathname.replace(/\/+$/, '') === '/contact';
-  const goToContactWithChoice = (packageName, eventType, coverage) => {
+  const contactUrlForChoice = (packageName, eventType, coverage) => {
     const params = new URLSearchParams({ package: packageName, event: eventType, coverage });
-    window.location.assign('/contact/?' + params.toString());
+    return '/contact/?' + params.toString() + '#inquiryForm';
   };
   const packageChoices = [
     { event: 'Wedding / Nikkah', packages: ['Intimate — up to 3 hours', 'Signature — up to 5 hours', 'Full Story — up to 7 hours'] },
@@ -197,30 +197,17 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
   document.querySelectorAll('#pricing .pricing-groups > .pricing-group').forEach((group, groupIndex) => {
     group.querySelectorAll('.pricing-card').forEach((card, cardIndex) => {
-      const link = card.querySelector(':scope > a[href="#contact"]');
+      const link = card.querySelector(':scope > a[href="#contact"], :scope > a[href="/contact/"]');
       const choice = packageChoices[groupIndex];
       const packageName = choice?.packages[cardIndex];
-      if (!link || !packageName || !inquiryPackage) return;
-      const selectChoice = coverage => {
-        inquiryPackage.value = packageName;
-        inquiryPackage.dispatchEvent(new Event('change', { bubbles: true }));
-        if (inquiryEvent) inquiryEvent.value = choice.event;
-        if (inquiryCoverage) {
-          inquiryCoverage.value = coverage;
-          inquiryCoverage.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        if (!onContactPage) goToContactWithChoice(packageName, choice.event, coverage);
-        // On Contact, the delegated anchor handler scrolls to the visible inquiry form.
-      };
+      if (!link || !packageName) return;
+      const primaryCoverage = groupIndex === 4 ? 'Content Creation only' : 'Photography only';
+      link.href = contactUrlForChoice(packageName, choice.event, primaryCoverage);
       link.textContent = groupIndex === 4 ? 'Select Content Creation Only ↗' : 'Select Photography Only ↗';
       const photoDetails = card.querySelector(':scope > ul');
       if (photoDetails) photoDetails.insertAdjacentElement('afterend', link);
       const label = card.querySelector('.package-label')?.textContent.trim() || packageName;
-      link.setAttribute('aria-label', `Select ${label} photography package`);
-      link.addEventListener('click', event => {
-        event.preventDefault();
-        selectChoice(groupIndex === 4 ? 'Content Creation only' : 'Photography only');
-      });
+      link.setAttribute('aria-label', `Select ${label} ${primaryCoverage.toLowerCase()} package`);
       [
         ['.video-bundle', 'Photography + Videography package', 'photography and videography'],
         ['.content-bundle', 'Photography + Content Creation package', 'photography and content creation'],
@@ -230,13 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!bundle) return;
         const bundleLink = document.createElement('a');
         bundleLink.className = 'bundle-select';
-        bundleLink.href = '#contact';
+        bundleLink.href = contactUrlForChoice(packageName, choice.event, coverage);
         bundleLink.textContent = coverage === 'Photography + Videography package' ? 'Select Photo + Video ↗' : coverage === 'Photography + Content Creation package' ? 'Select Photo + Content ↗' : 'Select Complete Bundle ↗';
         bundleLink.setAttribute('aria-label', `Select ${label} ${description} package`);
-        bundleLink.addEventListener('click', event => {
-          event.preventDefault();
-          selectChoice(coverage);
-        });
         bundle.appendChild(bundleLink);
       });
     });
@@ -274,11 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     details.appendChild(summary);
     bundles[0].before(details);
     bundles.forEach(bundle => details.appendChild(bundle));
-    const mainLink = card.querySelector(':scope > a[href="#contact"]');
-    if (mainLink) {
-      mainLink.textContent = 'Check availability & get a quote ↗';
-      mainLink.setAttribute('aria-label', 'Check availability and request a personalized quote for ' + (card.querySelector('.package-label')?.textContent.trim() || 'this package'));
-    }
+
   });
 
 
