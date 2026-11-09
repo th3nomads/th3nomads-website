@@ -566,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const estimateLabel = value => (detailsPending ? 'Starting at ' : '') + money(value);
-      const pendingNote = detailsPending ? '<div class="estimate-message">Starting estimate uses photography-only pricing where coverage is undecided (or content creation for content-only packages). Coverage, extra time, and travel update as you add details.</div>' : '';
+      const pendingNote = detailsPending ? '<div class="estimate-message">Starting estimate uses photography-only pricing where coverage is undecided (or content creation for content-only packages). Your estimate updates as you add event details.</div>' : '';
       const baseRows=[['Package 1: '+packageField.value,money(packageBase)]];
       if(primaryAdditionalFee)baseRows.push(['Package 1 additional time ('+displayHours(primaryExtraHours)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(primaryAdditionalFee)]);
       additionalDetails.forEach(detail=>{
