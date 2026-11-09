@@ -154,3 +154,13 @@
 }
 #pricing .package-bundle-details>div>small{display:block!important;width:100%!important}
 #pricing .package-bundle-details .bundle-select{width:100%;box-sizing:border-box}
+
+/* Allow the estimate amount and pending status to wrap on narrow screens. */
+.estimate-total-summary{flex:1 1 360px;min-width:0;max-width:58%;text-align:right}
+.estimate-heading .estimate-total-summary .estimate-total-field{width:100%;max-width:none;white-space:normal;overflow:visible;overflow-wrap:anywhere;height:auto}
+.estimate-status{margin:8px 0 0;color:#c1c1c1;font-size:.85rem;line-height:1.5;overflow-wrap:anywhere}
+.estimate-status[hidden]{display:none}
+@media(max-width:700px){
+ .estimate-total-summary{flex:none;width:100%;max-width:none;text-align:left}
+ .estimate-heading .estimate-total-summary .estimate-total-field{text-align:left}
+}

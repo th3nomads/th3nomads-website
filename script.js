@@ -482,7 +482,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const money = value => '$' + Math.round(value).toLocaleString('en-US');
-    const showTotal = value => { if (totalEl) totalEl.textContent=value; if (totalDisplay) totalDisplay.value=value; };
+    const showTotal = value => {
+      if (totalEl) totalEl.textContent = value;
+      const pending = value.endsWith(' · final price pending');
+      const amount = value.replace(' · final price pending', '');
+      if (totalDisplay) {
+        // Support cached pages that still contain the old input.
+        if (totalDisplay.tagName === 'INPUT') totalDisplay.value = amount;
+        else totalDisplay.textContent = amount;
+      }
+      const status = document.querySelector('#estimateStatus');
+      if (status) {
+        status.hidden = !pending;
+        status.textContent = pending ? 'Final price pending event details' : '';
+      }
+    };
     const radians = d => d*Math.PI/180;
     const straightLineMiles = (a,b) => {
       const R=3958.7613,dLat=radians(b.lat-a.lat),dLon=radians(b.lon-a.lon);
@@ -545,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const estimateLabel = value => (detailsPending ? 'Starting at ' : '') + money(value);
-      const pendingNote = detailsPending ? '<div class="estimate-message">Starting estimate uses photography-only pricing where coverage is undecided (or content creation for content-only packages). Your estimate updates as you add event details.</div>' : '';
+      const pendingNote = coveragePending ? '<div class="estimate-message">Undecided coverage uses photography-only pricing; content-only packages use their listed rate.</div>' : '';
       const baseRows=[['Package 1: '+packageField.value,money(packageBase)]];
       if(primaryAdditionalFee)baseRows.push(['Package 1 additional time ('+displayHours(primaryExtraHours)+' hrs × '+money(ADDITIONAL_HOUR_RATE)+')',money(primaryAdditionalFee)]);
       additionalDetails.forEach(detail=>{
@@ -607,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }catch(error){
         if(requestId!==estimateRequest)return;
         showTotal(estimateLabel(subtotal)+' · final price pending');
-        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+'<div class="estimate-message">Your final all-inclusive price will be confirmed with your quote.</div>';
+        if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
       }
     };
     let estimateCityTimer;
