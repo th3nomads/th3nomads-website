@@ -604,6 +604,7 @@ if (videoCarousel) {
     const eventTypeInput = document.createElement('input');
     eventTypeInput.type = 'text';
     eventTypeInput.name = 'event';
+    eventTypeInput.value = eventTypeSelect.value;
     eventTypeInput.placeholder = 'Wedding, birthday, corporate event, etc.';
     eventTypeInput.required = true;
     eventTypeSelect.replaceWith(eventTypeInput);
