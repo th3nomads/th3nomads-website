@@ -179,3 +179,9 @@
 .inquiry-quote-actions .button:focus-visible{outline:2px solid #e5c879;outline-offset:4px}
 .inquiry-quote-actions .button:disabled{opacity:.6;cursor:wait}
 @media(max-width:420px){.inquiry-quote-actions{flex-direction:column}}
+
+/* Explicit button colors prevent the native iOS light background obscuring text. */
+.inquiry-quote-actions .button{appearance:none;-webkit-appearance:none}
+#inquiryQuoteDialog #cancelInquiry{background:#242424;color:#f4f0e9;-webkit-text-fill-color:#f4f0e9;border:1px solid #c9a85d}
+#inquiryQuoteDialog #cancelInquiry:hover,#inquiryQuoteDialog #cancelInquiry:focus-visible{background:#343027;color:#fff;-webkit-text-fill-color:#fff}
+#inquiryQuoteDialog #cancelInquiry:active{background:#40392b;color:#fff;-webkit-text-fill-color:#fff}
