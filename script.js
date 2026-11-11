@@ -624,6 +624,96 @@ document.addEventListener('DOMContentLoaded', () => {
         if(breakdownEl)breakdownEl.innerHTML=renderRows(baseRows)+pendingNote;
       }
     };
+
+    // Review the same quote that will be included in the inquiry before sending.
+    const quoteDialog = document.createElement('dialog');
+    quoteDialog.id = 'inquiryQuoteDialog';
+    quoteDialog.className = 'inquiry-quote-modal';
+    quoteDialog.setAttribute('aria-labelledby', 'inquiryQuoteTitle');
+    quoteDialog.setAttribute('aria-describedby', 'inquiryQuoteNote');
+    quoteDialog.innerHTML = `
+      <p class="eyebrow">Your inquiry quote</p>
+      <h2 id="inquiryQuoteTitle">Review your quote</h2>
+      <p class="inquiry-quote-label">Total all-inclusive price</p>
+      <p class="inquiry-quote-total" id="inquiryQuoteTotal" aria-live="polite"></p>
+      <div id="inquiryQuotePackages" class="inquiry-quote-packages"></div>
+      <p id="inquiryQuoteNote">This is your estimated quote. Final pricing and availability will be confirmed by email.</p>
+      <div class="inquiry-quote-actions">
+        <button class="button ghost" type="button" id="cancelInquiry" autofocus>Cancel Inquiry</button>
+        <button class="button gold" type="button" id="sendInquiry">Send Inquiry</button>
+      </div>`;
+    document.body.appendChild(quoteDialog);
+    const quoteTotal = quoteDialog.querySelector('#inquiryQuoteTotal');
+    const quotePackages = quoteDialog.querySelector('#inquiryQuotePackages');
+    const quoteNote = quoteDialog.querySelector('#inquiryQuoteNote');
+    const sendInquiry = quoteDialog.querySelector('#sendInquiry');
+    const reviewedQuote = document.createElement('input');
+    reviewedQuote.type = 'hidden';
+    reviewedQuote.name = 'reviewed_price_quote';
+    inquiryForm.appendChild(reviewedQuote);
+    let quoteConfirmed = false;
+    let inquirySending = false;
+    let inquirySubmitter = null;
+    const renderQuote = () => {
+      const quote = priceInput?.value || '';
+      quoteTotal.textContent = quote || 'Custom quote — to be confirmed';
+      quotePackages.replaceChildren();
+      [packageField, ...additionalPackageFields].forEach((field, index) => {
+        if (!field?.value || field.disabled) return;
+        const row = document.createElement('p');
+        const coverage = index === 0 ? coverageField?.value : additionalCoverageFields[index - 1]?.value;
+        row.textContent = 'Package ' + (index + 1) + ': ' + field.value + (coverage ? ' · ' + coverage : '');
+        quotePackages.appendChild(row);
+      });
+      quoteNote.textContent = !quote
+        ? 'Your selections need a custom quote. Send your inquiry and we will email you pricing and availability.'
+        : /pending|Starting at/i.test(quote)
+          ? 'This is a preliminary estimate because some event details are undecided or still being calculated. Final pricing and availability will be confirmed by email.'
+          : 'This is your estimated quote. Final pricing and availability will be confirmed by email.';
+    };
+    // Keep the open summary current if an in-flight location lookup finishes.
+    const quoteObserver = new MutationObserver(() => {
+      if (quoteDialog.open) renderQuote();
+    });
+    if (totalEl) quoteObserver.observe(totalEl, { childList: true, characterData: true, subtree: true });
+    quoteDialog.querySelector('#cancelInquiry').addEventListener('click', () => quoteDialog.close());
+    inquiryForm.addEventListener('submit', event => {
+      if (inquirySending) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+      if (quoteConfirmed) {
+        quoteConfirmed = false;
+        inquirySending = true;
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!inquiryForm.reportValidity()) return;
+      inquirySubmitter = event.submitter;
+      clearTimeout(estimateCityTimer);
+      updateEstimate();
+      renderQuote();
+      sendInquiry.disabled = false;
+      if (!quoteDialog.open) quoteDialog.showModal();
+    }, true);
+    sendInquiry.addEventListener('click', () => {
+      if (inquirySending || sendInquiry.disabled) return;
+      // Freeze the displayed estimate so the sent value matches the reviewed quote.
+      renderQuote();
+      reviewedQuote.value = quoteTotal.textContent;
+      ++estimateRequest;
+      quoteConfirmed = true;
+      sendInquiry.disabled = true;
+      quoteDialog.close();
+      inquiryForm.requestSubmit(inquirySubmitter || undefined);
+      if (!inquirySending) {
+        quoteConfirmed = false;
+        sendInquiry.disabled = false;
+      }
+    });
+
     let estimateCityTimer;
     let cityLookupTimer;
     cityField?.addEventListener('input',()=>{clearTimeout(cityLookupTimer);const q=cityField.value.trim(),state=stateField?.value;if(!state||q.length<2||!citySuggestions)return;cityLookupTimer=setTimeout(async()=>{try{const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(state.toLowerCase())+'/'+encodeURIComponent(q));if(!response.ok)return;const data=await response.json();const names=[...new Set((data.places||[]).map(p=>p['place name']).filter(Boolean))];citySuggestions.innerHTML=names.map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');}catch(e){}},250);});
