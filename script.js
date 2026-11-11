@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="package-label">Social Mini</p>
             <h4>Content creation only · Starting at <strong>$350</strong></h4>
             <ul>
-              <li>Up to 2 hours of coverage</li>
+              <li>Up to 4 hours of coverage</li>
               <li>20+ edited vertical clips</li>\n              <li>20 fully edited digital photos</li>
               <li>2 edited highlight reels</li>
               <li>Behind-the-scenes moments</li>
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <p class="package-label">Event Story</p>
             <h4>Content creation only · Starting at <strong>$550</strong></h4>
             <ul>
-              <li>Up to 4 hours of coverage</li>
+              <li>Up to 5 hours of coverage</li>
               <li>40+ edited vertical clips</li>\n              <li>30 fully edited digital photos</li>
               <li>3 edited highlight reels</li>
               <li>Behind-the-scenes + key moments</li>
@@ -61,8 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     group.label = 'Content Creation Only';
     group.dataset.contentPackages = 'true';
     group.innerHTML = `
-      <option>Social Mini — up to 2 hours</option>
-      <option>Event Story — up to 4 hours</option>
+      <option>Social Mini — up to 4 hours</option>
+      <option>Event Story — up to 5 hours</option>
       <option>Full Experience — up to 6 hours</option>
     `;
     const customOption = [...packageSelect.options].find(option => option.textContent === 'Custom Coverage');
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { event: 'Engagement / Proposal', packages: ['Mini Story — 30 minutes', 'Classic Story — 60 minutes', 'Editorial Story — up to 90 minutes'] },
     { event: 'Maternity / Family', packages: ['Mini — 30 minutes', 'Signature — 60 minutes', 'Extended Family — up to 90 minutes'] },
     { event: 'Birthday / Event', packages: ['Intimate Celebration — up to 2 hours', 'Essential — up to 3 hours', 'Celebration — up to 4 hours', 'Complete Event — up to 5 hours'] },
-    { event: 'Content Creation', packages: ['Social Mini — up to 2 hours', 'Event Story — up to 4 hours', 'Full Experience — up to 6 hours'] }
+    { event: 'Content Creation', packages: ['Social Mini — up to 4 hours', 'Event Story — up to 5 hours', 'Full Experience — up to 6 hours'] }
   ];
   document.querySelectorAll('#pricing .pricing-groups > .pricing-group').forEach((group, groupIndex) => {
     group.querySelectorAll('.pricing-card').forEach((card, cardIndex) => {
@@ -469,8 +469,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'Essential — up to 3 hours': { photo: 450, video: 1100, content: 850 },
       'Celebration — up to 4 hours': { photo: 600, video: 1450, content: 1200 },
       'Complete Event — up to 5 hours': { photo: 750, video: 1700, content: 1400 },
-      'Social Mini — up to 2 hours': { contentOnly: 350 },
-      'Event Story — up to 4 hours': { contentOnly: 550 },
+      'Social Mini — up to 4 hours': { contentOnly: 350 },
+      'Event Story — up to 5 hours': { contentOnly: 550 },
       'Full Experience — up to 6 hours': { contentOnly: 800 }
     };
     const includedHours = {
@@ -478,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Mini Story — 30 minutes':.5,'Classic Story — 60 minutes':1,'Editorial Story — up to 90 minutes':1.5,
       'Mini — 30 minutes':.5,'Signature — 60 minutes':1,'Extended Family — up to 90 minutes':1.5,
       'Intimate Celebration — up to 2 hours':2,'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
-      'Social Mini — up to 2 hours':2,'Event Story — up to 4 hours':4,'Full Experience — up to 6 hours':6
+      'Social Mini — up to 4 hours':4,'Event Story — up to 5 hours':5,'Full Experience — up to 6 hours':6
     };
 
     const money = value => '$' + Math.round(value).toLocaleString('en-US');
