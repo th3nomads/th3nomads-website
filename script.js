@@ -4,6 +4,21 @@
 document.write('<script src="script-base.js?v=20261109-prefill"><\/script>');
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Conversion events supplement the existing GA4 page-view tag without reinitializing it.
+  const trackConversion = (name, params = {}) => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', name, { ...params, transport_type: 'beacon' });
+    }
+  };
+  const selectedPackages = () => [...document.querySelectorAll('#inquiryForm [name="package"], #inquiryForm [name="package_2"], #inquiryForm [name="package_3"], #inquiryForm [name="package_4"]')]
+    .filter(field => !field.disabled && field.value)
+    .map(field => field.value);
+  document.querySelector('#inquiryForm')?.addEventListener('change', event => {
+    if (event.target.matches('[name="package"], [name="package_2"], [name="package_3"], [name="package_4"]') && event.target.value) {
+      trackConversion('package_select', { package_name: event.target.value, package_slot: event.target.name });
+    }
+  });
+
   const pricingGroups = document.querySelector('#pricing .pricing-groups');
   if (pricingGroups && !document.querySelector('[data-content-creation-only]')) {
     pricingGroups.insertAdjacentHTML('beforeend', `
@@ -676,7 +691,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (quoteDialog.open) renderQuote();
     });
     if (totalEl) quoteObserver.observe(totalEl, { childList: true, characterData: true, subtree: true });
-    quoteDialog.querySelector('#cancelInquiry').addEventListener('click', () => quoteDialog.close());
+    quoteDialog.querySelector('#cancelInquiry').addEventListener('click', () => {
+      trackConversion('inquiry_quote_cancel', { package_count: selectedPackages().length });
+      quoteDialog.close();
+    });
     inquiryForm.addEventListener('submit', event => {
       if (inquirySending) {
         event.preventDefault();
@@ -696,13 +714,17 @@ document.addEventListener('DOMContentLoaded', () => {
       updateEstimate();
       renderQuote();
       sendInquiry.disabled = false;
-      if (!quoteDialog.open) quoteDialog.showModal();
+      if (!quoteDialog.open) {
+        quoteDialog.showModal();
+        trackConversion('inquiry_quote_view', { package_count: selectedPackages().length });
+      }
     }, true);
     sendInquiry.addEventListener('click', () => {
       if (inquirySending || sendInquiry.disabled) return;
       // Freeze the displayed estimate so the sent value matches the reviewed quote.
       renderQuote();
       reviewedQuote.value = quoteTotal.textContent;
+      trackConversion('inquiry_quote_send', { package_count: selectedPackages().length });
       ++estimateRequest;
       quoteConfirmed = true;
       sendInquiry.disabled = true;
