@@ -1,0 +1,3 @@
+.nav-links .event-house-nav{max-width:190px;white-space:normal;text-align:center;line-height:1.5}.nav-links .event-house-nav[aria-current="page"]{color:var(--gold);opacity:1}
+@media(min-width:1001px) and (max-width:1300px){.site-header{padding-left:2vw;padding-right:2vw}.nav-links{gap:13px;font-size:.64rem;letter-spacing:.08em}.nav-links .event-house-nav{max-width:160px}.brand img{width:85px}}
+@media(max-width:1000px){.nav-links .event-house-nav{max-width:320px}}
