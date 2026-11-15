@@ -46,3 +46,16 @@
 :root{--font-display:'Cormorant Garamond',Georgia,serif;--font-body:Manrope,Arial,sans-serif;--ivory:#fffdfa;--berry:#806025;--berry-dark:#63491b;--muted:#655f56}
 body{font-family:var(--font-body);padding-top:104px}.trio-page h2{font-family:var(--font-display);font-weight:500;letter-spacing:-.035em;margin-top:0}.trio-hero{background:radial-gradient(ellipse at top,#e9ddc5,transparent 68%)}.trio-hero h1 em{color:#806025}.trio-page .eyebrow{color:#806025}.trio-card:nth-child(2){border-color:#c9a85d;border-top-color:#806025}.trio-menu{background:#eae3d7}.trio-makeup-mark{background:#eae3d7}.trio-page .button.primary{background:#181610;color:#fff;border-color:#181610}.trio-page .button.primary:hover{background:#806025}.trio-page .button.primary:focus-visible{outline:2px solid #806025;outline-offset:4px}.trio-partners img{border-radius:50%}.trio-page .trio-guests{font-weight:600;color:var(--ink);padding-bottom:12px}.trio-menu h2,.trio-close h2{font-family:var(--font-display)}
 @media(max-width:600px){body{padding-top:78px}}
+
+/* Match the typography scale used on the other TH3NOMADS pages. */
+.trio-hero{padding-top:clamp(48px,6vw,76px)}
+.trio-hero h1{font-size:clamp(2.9rem,6vw,5.4rem);line-height:1.02;letter-spacing:-.035em}
+.trio-hero .trio-tagline{font-size:clamp(1.3rem,2.4vw,1.65rem);line-height:1.35}
+.trio-hero>p:not(.eyebrow):not(.trio-tagline){font-family:var(--font-body);font-size:clamp(.95rem,1.25vw,1.05rem);line-height:1.75;max-width:620px}
+@media(max-width:600px){
+ .trio-hero{padding:42px 22px 36px}
+ .trio-hero h1{font-size:clamp(2.55rem,10vw,3.2rem);line-height:1.04;overflow-wrap:normal}
+ .trio-hero .trio-tagline{font-size:1.35rem;line-height:1.4}
+ .trio-hero>p:not(.eyebrow):not(.trio-tagline){font-size:.98rem;line-height:1.7;margin:18px auto}
+ .trio-hero .eyebrow{font-size:.7rem;letter-spacing:.12em}
+}
