@@ -616,10 +616,11 @@ if (videoCarousel) {
     form.addEventListener('submit', () => {
       const eventType = form.querySelector('[name="event"]')?.value || 'not_selected';
       const hoursNeeded = form.querySelector('[name="hours"]')?.value || 'not_selected';
-      trackEvent('generate_lead', {
+      trackEvent('inquiry_submit', {
         form_id: 'inquiryForm',
         event_type: eventType,
-        hours_needed: hoursNeeded
+        hours_needed: hoursNeeded,
+        transport_type: 'beacon'
       });
       formNote.textContent = 'Sending your inquiry...';
       formNote.style.color = '#c9a85d';
