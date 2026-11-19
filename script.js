@@ -484,6 +484,11 @@ document.addEventListener('DOMContentLoaded', () => {
       'Essential — up to 3 hours': { photo: 450, video: 1100, content: 850 },
       'Celebration — up to 4 hours': { photo: 600, video: 1450, content: 1200 },
       'Complete Event — up to 5 hours': { photo: 750, video: 1700, content: 1400 },
+      'Videography Only — up to 3 hours': { videoOnly: 750 },
+      'Videography Only — up to 4 hours': { videoOnly: 900 },
+      'Videography Only — up to 5 hours': { videoOnly: 1050 },
+      'Videography Only — up to 6 hours': { videoOnly: 1200 },
+      'Videography Only — up to 7 hours': { videoOnly: 1350 },
       'Social Mini — up to 4 hours': { contentOnly: 350 },
       'Event Story — up to 5 hours': { contentOnly: 550 },
       'Full Experience — up to 6 hours': { contentOnly: 800 }
@@ -493,6 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Mini Story — 30 minutes':.5,'Classic Story — 60 minutes':1,'Editorial Story — up to 90 minutes':1.5,
       'Mini — 30 minutes':.5,'Signature — 60 minutes':1,'Extended Family — up to 90 minutes':1.5,
       'Intimate Celebration — up to 2 hours':2,'Essential — up to 3 hours':3,'Celebration — up to 4 hours':4,'Complete Event — up to 5 hours':5,
+      'Videography Only — up to 3 hours':3,'Videography Only — up to 4 hours':4,'Videography Only — up to 5 hours':5,'Videography Only — up to 6 hours':6,'Videography Only — up to 7 hours':7,
       'Social Mini — up to 4 hours':4,'Event Story — up to 5 hours':5,'Full Experience — up to 6 hours':6
     };
 
@@ -520,6 +526,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const priceForCoverage = (prices, selectedCoverage = coverageField?.value || '', allowFallback = true) => {
       if(!prices) return null;
+      // Videography-only packages have their own fixed tier pricing, independent of the optional coverage dropdown.
+      if(prices.videoOnly != null) return prices.videoOnly;
       const coverage=selectedCoverage;
       if(coverage==='Photography only') return prices.photo??null;
       if(coverage==='Photography + Videography package'||coverage.includes('Photo + video package')) return prices.video??null;
